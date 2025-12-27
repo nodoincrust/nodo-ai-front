@@ -1,0 +1,29 @@
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.active {
+    background: #e7f7ef;
+    color: #1a9b5f;
+  }
+
+  &.inactive {
+    background: #fdeaea;
+    color: #e04f4f;
+  }
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+  font-size: 16px;
+  color: #8a8fa3;
+
+  &:hover {
+    color: #5b6cff;
+  }
+}

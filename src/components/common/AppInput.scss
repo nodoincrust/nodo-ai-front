@@ -1,0 +1,37 @@
+@use "../../../src/variables" as *;
+
+.app-input-wrapper {
+  margin-bottom: 1rem;
+}
+
+.app-input-label {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 0.25rem;
+  display: inline-block;
+  color: #344054;
+}
+
+.app-input {
+  border-radius: $radius;
+  transition: $transition;
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.15rem rgba($primary, 0.25);
+  }
+
+  &.is-invalid {
+    border-color: $danger;
+  }
+
+  &.is-valid {
+    border-color: $success;
+  }
+}
+
+.app-input-error {
+  font-size: 0.8rem;
+  color: $danger;
+  margin-top: 0.25rem;
+}

@@ -1,0 +1,13 @@
+@use "../../variables" as *;
+
+.dashboard-page {
+  padding: 24px;
+  background: $adminDashboradbc;
+  min-height: 100%;
+}
+
+.dashboard-table-card {
+  margin-top: 16px;
+}
+
+

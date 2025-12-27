@@ -1,0 +1,65 @@
+@use "../../../src/variables" as *;
+
+.app-btn {
+  border-radius: $radius;
+  font-weight: 500;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  &.app-btn--primary {
+    background-color: $primary;
+    border-color: $primary;
+    color: #fff;
+
+    &:hover {
+      background-color: $primary;
+      color: #fff;
+    }
+  }
+
+  &.app-btn--secondary {
+    background-color: $secondary;
+    border-color: $secondary;
+    color: #fff;
+  }
+
+  &.app-btn--outline {
+    background: transparent;
+    border: 1px solid $primary;
+    color: $primary;
+
+    &:hover {
+      background: $primary;
+      color: #fff;
+    }
+  }
+
+  &.app-btn--danger {
+    background-color: $danger;
+    border-color: $danger;
+    color: #fff;
+  }
+
+  &.app-btn--sm {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+  }
+
+  &.app-btn--md {
+    padding: 6px 16px;
+    font-size: 0.95rem;
+  }
+
+  &.app-btn--lg {
+    padding: 10px 20px;
+    font-size: 1.05rem;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

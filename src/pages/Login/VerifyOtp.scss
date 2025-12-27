@@ -1,0 +1,128 @@
+@use "../../variables" as *;
+
+.verify-otp-page {
+  max-width: 500px;
+
+  .brand-name {
+    font-size: 28px;
+    font-family: "inter-bold";
+    color: $primary;
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  h3 {
+    font-family: "inter-semibold";
+    margin-bottom: 16px;
+    font-size: 24px;
+    color: #111;
+    text-align: center;
+  }
+
+  p {
+    font-family: "inter-regular";
+    font-size: 18px;
+    margin-bottom: 1.5rem;
+    color: #667085;
+    text-align: center;
+  }
+
+  .email-highlight {
+    color: $primary;
+    font-weight: 500;
+  }
+
+  .go-back-link {
+    color: $primary;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.otp-input-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 2rem 0;
+
+  .otp-input {
+    width: 56px;
+    height: 56px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: #111;
+    background: #fff;
+    transition: $transition;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+
+    &::placeholder {
+      color: #d0d5dd;
+    }
+  }
+}
+
+.resend-section {
+  text-align: center;
+  margin-top: 1.5rem;
+
+  p {
+    margin-bottom: 0.5rem;
+    color: #667085;
+    font-size: 14px;
+  }
+
+  .resend-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #667085;
+    font-size: 14px;
+
+    .resend-text {
+      color: $primary;
+      font-weight: 500;
+    }
+
+    .timer-separator {
+      color: #667085;
+    }
+
+    .timer-text {
+      color: #667085;
+    }
+  }
+
+  .resend-link-btn {
+    background: none;
+    border: none;
+    color: $primary;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+

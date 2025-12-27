@@ -1,0 +1,126 @@
+.pagination-container {
+  display: flex;
+  width: 100%;
+  padding: 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  background-color: transparent;
+  font-family: var(--inter_medium);
+ 
+  .pagination-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+ 
+    .pagination-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      gap: 12px;
+ 
+      .nav-button {
+        display: flex;
+        min-width: auto;
+        height: auto;
+        padding: 0;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+
+        img {
+          width: 16px;
+          height: 16px;
+        }
+
+        &.disabled,
+&:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+
+          .nav-text {
+            color: #999999;
+          }
+
+          img {
+            opacity: 0.5;
+          }
+        }
+
+        .nav-text {
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 24px;
+          color: #344054;
+        }
+      }
+ 
+      .page-numbers {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+ 
+        .page-button {
+          display: flex;
+          min-width: 36px;
+          height: 36px;
+          padding: 0 12px;
+          justify-content: center;
+          align-items: center;
+          border-radius: 8px;
+          border: none;
+          background-color: transparent;
+          font-size: 14px;
+          font-weight: 500;
+          color: #344054;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover:not(.active) {
+            background-color: #f9fafb;
+          }
+
+          &.active {
+            background-color: #f97316;
+            border: none;
+            color: #ffffff;
+          }
+        }
+ 
+        .ellipsis {
+          display: flex;
+          width: auto;
+          height: 36px;
+          padding: 0 8px;
+          justify-content: center;
+          align-items: center;
+          color: #344054;
+          font-size: 14px;
+          font-weight: 500;
+          background: transparent;
+          border: none;
+        }
+      }
+    }
+  }
+ 
+  // --- Mobile adjustments ---
+  @media (max-width: 600px) {
+    .nav-text {
+      display: none;
+    }
+ 
+    .page-numbers {
+      gap: 4px;
+ 
+      .page-button {
+        width: 30px;
+      }
+    }
+  }
+}

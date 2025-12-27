@@ -1,0 +1,165 @@
+@use "../../variables" as *;
+
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  background: $auth-background;
+
+  box-sizing: border-box;
+}
+
+// LEFT SECTION
+.auth-left {
+  width:50%;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+// CONTENT WRAPPER
+.auth-left-content {
+  width: 90%;
+  height: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+   margin-top: 48px;
+
+}
+
+// TEXT BLOCK
+.auth-left-text {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+
+  h2 {
+    margin: 0;
+    font-size: 28px;
+ font-family: "inter-bold";
+    color: #111;
+    &:first-child {
+      color: $primary;
+    }
+  }
+  .first-h2{
+    margin-top: 32px;
+     font-family: "inter-semibold";
+     font-size: 24px;
+  }
+
+  p {
+    margin-top: 16px;
+    font-size: 18px;
+    line-height: 1.6;
+    color: #555;
+    font-family: "inter-regular";
+  }
+}
+
+// ILLUSTRATION
+.auth-illustration {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+// RIGHT SECTION
+
+
+.auth-right {
+  width: 50%;
+display: flex;
+     align-items: center;
+  justify-content: center;
+
+  .auth-box-right{
+
+    width: 100%;
+    height: 50%;
+    display: flex;
+     align-items: center;
+  justify-content: center;
+
+  }
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .auth-layout {
+    flex-direction: column;
+  }
+
+  .auth-left,
+  .auth-right {
+    width: 100%;
+    height: auto;
+  }
+
+  .auth-left {
+    padding: 24px 0;
+  }
+
+  .auth-left-text {
+    h2 {
+      font-size: 24px;
+    }
+
+    .first-h2 {
+      font-size: 20px;
+      margin-top: 24px;
+    }
+
+    p {
+      font-size: 16px;
+    }
+  }
+
+  .auth-illustration img {
+    max-width: 80%;
+  }
+}
+
+/* ================================
+   ✅ Responsive: <= 512px (Mobile)
+================================ */
+@media (max-width: 512px) {
+  .auth-layout {
+    flex-direction: column;
+  }
+
+  // Option: hide left section on small screens
+  .auth-left {
+    display: none;
+  }
+
+  .auth-right {
+    width: 100%;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .auth-left-text {
+    h2 {
+      font-size: 20px;
+    }
+
+    .first-h2 {
+      font-size: 18px;
+      margin-top: 16px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+}

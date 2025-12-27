@@ -1,0 +1,249 @@
+/* ===============================
+   Brand Colors
+================================ */
+
+$primary: #437EF7;     // Primary color
+$secondary: #667085;
+$white:#ffffff;  // Secondary color
+$auth-background:#F9F9F9;
+$color-white:#ffffff;
+$adminDashboradbc:#FAFAFA;
+// Alias used across layout files
+$color-primary: $primary;
+/* ===============================
+   Text Colors
+================================ */
+$color-badge-text-primary:#344054;
+$text-primary: #344054;
+$text-secondary: #667085;
+$text-muted: #98a2b3;
+$Table-th-text:344054;
+ $breadcrumb-title: #344054;
+/* ===============================
+   Status Colors
+================================ */
+$status-inactive-bg:#0A0D120D;
+$success: #12b76a;
+$danger: #FF5454;
+$warning: #f79009;
+$info: #2e90fa;
+
+/* ===============================
+   Background Colors
+================================ */
+
+$bg-light: #f9fafb;
+$bg-white: #ffffff;
+
+/* ===============================
+   Neutral / Utility Colors
+================================ */
+
+$gray-100: #f5f7fb;
+$gray-200: #eef0f4;
+$gray-300: #d0d5dd;
+$gray-400: #cccccc;
+$gray-500: #636363;
+$table-header-bg: #DAE6FF;
+$table-header-text: #5b6cff;
+$border-light: #0000001F;
+$badge-muted: #6670857a;
+
+// Borders + table colors used in multiple components
+$border-bottom: $border-light;
+$color-border: $border-light;
+$border-color-table: $border-light;
+$color-border-2: $border-light;
+$color-table-border: $border-light;
+
+// Layout backgrounds / rows
+$header-bg: $bg-white;
+$color-even-row-bg: $bg-white;
+
+// Sidebar + overlay
+$color-sidebar-links: $text-secondary;
+$menu-active-bg: $gray-100;
+$menu-disabled-opacity: 0.5;
+$overlay-bg: rgba(15, 23, 42, 0.45);
+
+// Logout / status colors
+$logout-color: $danger;
+$logout-hover: $status-inactive-bg;
+
+// Action colors for table icons
+$color-edit-bg: $table-header-bg;
+$color-delete-bg: $status-inactive-bg;
+
+/* Status badge colors */
+$status-active-bg: #e7f7ef;
+$status-active-text: #1a9b5f;
+$status-inactive-bg: #fdeaea;
+$status-inactive-text: #e04f4f;
+$status-muted: #8a8fa3;
+$status-link: #5b6cff;
+
+/* ===============================
+   UI Variables
+================================ */
+
+$radius: 6px;
+$transition: all 0.2s ease;
+
+// Radii
+$border-radius-x-md: 8px;
+
+// Typography
+$font-family-main: "Inter", ;
+/* ===============================
+   Global Focus Styles
+   =============================== */
+ 
+/* Ant Design overrides with higher specificity */
+.ant-btn.ant-btn:focus-visible,
+.ant-btn.ant-btn:focus,
+.ant-btn.ant-btn:active,
+.ant-btn-primary.ant-btn-primary:focus,
+.ant-btn-primary.ant-btn-primary:focus-visible,
+.ant-btn-primary.ant-btn-primary:active,
+.ant-input.ant-input:focus-visible,
+.ant-input.ant-input:focus,
+.ant-select.ant-select:focus-visible,
+.ant-select.ant-select:focus,
+.ant-switch.ant-switch:focus-visible,
+.ant-switch.ant-switch:focus,
+.ant-switch:focus,
+.ant-switch:focus-visible,
+.ant-checkbox.ant-checkbox:focus-visible,
+.ant-checkbox.ant-checkbox:focus,
+.ant-radio.ant-radio:focus-visible,
+.ant-radio.ant-radio:focus,
+.ant-switch-inner:focus,
+.ant-switch-inner:focus-visible {
+   outline: none;
+   box-shadow: none;
+}
+ 
+/* Additional button focus states */
+.ant-btn.ant-btn-primary.ant-btn-primary:hover:focus,
+.ant-btn.ant-btn-primary.ant-btn-primary:hover:focus-visible {
+   outline: none;
+   box-shadow: none;
+}
+ 
+/* Generic button and input focus removal */
+button.ant-btn:focus,
+button.ant-btn:focus-visible,
+input.ant-input:focus,
+input.ant-input:focus-visible {
+   outline: none;
+   box-shadow: none;
+}
+ 
+ 
+/* ===============================
+   Global Colors
+   =============================== */
+$color-primary: #0C56C4;
+$color-primary-light: #0C56C40A;
+$color-dark: #181D27;
+$color-gray: #535862;
+$color-text: #414651;
+$color-border: #D5D7DA;
+$color-white: #FFFFFF;
+$color-otp: #3D84ED;
+$color-focus: #90BDFF;
+$color-shadow: #0A0D120D;
+ 
+/* ===============================
+   Fonts
+   =============================== */
+$font-family-main: "Inter";
+ 
+/* ===============================
+   Borders & Shadows
+   =============================== */
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-md-s: 6px;
+$border-radius-lg: 12px;
+ 
+/* ===============================
+   Page-specific Colors
+   =============================== */
+$color-bg-primary: #E2EEFF;
+$color-bg-table-header: #F9FAFB;
+$border-color-table: #E9EAEB;
+$color-gray-light: #717680;
+$color-gray-table: #667085;
+$color-table-border: #EAECF0;
+ 
+/* ===============================
+   Application Users Specific
+   =============================== */
+$color-status-bg-active: #ECFDF3;
+$color-status-bg-inactive: #FFF5D9;
+$color-status-badge-div-active: #12B76A;
+$color-status-badge-div-inactive: #F79009;
+$color-status-text-active: #027A48;
+$color-status-text-inactive: #B54708;
+ 
+/* ===============================
+   Buttons
+   =============================== */
+$color-btn-primary-shadow: rgba(10, 13, 18, 0.05);
+$color-btn-danger-bg: #D92D20;
+ 
+/* ===============================
+   Sidebar
+   =============================== */
+$menu-active-bg: #B4D2FF3D;
+$menu-disabled-opacity: 0.5;
+$logout-color: #D83D2E;
+$logout-hover: #D83D2E1F;
+$overlay-bg: rgba(0, 0, 0, 0.5);
+$menu-img-filter: invert(49%) sepia(15%) saturate(242%) hue-rotate(182deg) brightness(90%) contrast(89%);
+$menu-active-img-filter: invert(18%) sepia(100%) saturate(1563%) hue-rotate(203deg) brightness(95%) contrast(99%);
+ 
+/* ===============================
+   Profile Overview
+   =============================== */
+$color-gray-light-bg: #F5F5F5;
+$color-tab-count-active-bg: #EDF4FF;
+$tab-transition: 0.3s ease;
+ 
+/* ===============================
+   Modals
+   =============================== */
+// Default modal icons
+$color-modal-icon-bg: #FCFBFE;
+$color-modal-icon-border: rgba(0, 0, 0, 0.04);
+ 
+// Alternate modal icons
+$color-modal-icon-bg: #FEE4E2;
+$color-modal-icon-border: #FEF3F2;
+ 
+/* ===============================
+   Form Elements
+   =============================== */
+$color-textbox-bg: #F8F9FC;
+$color-textbox-text: #363F72;
+ 
+$color-image-bg: #F9F5FF;
+$color-image-text: #6941C6;
+ 
+$color-textarea-bg: #FFF6ED;
+$color-textarea-text: #C4320A;
+ 
+$color-dropdown-bg: #F0F9FF;
+$color-dropdown-text: #026AA2;
+ 
+$color-toggle-bg: #FDF2FA;
+$color-toggle-text: #C11574;
+ 
+$color-placeholder: #888;
+/* ===============================
+   Local Variables
+   =============================== */
+$color-upload-border: #FAFAFA;
+$color-hover-bg: #F3F4F5;
+$color-thumb-border: #F1F7FF

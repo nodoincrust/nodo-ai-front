@@ -1,0 +1,56 @@
+@use "../../../src/variables" as *;
+.status-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 25px;
+  padding: 0;
+  border: none;
+  border-radius: 17px;
+  background-color: #e0e0e0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  outline: none;
+
+  &:hover:not(.disabled) {
+    background-color: #d0d0d0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ;
+    outline-offset: 2px;
+  }
+
+  &.active {
+    background-color:$primary;
+
+    .toggle-thumb {
+      transform: translateX(20px);
+       top: 12%;
+    }
+
+    &:hover:not(.disabled) {
+      background-color:$primary;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.toggle-thumb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
