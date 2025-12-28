@@ -1,29 +1,36 @@
 .status {
-  padding: 4px 10px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
 
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
   &.active {
-    background: #e7f7ef;
+    background: #D9FDE8;
     color: #1a9b5f;
+    border: 1px solid #e7f7ef;
+
+    &::before {
+      background: #1a9b5f;
+    }
   }
 
   &.inactive {
-    background: #fdeaea;
-    color: #e04f4f;
-  }
-}
+    background: #ffecc8; // 🟡 as you asked
+    color: #ff9500;
 
-.icon-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  margin-right: 8px;
-  font-size: 16px;
-  color: #8a8fa3;
-
-  &:hover {
-    color: #5b6cff;
+    &::before {
+      background: #ff9500;
+    }
   }
 }

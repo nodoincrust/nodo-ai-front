@@ -12,6 +12,7 @@ import editIcon from "../../assets/images/edit-button.svg";
 import deleteIcon from "../../assets/images/delete-button.svg";
 import { adminDashboardService } from "../../services/adminDashboard.service";
 import { logout } from "../../utils/storage";
+import StatusBadge from "../../components/common/StatusBadge";
 
 export interface Company {
   id: number;
@@ -77,11 +78,11 @@ const Dashboard = () => {
             1,
             10
           );
-          
+
           // Handle different response structures
           // API might return: [{...}] directly or { data: { data: [...] } }
           let apiData: any[] = [];
-          
+
           if (Array.isArray(res.data)) {
             // Direct array response: [{...}]
             apiData = res.data;
@@ -336,12 +337,7 @@ const Dashboard = () => {
                 { title: "Owner", render: (row) => row.owner },
                 {
                   title: "Status",
-                  render: (row) => (
-                    <StatusToggle
-                      value={row.status === "Active"}
-                      onChange={(val) => handleStatusChange(row.id, val)}
-                    />
-                  ),
+                  render: (row) => <StatusBadge status={row.status} />,
                 },
               ]}
               actions={(row) => (
