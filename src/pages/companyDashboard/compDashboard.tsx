@@ -27,6 +27,7 @@ export interface Department {
   contact: string;
   contact_email: string;
   status: "Active" | "Inactive";
+  
 }
 
 // User interface
