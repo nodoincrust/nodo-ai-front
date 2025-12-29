@@ -6,13 +6,13 @@
     // Main content
     .layout-main {
         flex-grow: 1;
-        margin-left: 276px; // default for open sidebar
+        margin-left: 239px; // default for open sidebar
         transition: margin-left 0.3s ease;
  
         // default for large desktops
         @media (min-width: 992px) {
 &.sidebar-open {
-                margin-left: 276px;
+                margin-left: 239px;
             }
  
             &.sidebar-collapsed {

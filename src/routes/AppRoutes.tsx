@@ -14,6 +14,7 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/comapnyDashboard" element={<CompanyDashboard />} />
+        <Route path="/comapnyDashboard/:menuType" element={<CompanyDashboard />} />
       </Route>
       
       {/* Redirect root to dashboard if authenticated, otherwise to login */}

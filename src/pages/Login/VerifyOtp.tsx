@@ -6,10 +6,11 @@ import { authService } from "../../services/auth.service";
 import { setToken } from "../../utils/storage";
 import "./VerifyOtp.scss";
 import { getRoleFromToken } from "../../utils/jwt";
-
+import { useAppNotification } from "../../hooks/useAppNotification";
 const RESEND_TIME = 60; // seconds
 
 const VerifyOtp = () => {
+    const { notify, contextHolder } = useAppNotification();
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
@@ -92,15 +93,13 @@ const VerifyOtp = () => {
         navigate("/login", { replace: true });
       }
     } catch (err: any) {
-      console.error("OTP verification error:", err);
-      setError(
-        err.response?.data?.detail ||
-          err.response?.data?.message ||
-          "Invalid OTP"
-      );
+  const msg = err.response?.data?.detail || "Failed to send OTP";
+
+     notify.error("Error", msg);;
     } finally {
       setLoading(false);
     }
+  
   };
 
   const handleResend = async () => {
@@ -110,8 +109,10 @@ const VerifyOtp = () => {
       await authService.sendOtp(email);
       setTimer(RESEND_TIME);
       setCanResend(false);
-    } catch {
-      setError("Failed to resend OTP. Try again.");
+    } catch(err: any) {
+      const msg = err.response?.data?.detail || "Failed to send OTP";
+
+    notify.error("Error", msg);;
     } finally {
       setLoading(false);
     }
@@ -119,6 +120,7 @@ const VerifyOtp = () => {
 
   return (
     <AuthLayout>
+      {contextHolder}
       <div className="verify-otp-page">
         <h2 className="brand-name">NODO AI</h2>
         <h3>Verify Your Email</h3>
@@ -133,7 +135,7 @@ const VerifyOtp = () => {
           </span>
         </p>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+     
 
         <div className="otp-input-container">
           {otp.map((digit, i) => (

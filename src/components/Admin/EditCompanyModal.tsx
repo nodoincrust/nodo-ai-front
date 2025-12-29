@@ -30,7 +30,6 @@ const EditCompanyModal = ({ open, onClose, onSave, company }: Props) => {
   const [owner, setOwner] = useState("");
   const [isActive, setIsActive] = useState<boolean>(true);
 
-  // Pre-fill form fields when modal opens with company data
   useEffect(() => {
     if (open && company) {
       setName(company.name || "");
@@ -49,14 +48,14 @@ const EditCompanyModal = ({ open, onClose, onSave, company }: Props) => {
         <AppButton
           label="Save"
           variant="primary"
-          onClick={() => {
+          onClick={() =>
             onSave({
               name,
               email,
               owner,
               is_active: isActive,
-            });
-          }}
+            })
+          }
         />
       }
     >
@@ -79,8 +78,16 @@ const EditCompanyModal = ({ open, onClose, onSave, company }: Props) => {
         onChange={(e) => setOwner(e.target.value)}
       />
 
-      {/* Status Toggle */}
-      
+      {/* ✅ Status Toggle */}
+      <div style={{ marginTop: "12px" }}>
+        <label style={{ display: "block", marginBottom: "6px" }}>
+          Status
+        </label>
+        <StatusToggle
+          value={isActive}
+          onChange={(val) => setIsActive(val)}
+        />
+      </div>
     </AppModal>
   );
 };

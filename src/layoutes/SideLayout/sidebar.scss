@@ -9,11 +9,12 @@
     background: $color-white;
     transition: width 0.3s ease, padding 0.3s ease;
     z-index: 1050;
- 
+   border: 1px solid #E5E9EB;
     width: 280px;
     padding: 22px 16px;
  
     .fixed-logo {
+      height: 56px;
       width: 100%;
       display: flex;
       justify-content: space-between;
@@ -21,13 +22,14 @@
       padding: 0 6px;
       z-index: 1060;
       position: relative;
- 
+      border-bottom: 1px solid #E5E9EB;
       img {
         transition: all 0.3s ease; // smooth size + opacity
         cursor: pointer;
         width: 16px;
         height: 16px;
       }
+     
  
       img.logo-full {
         width: 74px;
@@ -48,12 +50,12 @@
         transition: transform 0.3s ease;
         margin-top: 2px;
         background-color: #DAE6FF;
-        padding: 4px;
+        padding: inherit;
         border-radius: 6px;
         
         .img-toggle{
-          width: 20px;
-          height: 20px;
+          width: 16px;
+          height: 16px;
         }
 
 
@@ -65,7 +67,7 @@
           position: absolute;
           top: 5px;
           // right: -20px;
-          right: -40px;
+          right: -14px;
           z-index: 1100;
         }
       }
@@ -279,7 +281,7 @@
         }
  
         span {
-          color: $logout-color !important;
+          color:#FF5454 !important;
           font-weight: 600;
           font-family: $font-family-main;
           ;
@@ -303,7 +305,7 @@
  
       &.collapsed {
         width: 80px;
-        padding: 22px 16px;
+        padding: 0px 0px;
  
         .fixed-logo {
           justify-content: center;
@@ -324,8 +326,8 @@
       }
  
       &.open {
-        width: 275px;
-        padding: 22px 16px;
+        width: 240px;
+        padding: 0px 0px;
  
         .menu-item,
         .logout-div {
