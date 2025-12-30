@@ -17,7 +17,18 @@ interface SidebarItem {
   label: string;
   path: string;
   icon?: string | null;
+  icon_active?: string | null;
 }
+
+interface AuthData {
+  token?: string;
+  sidebar?: SidebarItem[];
+  is_department_head?: boolean;
+  department_id?: number | null;
+  user_name?: string;
+}
+
+// ... imports remain the same
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -27,17 +38,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  /* =======================
-     READ DATA FROM STORAGE
-  ======================= */
-  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+  // =======================
+  // READ AUTH DATA FROM STORAGE
+  // =======================
+  const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const sidebarItems: SidebarItem[] = authData.sidebar || [];
+  const loggedInUserName = authData.user_name || "User";
 
-  const sidebarItems: SidebarItem[] = authData?.sidebar || [];
-  const loggedInUserName = authData?.user_name || "User";
-
-  /* =======================
-     SIDEBAR TOGGLE
-  ======================= */
+  // =======================
+  // SIDEBAR TOGGLE
+  // =======================
   const toggleSidebar = () => {
     if (isOpen) {
       setIsOpen(false);
@@ -48,9 +58,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     }
   };
 
-  /* =======================
-     RESPONSIVE HANDLING
-  ======================= */
+  // =======================
+  // RESPONSIVE HANDLING
+  // =======================
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -69,17 +79,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     };
   }, [isMobile, isOpen]);
 
-  /* =======================
-     CLEAR SESSION FILTERS
-  ======================= */
+  // =======================
+  // CLEAR SESSION FILTERS
+  // =======================
   const clearFilterSession = () => {
     sessionStorage.removeItem("appliedFilters");
     sessionStorage.removeItem("apiAppliedFilters");
   };
 
-  /* =======================
-     LOGOUT
-  ======================= */
+  // =======================
+  // LOGOUT
+  // =======================
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/";
@@ -89,14 +99,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     <>
       <div className={`sidebar-wrapper ${isOpen ? "open" : "collapsed"}`}>
         {/* LOGO */}
-        <div className="fixed-logo">
-          <img
-            src={logoIcon}
-            alt="Logo"
-            className={isMobile || isOpen ? "logo-full" : "logo-icon"}
-            onClick={() => navigate("/")}
-          />
+        <div className="fixed-logo-box">
+          <div className="fixed-logo">
+            <img
+              src="/assets/Main-Logo.svg"
+              alt="Logo"
+              className={isMobile || isOpen ? "logo-full" : "logo-icon"}
+              onClick={() => navigate("/")}
+            />
 
+            <span className="logo-text">Nodo AI</span>
+
+          </div>
           {isMobile ? (
             <div className="mobile-toggle" onClick={toggleSidebar}>
               <img src={collapseIcon} alt="Menu" />
@@ -104,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           ) : (
             <div className={`desktop-toggle ${!isOpen ? "absolute-toggle" : ""}`}>
               <img
-                src={alignLeftIcon}
+                src="/assets/Icon-collapse.svg"
                 alt="Toggle"
                 className="img-toggle"
                 onClick={toggleSidebar}
@@ -114,14 +128,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         </div>
 
         {/* MENU */}
-        <div
-          className={`sidebar ${isOpen ? "open" : ""} ${isClosing ? "closing" : ""
-            }`}
-        >
+        <div className={`sidebar ${isOpen ? "open" : ""} ${isClosing ? "closing" : ""}`}>
           <nav className="menu-list">
             {sidebarItems.map((item) => {
               const isActive = location.pathname.startsWith(item.path);
-
               return (
                 <NavLink
                   key={item.id}
@@ -133,7 +143,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   }}
                 >
                   {item.icon ? (
-                    <img src={item.icon} alt={item.label} />
+                    <span
+                      className="menu-icon"
+                      dangerouslySetInnerHTML={{
+                        __html: isActive && item.icon_active ? item.icon_active : item.icon,
+                      }}
+                    />
                   ) : (
                     <span className="menu-dot" />
                   )}

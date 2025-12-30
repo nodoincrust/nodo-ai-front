@@ -7,9 +7,18 @@ import { setToken } from "../../utils/storage";
 import { getRoleFromToken } from "../../utils/jwt";
 import { notification, Spin } from "antd";
 import "./VerifyOtp.scss";
+
+interface SidebarItem {
+  id: number;
+  label: string;
+  path: string;
+  icon: string;
+  icon_active?: string | null;
+}
+  
 interface VerifyOtpResponse {
   token: string;
-  sidebar: any[];
+  sidebar: SidebarItem[];
   is_department_head: boolean;
   department_id: number | null;
 }
@@ -49,13 +58,11 @@ const VerifyOtp = () => {
       const prevInput = e.currentTarget.previousElementSibling as HTMLInputElement;
       prevInput?.focus();
     }
-    // Press Enter → Verify OTP
     if (e.key === "Enter") {
       e.preventDefault();
       handleVerify();
     }
   };
-
 
   const handleVerify = async () => {
     const code = otp.join("");
@@ -70,7 +77,6 @@ const VerifyOtp = () => {
       notification.destroy();
 
       const res = await authService.verifyOtp(email, code);
-
       const { token, sidebar, is_department_head, department_id } = res.data as VerifyOtpResponse;
 
       if (!token) {
@@ -78,18 +84,13 @@ const VerifyOtp = () => {
         return;
       }
 
-      // ✅ Store token (existing)
+      // ✅ Store token
       setToken(token);
 
-      // ✅ Store full auth data (NEW)
+      // ✅ Store full auth object including sidebar/icons
       localStorage.setItem(
         "authData",
-        JSON.stringify({
-          token,
-          sidebar,
-          is_department_head,
-          department_id,
-        })
+        JSON.stringify({ token, sidebar, is_department_head, department_id })
       );
 
       const role = getRoleFromToken(token);
@@ -98,7 +99,6 @@ const VerifyOtp = () => {
       else if (role === "COMPANY_ADMIN") navigate("/comapnyDashboard", { replace: true });
       else if (role === "USER") navigate("/user/dashboard", { replace: true });
       else navigate("/", { replace: true });
-
     } catch (err: any) {
       notification.destroy();
       const msg = err.response?.data?.detail || "Failed to verify OTP";
@@ -140,9 +140,8 @@ const VerifyOtp = () => {
         <h2 className="brand-name">NODO AI</h2>
         <h3>Enter OTP</h3>
         <p>
-          A 4-digit code has been sent to{" "}
-          <span className="email-highlight">{email}</span>.
-          {" "}Please enter it below to log in
+          A 4-digit code has been sent to <span className="email-highlight">{email}</span>.
+          Please enter it below to log in
         </p>
         <p className="text-muted">
           Entered wrong email?{" "}
@@ -171,19 +170,12 @@ const VerifyOtp = () => {
 
         <div className="resend-section">
           <p>Didn't receive the OTP?</p>
-          <button
-            className="resend-link-btn"
-            onClick={handleResend}
-          >
+          <button className="resend-link-btn" onClick={handleResend}>
             Resend OTP
           </button>
         </div>
 
-        <AppButton
-          label="Verify"
-          className="verify-button"
-          onClick={handleVerify}
-        />
+        <AppButton label="Verify" className="verify-button" onClick={handleVerify} />
       </div>
     </AuthLayout>
   );

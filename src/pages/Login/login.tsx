@@ -70,6 +70,11 @@ const Login = () => {
             setEmail(e.target.value);
             if (emailError) setEmailError(validateEmail(e.target.value));
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSendOtp();
+            }
+          }}
           size="large"
           suffix={<img src="/assets/email.svg" alt="email" />}
           className={emailError ? "input-error" : ""}

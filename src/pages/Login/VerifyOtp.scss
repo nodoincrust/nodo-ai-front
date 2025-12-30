@@ -74,6 +74,7 @@
 
     &:focus {
       outline: none;
+      box-shadow: none !important;
       border-color: $primary;
       box-shadow: 0 0 0 3px rgba($primary, 0.2);
     }
