@@ -21,9 +21,8 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
 
           <div className="auth-illustration">
             <img
-              src="\src\assets\images\authImage.png"
+              src="/assets/hero.svg"
               alt="Auth"
-              className="imgsize"
             />
           </div>
         </div>

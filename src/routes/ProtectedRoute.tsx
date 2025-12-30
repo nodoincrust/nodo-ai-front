@@ -8,7 +8,7 @@ const ProtectedRoute = () => {
   
   if (!authenticated) {
     console.log("Not authenticated, redirecting to login...");
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   
   return <Outlet />;

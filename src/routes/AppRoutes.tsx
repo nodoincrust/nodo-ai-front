@@ -8,7 +8,7 @@ import CompanyDashboard from "../pages/companyDashboard/compDashboard";
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Login />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       
       <Route element={<ProtectedRoute />}>

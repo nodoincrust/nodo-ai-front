@@ -4,13 +4,17 @@ import AuthLayout from "../../layoutes/AuthLayout/AuthLayout";
 import AppButton from "../../components/common/AppButton";
 import { authService } from "../../services/auth.service";
 import { setToken } from "../../utils/storage";
-import "./VerifyOtp.scss";
 import { getRoleFromToken } from "../../utils/jwt";
-import { useAppNotification } from "../../hooks/useAppNotification";
-const RESEND_TIME = 60; // seconds
+import { notification, Spin } from "antd";
+import "./VerifyOtp.scss";
+interface VerifyOtpResponse {
+  token: string;
+  sidebar: any[];
+  is_department_head: boolean;
+  department_id: number | null;
+}
 
 const VerifyOtp = () => {
-    const { notify, contextHolder } = useAppNotification();
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
@@ -19,100 +23,106 @@ const VerifyOtp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [timer, setTimer] = useState(RESEND_TIME);
-  const [canResend, setCanResend] = useState(false);
-
   useEffect(() => {
-    if (timer <= 0) {
-      setCanResend(true);
-      return;
+    if (!email) {
+      navigate("/", { replace: true });
     }
-    const interval = setInterval(() => {
-      setTimer((t) => t - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timer]);
-
-  if (!email) {
-    navigate("/login");
-    return null;
-  }
+  }, [email, navigate]);
 
   const handleChange = (value: string, index: number) => {
     if (!/^\d?$/.test(value)) return;
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
-    if (value && index < 3) {
-      const nextInput = document.querySelector(
+    if (value && index < otp.length - 1) {
+      const nextInput = document.querySelector<HTMLInputElement>(
         `.otp-input-container input:nth-child(${index + 2})`
-      ) as HTMLInputElement;
+      );
       nextInput?.focus();
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      const prevInput = e.currentTarget.previousElementSibling as HTMLInputElement;
+      prevInput?.focus();
+    }
+    // Press Enter → Verify OTP
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleVerify();
+    }
+  };
+
+
   const handleVerify = async () => {
     const code = otp.join("");
-
-    if (code.length !== 4) {
-      setError("Please enter a 4-digit code");
+    if (!/^\d{4}$/.test(code)) {
+      setError("Please enter a valid 4-digit OTP");
       return;
     }
 
     try {
       setLoading(true);
       setError("");
+      notification.destroy();
 
       const res = await authService.verifyOtp(email, code);
 
-      // Extract token from response
-      // res.data is the axios response data, which should be { token: string }
-      const token = res.data?.token;
-      console.log(token);
+      const { token, sidebar, is_department_head, department_id } = res.data as VerifyOtpResponse;
 
       if (!token) {
         setError("Token not received from server");
-        setLoading(false);
         return;
       }
 
+      // ✅ Store token (existing)
       setToken(token);
+
+      // ✅ Store full auth data (NEW)
+      localStorage.setItem(
+        "authData",
+        JSON.stringify({
+          token,
+          sidebar,
+          is_department_head,
+          department_id,
+        })
+      );
 
       const role = getRoleFromToken(token);
 
-      if (role === "SYSTEM_ADMIN") {
-        navigate("/dashboard", { replace: true });
-      } else if (role === "COMPANY_ADMIN") {
-        navigate("/comapnyDashboard", { replace: true });
-      } else if (role === "USER") {
-        navigate("/user/dashboard", { replace: true });
-      } else {
-        navigate("/login", { replace: true });
-      }
-    } catch (err: any) {
-  const msg = err.response?.data?.detail || "Failed to send OTP";
+      if (role === "SYSTEM_ADMIN") navigate("/dashboard", { replace: true });
+      else if (role === "COMPANY_ADMIN") navigate("/comapnyDashboard", { replace: true });
+      else if (role === "USER") navigate("/user/dashboard", { replace: true });
+      else navigate("/", { replace: true });
 
-     notify.error("Error", msg);;
+    } catch (err: any) {
+      notification.destroy();
+      const msg = err.response?.data?.detail || "Failed to verify OTP";
+      notification.error({ message: msg });
     } finally {
       setLoading(false);
     }
-  
   };
 
   const handleResend = async () => {
     try {
       setLoading(true);
       setError("");
-      await authService.sendOtp(email);
-      setTimer(RESEND_TIME);
-      setCanResend(false);
-    } catch(err: any) {
-      const msg = err.response?.data?.detail || "Failed to send OTP";
+      notification.destroy();
 
-    notify.error("Error", msg);;
+      await authService.sendOtp(email);
+
+      notification.success({
+        message: `OTP has been sent to ${email}`,
+      });
+    } catch (err: any) {
+      notification.destroy();
+      const msg = err.response?.data?.detail || "Failed to resend OTP";
+      notification.error({ message: msg });
     } finally {
       setLoading(false);
     }
@@ -120,22 +130,26 @@ const VerifyOtp = () => {
 
   return (
     <AuthLayout>
-      {contextHolder}
+      {loading && (
+        <div className="full-screen-spin">
+          <Spin />
+        </div>
+      )}
+
       <div className="verify-otp-page">
         <h2 className="brand-name">NODO AI</h2>
-        <h3>Verify Your Email</h3>
-        <p className="text-muted">
-          We have sent a 4-digit code to{" "}
-          <span className="email-highlight">{email}</span>
+        <h3>Enter OTP</h3>
+        <p>
+          A 4-digit code has been sent to{" "}
+          <span className="email-highlight">{email}</span>.
+          {" "}Please enter it below to log in
         </p>
         <p className="text-muted">
           Entered wrong email?{" "}
-          <span className="go-back-link" onClick={() => navigate("/login")}>
+          <span className="go-back-link" onClick={() => navigate("/")}>
             Go back
           </span>
         </p>
-
-     
 
         <div className="otp-input-container">
           {otp.map((digit, i) => (
@@ -146,47 +160,30 @@ const VerifyOtp = () => {
               value={digit}
               maxLength={1}
               onChange={(e) => handleChange(e.target.value, i)}
-              onKeyDown={(e) => {
-                if (e.key === "Backspace" && !digit && i > 0) {
-                  const prevInput = e.currentTarget
-                    .previousElementSibling as HTMLInputElement;
-                  prevInput?.focus();
-                }
-              }}
+              onKeyDown={(e) => handleKeyDown(e, i)}
               onFocus={(e) => e.target.select()}
-              className="otp-input"
+              className={`otp-input ${error ? "input-erro" : ""}`}
             />
           ))}
         </div>
 
-        <AppButton
-          label="Verify"
-          loading={loading}
-          className="w-100 mb-3"
-          onClick={handleVerify}
-        />
+        {error && <p className="input-error-text">{error}</p>}
 
         <div className="resend-section">
-          <p className="text-muted">Didn't receive OTP?</p>
-          {!canResend ? (
-            <div className="resend-timer">
-              <span className="resend-text">Resend Code</span>
-              <span className="timer-separator">•</span>
-              <span className="timer-text">
-                {String(Math.floor(timer / 60)).padStart(2, "0")}:
-                {String(timer % 60).padStart(2, "0")}
-              </span>
-            </div>
-          ) : (
-            <button
-              className="resend-link-btn"
-              onClick={handleResend}
-              disabled={loading}
-            >
-              Resend Code
-            </button>
-          )}
+          <p>Didn't receive the OTP?</p>
+          <button
+            className="resend-link-btn"
+            onClick={handleResend}
+          >
+            Resend OTP
+          </button>
         </div>
+
+        <AppButton
+          label="Verify"
+          className="verify-button"
+          onClick={handleVerify}
+        />
       </div>
     </AuthLayout>
   );

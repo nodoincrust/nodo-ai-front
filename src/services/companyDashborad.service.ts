@@ -58,6 +58,8 @@ export const companyDashboardService = {
     api.get<DepartmentsResponse>("/department/getDeptList", {
       params: { page, size },
     }),
+    
+  
 
   // ✅ Update Department Details
   updateDepartmentDetails: (
