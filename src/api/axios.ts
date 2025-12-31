@@ -1,32 +1,60 @@
 import axios from "axios";
 import { config } from "../config";
+import { notification } from "antd";
+import { getLoaderControl } from "../CommonComponents/Loader/loader";
 
-export const api = axios.create({
+// Create axios instance
+const axiosInstance = axios.create({
   baseURL: config.apiBaseUrl,
-  // Do NOT force a global Content-Type here – it can trigger CORS preflight (OPTIONS)
-  // unnecessarily. Axios will set the appropriate header automatically when we send a body.
+  timeout: 60000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Add token to every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log("Token added to request:", config.url);
-  } else {
-    console.warn("No token found for request:", config.url);
-  }
-  return config;
-});
+// Request interceptor for adding auth tokens
+axiosInstance.interceptors.request.use(
+  (reqConfig) => {
+    const localAuthData = localStorage.getItem("authData");
+    const token = localAuthData ? JSON.parse(localAuthData)?.token : null; // <-- updated
 
-// Handle unauthorized globally
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/";
+    // Skip attaching token for login & OTP APIs
+    const skipAuth = reqConfig.url?.includes("admin-login") ||
+      reqConfig.url?.includes("otpverify");
+
+    if (token && !skipAuth) {
+      reqConfig.headers.Authorization = `Bearer ${token}`;
     }
-    return Promise.reject(err);
+
+    return reqConfig;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor for handling errors globally
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+
+    // Optional: redirect to login if 401
+    // if (error.response?.status === 401) {
+    //   getLoaderControl()?.hideLoader();
+    //   localStorage.clear();
+    //   await new Promise((res) => setTimeout(res, 300));
+    //   // Show notification
+    //   notification.error({
+    //     message: "Session Expired",
+    //     description: "Your session has expired. Please login again.",
+    //     duration: 2,
+    //   });
+    //   setTimeout(() => {
+    //     window.location.href = "/";
+    //   }, 2000);
+    //   return new Promise(() => { });
+    // }
+
+    return Promise.reject(error);
   }
 );
+
+export default axiosInstance;

@@ -1,15 +1,24 @@
 // utils/jwt.ts
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // ✅ correct for ESM
 
 export interface JwtPayload {
   role: string;
+  exp?: number; // optional expiration
 }
 
 export const getRoleFromToken = (token: string): string | null => {
   try {
     const decoded = jwtDecode<JwtPayload>(token);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (decoded.exp && decoded.exp < now) {
+      console.warn("Token expired");
+      return null;
+    }
+
     return decoded.role;
-  } catch {
+  } catch (err) {
+    console.error("JWT decode error:", err);
     return null;
   }
 };

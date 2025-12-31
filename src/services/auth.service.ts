@@ -1,19 +1,17 @@
-import { api } from "../api/axios";
-
-export interface LoginRequest {
-  email: string;
-
-}
-
-export interface LoginResponse {
-  token: string;
-}
+import axios from "../api/axios";
 
 export const authService = {
-   sendOtp: (email: string) =>
-    api.post("/request-otp", null, {
+  sendOtp: (email: string) => {
+    return axios.post("/request-otp", null, {
       params: { email },
-    }),
-  verifyOtp: (email: string, otp: string) =>
-    api.post<{ token: string }>("/verify-otp", { email, otp }),
+      // Make sure Axios does NOT attach Authorization header
+      headers: { Authorization: undefined },
+    });
+  },
+  verifyOtp: (email: string, otp: string) => {
+    return axios.post("/verify-otp", { email, otp }, {
+      // Skip token as well
+      headers: { Authorization: undefined },
+    });
+  },
 };

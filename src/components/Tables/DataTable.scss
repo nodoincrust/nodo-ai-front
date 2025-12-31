@@ -1,5 +1,5 @@
 @use "../../../src/variables" as *;
- 
+
 /* --------------------------
     TABLE CONTAINER
 --------------------------- */
@@ -11,7 +11,7 @@
     background: $white;
     border: 1px solid $color-border;
 }
- 
+
 /* --------------------------
     TABLE WRAPPER
 --------------------------- */
@@ -19,29 +19,29 @@
     width: 100%;
     overflow-x: auto;
     position: relative;
- 
+
     .table-scroll-wrapper {
         position: relative;
         display: block;
         width: 100%;
     }
 }
- 
+
 /* --------------------------
     TABLE STYLING
 --------------------------- */
 .table {
     margin-bottom: 0 !important;
 }
- 
+
 .table table {
     width: 100%;
     border-collapse: collapse;
-    font-family: "inter";
+    font-family: $font-family-main;
     min-width: max-content;
     margin: 0;
 }
- 
+
 /* Fixed actions column */
 .table-actions.fixed-right {
     position: sticky;
@@ -49,7 +49,7 @@
     background: $white;
     z-index: 5;
 }
- 
+
 /* Ensure header of Actions is also sticky */
 thead .table-actions {
     position: sticky;
@@ -57,7 +57,7 @@ thead .table-actions {
     z-index: 10;
     background: $white;
 }
- 
+
 /* --------------------------
     HEADER
 --------------------------- */
@@ -72,23 +72,23 @@ thead .table-actions {
     height: 40px;
     padding: 10px 16px;
     border-bottom: 1px solid $border-bottom;
- 
+
     &:first-child {
         min-width: 86px;
     }
- 
+
     // &:nth-child(2) {
     //     min-width: 240px;
     // }
- 
+
     // &:nth-child(3) {
     //     min-width: 495px;
     // }
- 
+
     &:last-child {
         min-width: 100px;
     }
- 
+
     .status-arrow {
         margin-left: 6px;
         width: 14px;
@@ -96,14 +96,14 @@ thead .table-actions {
         cursor: pointer;
     }
 }
- 
+
 /* --------------------------
     BODY ROWS
 --------------------------- */
 .table tbody tr {
     transition: 0.2s ease;
 }
- 
+
 .table tbody td {
     padding: 12px 16px;
     font-family: $font-family-main;
@@ -113,43 +113,43 @@ thead .table-actions {
     color: $breadcrumb-title;
     border-bottom: 1px solid $color-border;
 }
- 
+
 /* Alternating column backgrounds */
 .table tbody tr:nth-child(odd) {
     background: $header-bg;
 }
- 
+
 .table tbody tr:nth-child(even) {
     background: $color-even-row-bg;
 }
- 
+
 /* Ensure sticky actions column matches row background */
 .table tbody tr:nth-child(odd) .table-actions.fixed-right {
     background: $header-bg;
 }
- 
+
 .table tbody tr:nth-child(even) .table-actions.fixed-right {
     background: $color-even-row-bg;
 }
- 
+
 // .table-actions{
 //     border-left: 1px solid $color-bottom;
 //     border-right: 1px solid $color-bottom;
 // }
- 
- 
+
+
 /* Last row no border */
 .table tbody tr:last-child td {
     border-bottom: none;
 }
- 
+
 .actions-cell {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
 }
- 
+
 /* Wrapper for each action */
 .action-box {
     width: 30px;
@@ -160,49 +160,49 @@ thead .table-actions {
     border-radius: 8px;
     cursor: pointer;
 }
- 
+
 /* Icon inside container */
 .action-icon {
     width: 20px;
     height: 20px;
 }
- 
+
 /* EDIT HOVER */
 .edit-box:hover {
     background: $color-edit-bg;
 }
- 
+
 .edit-box:hover .edit-icon {
     content: url("/assets/edit-hover.svg");
 }
- 
+
 /* Upload HOVER */
 .upload-box:hover {
     background: $color-edit-bg;
 }
- 
+
 .upload-box:hover .upload-icon {
     content: url("/assets/upload-hover.svg");
 }
- 
+
 /* Print HOVER */
 .print-box:hover {
     background: $color-edit-bg;
 }
- 
+
 .print-box:hover .print-icon {
     content: url("/assets/print-hover.svg");
 }
- 
+
 /* DELETE HOVER */
 .delete-box:hover {
     background: $color-delete-bg;
 }
- 
+
 .delete-box:hover .delete-icon {
     content: url("/assets/delete-hover.svg");
 }
- 
+
 /* --------------------------
     ACTION ICONS
 --------------------------- */
@@ -210,7 +210,7 @@ thead .table-actions {
     width: 80px;
     text-align: center;
 }
- 
+
 .table-actions img {
     width: 22px;
     height: 22px;
@@ -219,7 +219,7 @@ thead .table-actions {
     opacity: 0.8;
     transition: 0.2s ease;
 }
- 
+
 /* --------------------------
     EMPTY STATE
 --------------------------- */
@@ -229,7 +229,7 @@ thead .table-actions {
     justify-content: center;
     align-items: center;
 }
- 
+
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -238,13 +238,13 @@ thead .table-actions {
     color: #6670857A;
     font-size: 16px;
     font-weight: 500;
- 
+
     img {
         width: 70px;
         height: 70px;
     }
 }
- 
+
 /* --------------------------
     FOOTER + PAGINATION
 --------------------------- */
@@ -257,22 +257,22 @@ thead .table-actions {
     font-family: $font-family-main;
     background: #FAFAFF;
 }
- 
+
 .page-info {
     font-size: 14px;
     color: #636363;
 }
- 
+
 .pagination-buttons {
     display: flex;
     gap: 12px;
 }
- 
+
 .pagination-btn {
     border-radius: 8px !important;
     padding: 8px 18px !important;
 }
- 
+
 /* Mobile: arrows only */
 @media screen and (max-width: 768px) {
     .table-footer {

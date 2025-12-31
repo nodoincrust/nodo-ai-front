@@ -1,6 +1,5 @@
+import axios from "../api/axios";
 // adminDashboard.service.ts
-import { api } from "../api/axios";
-
 export interface CompanyApi {
   id: number;
   name: string;
@@ -33,19 +32,18 @@ export interface CompaniesResponse {
 
 export const adminDashboardService = {
   // ✅ Get all companies
-  getCompanies: () => api.get<CompaniesResponse>("/getCompanies"),
+  getCompanies: () => axios.get<CompaniesResponse>("/getCompanies"),
 
   // ✅ Add new company
   addCompany: (payload: AddCompanyRequest) =>
-    api.post<CompanyApi>("/addCompany", payload),
-
+    axios.post<CompanyApi>("/addCompany", payload),
 // ✅ Delete company
    deleteCompany: (companyId: number) =>
-    api.put(`/deleteCompany/${companyId}`),
+    axios.put(`/deleteCompany/${companyId}`),
 
 // ✅ update company stauts 
    updateCompanyStatus: (companyId: number, isActive: boolean) =>
-    api.put(`/companies/${companyId}/status`, {
+    axios.put(`/companies/${companyId}/status`, {
       is_active: isActive,
     }),
 
@@ -54,12 +52,12 @@ export const adminDashboardService = {
     companyId: number,
     payload: UpdateCompanyRequest
   ) =>
-    api.put(`/updateCompanyDetails/${companyId}`, payload),
+    axios.put(`/updateCompanyDetails/${companyId}`, payload),
 
   // ✅ Search companies
   // Note: Search API might return direct array or wrapped response
   searchCompanies: (query: string, page = 1, size = 10) =>
-    api.get<CompanyApi[] | CompaniesResponse>("/search", {
+    axios.get<CompanyApi[] | CompaniesResponse>("/search", {
       params: { query, page, size },
     }),
 }

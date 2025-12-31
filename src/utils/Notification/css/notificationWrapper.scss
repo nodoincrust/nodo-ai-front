@@ -1,0 +1,108 @@
+// ==============================
+// Notification Colors
+// ==============================
+$success-color: #4caf50;
+$error-color: #f44336;
+$info-color: #2196f3;
+$warning-color: #ff9800;
+
+// ==============================
+// Center notification container
+// ==============================
+.ant-notification {
+    top: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+}
+
+// ==============================
+// Custom notification box
+// ==============================
+.custom-notification {
+    position: relative;
+    overflow: hidden;
+    animation: slideDown 0.3s ease-out forwards;
+
+    // Progress bar
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        width: 100%;
+        transform: scaleX(1);
+        transform-origin: left;
+        animation: progressLine var(--progress-duration, 3s) linear forwards;
+        animation-play-state: running;
+    }
+
+    // Pause progress bar on hover
+    &:hover::after {
+        animation-play-state: paused;
+    }
+
+    // Colors for different notification types
+    &.success::after {
+        background: $success-color;
+    }
+
+    &.error::after {
+        background: $error-color;
+    }
+
+    &.info::after {
+        background: $info-color;
+    }
+
+    &.warning::after {
+        background: $warning-color;
+    }
+
+    // Slide-up exit animation
+    &.slide-up {
+        animation: slideUp 0.5s ease-in forwards !important;
+    }
+}
+
+// ==============================
+// Animations
+// ==============================
+
+// Progress bar shrink animation
+@keyframes progressLine {
+    from {
+        transform: scaleX(1);
+    }
+
+    to {
+        transform: scaleX(0);
+    }
+}
+
+// Entry animation (slide down from top)
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Exit animation (slide up off screen)
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-200%);
+    }
+}

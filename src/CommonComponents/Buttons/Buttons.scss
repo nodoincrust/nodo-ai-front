@@ -1,0 +1,74 @@
+@use '../../variables.scss' as *;
+
+.language-add-button-block .primary-btn {
+    width: 203px;
+    height: 44px !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+
+    padding: 10px 20px;
+    border-radius: 32px;
+
+    background-color: $primary-button-bg;
+    background: $color-white;
+
+    font-family: $font-family-main;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 140%;
+    letter-spacing: 1%;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &:focus-visible {
+        background: $primary-button-bg !important;
+        color: $color-white !important;
+        border-color: $primary-button-bg !important;
+        box-shadow: none !important;
+        opacity: 1 !important;
+    }
+}
+
+.btn-primary-custom.ant-btn-primary {
+    background: $primary-button-bg !important;
+    border-color: $primary-button-bg !important;
+    color: $color-white !important;
+    height: 40px;
+}
+
+.btn-primary-custom.ant-btn-primary:hover,
+.btn-primary-custom.ant-btn-primary:focus,
+.btn-primary-custom.ant-btn-primary:active {
+    background: $primary-button-bg !important;
+    border-color: $primary-button-bg !important;
+    color: $color-white !important;
+}
+
+.language-buttons .outline-btn {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    width: 103px;
+    gap: 4px;
+    padding: 10px 16px;
+    border-radius: $border-radius-md;
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.button-text {
+    margin-bottom: 1px;
+}
+
+.btn-primary-custom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}

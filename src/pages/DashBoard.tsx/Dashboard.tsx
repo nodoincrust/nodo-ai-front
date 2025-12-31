@@ -137,7 +137,7 @@ const Dashboard = () => {
       const response = await adminDashboardService.getCompanies();
       const apiData = response.data.data;
 
-      const mapped: Company[] = apiData.map((item) => ({
+      const mapped: Company[] = apiData.map((item: any) => ({
         id: item.id,
         name: item.name,
         email: item.contact_email,

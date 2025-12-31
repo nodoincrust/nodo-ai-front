@@ -1,0 +1,375 @@
+@use '../../../variables.scss' as *;
+
+.sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 100vh;
+  height: 100vh;
+  background: $color-white;
+  transition: width 0.3s ease, padding 0.3s ease;
+  z-index: 1050;
+
+  width: 280px;
+  padding: 22px 0px;
+  border-right: 1px solid $color-border;
+
+  .fixed-logo {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1060;
+    position: relative;
+    padding: 0 16px;
+
+
+    img {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    img.logo-full {
+      width: 146px;
+      height: 48px;
+    }
+
+    img.logo-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .desktop-toggle {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      // position: absolute;
+      // top: 5px;
+      // right: -40px;
+      z-index: 1100;
+
+      &.absolute-toggle {
+        position: absolute;
+        right: -11px;
+      }
+    }
+
+    .mobile-toggle {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+
+      .icon {
+        // position: absolute;
+        // top: 0;
+        // left: 0;
+        width: 24px;
+        height: 24px;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+      }
+
+      .visible {
+        opacity: 1;
+      }
+
+      .hidden {
+        opacity: 0;
+      }
+    }
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+
+    .menu-list {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 15px 16px;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      .menu-item {
+        color: $color-sidebar-links;
+        font-family: $font-family-main;
+        font-size: 14px;
+        line-height: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+
+        span {
+          transition: opacity 0.3s ease;
+        }
+
+        .menu-label {
+          font-family: $font-family-main;
+          font-weight: 500;
+          font-style: Medium;
+          font-size: 16px;
+          line-height: 24px;
+          letter-spacing: -1%;
+          vertical-align: middle;
+          color: $subheading-color;
+        }
+      }
+
+      .menu-item.active {
+        background-color: $menu-active-bg;
+        color: $color-primary;
+      }
+
+      .menu-item.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .menu-item.disabled .menu-icon,
+      .menu-item.disabled .menu-label {
+        pointer-events: none;
+      }
+
+    }
+
+    .bottom-div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      border-top: 1px solid $color-border;
+      padding: 24px 16px 0;
+
+      .profile-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+
+        img {
+          width: 32px;
+          height: 32px;
+          flex-shrink: 0;
+        }
+
+        .profile-avatar {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background-color: $profile-bg;
+          color: $profile-color;
+          font-size: 16px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          text-transform: uppercase;
+          font-family: $font-family-main;
+        }
+
+        .profile-text {
+          display: flex;
+          flex-direction: column;
+          line-height: 1.2;
+
+          max-width: 150px;
+          /* Set your desired max width */
+          white-space: normal;
+          /* Allow wrapping */
+          word-break: break-word;
+          /* Break long words if needed */
+          overflow-wrap: anywhere;
+          /* Optional: ensures very long strings break */
+        }
+
+
+        .profile-name {
+          .menu-label {
+            font-family: $font-family-main;
+            font-weight: 500;
+            font-style: Medium;
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: -1%;
+            vertical-align: middle;
+            color: $subheading-color;
+          }
+        }
+
+        .profile-email {
+          font-family: $font-family-main;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 20px;
+          letter-spacing: -2%;
+          vertical-align: middle;
+          color: $profile-email-color;
+        }
+
+        &.modal-open-hover {
+          background-color: $menu-active-bg;
+          color: $color-primary;
+        }
+      }
+
+      .logout-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        border: 1px solid $color-border;
+
+        span {
+          color: $logout-color;
+          font-weight: 600;
+        }
+
+        &:hover,
+        &.modal-open-hover {
+          background-color: $logout-hover;
+        }
+      }
+    }
+
+  }
+
+  /* DESKTOP */
+  @media (min-width: 992px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    &.collapsed {
+      width: 88px;
+
+      .menu-item {
+        // justify-content: center;
+
+        .menu-label {
+          opacity: 0;
+          width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+
+        .menu-icon {
+          opacity: 1;
+          width: auto;
+          min-width: 20px;
+        }
+      }
+
+      /* PROFILE SECTION FIX */
+      .bottom-div {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .profile-item {
+          justify-content: center; // center icon
+          padding: 8px 0;
+          margin-left: 12px;
+
+          .profile-avatar {
+
+            width: 40px !important;
+            height: 40px !important;
+          }
+
+          .profile-text {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none;
+          }
+        }
+      }
+
+      .logout-div {
+        justify-content: center;
+
+        span {
+          opacity: 0;
+          width: 0;
+          overflow: hidden;
+        }
+
+        img {
+          opacity: 1;
+        }
+      }
+    }
+
+    &.open {
+      width: 288px;
+    }
+  }
+
+  /* MOBILE */
+  @media (max-width: 992px) {
+    width: 100%;
+    padding: 6px 16px;
+
+    .sidebar {
+      position: fixed;
+      top: 48px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 48px);
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: all 0.3s ease;
+
+      &.open {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 60px);
+      background: $overlay-bg;
+      opacity: 0;
+      pointer-events: none;
+
+      &.show {
+        opacity: 1;
+        pointer-events: all;
+      }
+    }
+  }
+}

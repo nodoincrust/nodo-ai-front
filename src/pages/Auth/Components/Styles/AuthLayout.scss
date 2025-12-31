@@ -1,0 +1,156 @@
+@use "../../../../variables.scss" as *;
+
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  background: $auth-background;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ================================
+   LEFT SECTION
+================================ */
+.auth-left {
+  width: 50%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 22px 46px;
+  box-sizing: border-box;
+  background: $login-bg-gradient;
+  overflow: hidden;
+}
+
+/* ================================
+   CONTENT WRAPPER
+================================ */
+.auth-left-content {
+  width: 100%;
+  max-width: 640px;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* ✅ FIX */
+  gap: 24px;
+}
+
+/* ================================
+   TEXT BLOCK
+================================ */
+.auth-left-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  /* ✅ FIX */
+
+  h2 {
+    font-family: "Inter";
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 120%;
+    /* ✅ FIX */
+    color: $heading-color;
+    margin-bottom: 18px;
+  }
+
+  .first-h2 {
+    font-family: "Inter";
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 120%;
+    /* ✅ FIX */
+    letter-spacing: -3%;
+    color: $subheading-color;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-family: "Inter";
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 160%;
+    letter-spacing: -1%;
+    color: $subheading-color-light;
+    margin-bottom: 0;
+  }
+}
+
+/* ================================
+   ILLUSTRATION (100% WIDTH + SAFE HEIGHT)
+================================ */
+.auth-illustration {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    max-height: none;
+    height: auto;
+
+    object-fit: cover;
+    border-radius: 20px;
+  }
+}
+
+/* ================================
+   RIGHT SECTION
+================================ */
+.auth-right {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+
+  .auth-box-right {
+    width: 100%;
+    // display: flex;
+    // align-items: center;
+    // justify-content: center;
+  }
+}
+
+/* ================================
+   RESPONSIVE — TABLET
+================================ */
+@media (max-width: 991px) {
+  .auth-layout {
+    flex-direction: column;
+  }
+
+  .auth-left,
+  .auth-right {
+    width: 100%;
+    height: auto;
+  }
+
+  .auth-left {
+    padding: 24px;
+  }
+
+  .auth-illustration img {
+    max-height: 32vh;
+  }
+}
+
+/* ================================
+   RESPONSIVE — MOBILE
+================================ */
+@media (max-width: 512px) {
+  .auth-left {
+    display: none;
+  }
+
+  .auth-right {
+    width: 100%;
+    min-height: 100vh;
+    padding: 16px;
+  }
+}

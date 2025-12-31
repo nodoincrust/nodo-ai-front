@@ -1,4 +1,5 @@
-import { api } from "../api/axios";
+import axios from "../api/axios";
+
 
 /* =======================
    Types & Interfaces
@@ -51,36 +52,36 @@ export interface DepartmentsResponse {
 export const companyDashboardService = {
   // ✅ Add Department
   addDepartment: (payload: AddDepartmentRequest) =>
-    api.post("/department/addDept", payload),
+    axios.post("/department/addDept", payload),
 
   // ✅ Get Department List (with pagination)
   getDepartments: (page = 1, size = 10) =>
-    api.get<DepartmentsResponse>("/department/getDeptList", {
+    axios.get<DepartmentsResponse>("/department/getDeptList", {
       params: { page, size },
     }),
-    
-  
+
+
 
   // ✅ Update Department Details
   updateDepartmentDetails: (
     deptId: number,
     payload: UpdateDepartmentRequest
   ) =>
-    api.put(`/department/updateDeptDetails/${deptId}`, payload),
+    axios.put(`/department/updateDeptDetails/${deptId}`, payload),
 
   // ✅ Update Department Status
   updateDepartmentStatus: (deptId: number, isActive: boolean) =>
-    api.put(`/department/${deptId}/status`, {
+    axios.put(`/department/${deptId}/status`, {
       is_active: isActive,
     }),
 
   // ✅ Delete Department
   deleteDepartment: (deptId: number) =>
-    api.put(`/department/deleteDept/${deptId}`),
+    axios.put(`/department/deleteDept/${deptId}`),
 
   // ✅ Search Departments
   searchDepartments: (query: string, page = 1, size = 10) =>
-    api.get<DepartmentsResponse>("/department/search", {
+    axios.get<DepartmentsResponse>("/department/search", {
       params: { query, page, size },
     }),
 };

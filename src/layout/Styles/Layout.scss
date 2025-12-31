@@ -1,0 +1,52 @@
+@use '../../variables.scss' as *;
+
+.layout-container {
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+
+    // Main content
+    .layout-main {
+        flex-grow: 1;
+        margin-left: 288px;
+        transition: margin-left 0.3s ease;
+
+        // default for large desktops
+        @media (min-width: 992px) {
+            &.sidebar-open {
+                margin-left: 288px;
+                background-color: $color-background;
+            }
+
+            &.sidebar-collapsed {
+                margin-left: 88px;
+            }
+        }
+
+        // small devices (sidebar overlays, so no margin)
+        @media (max-width: 992px) {
+            margin-left: 0 !important;
+            margin-top: 57px;
+            padding: 0;
+        }
+    }
+}
+
+// Body scroll handles main content
+html,
+body {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.layout-main {
+    flex: 1;
+    overflow-y: auto;
+    height: 100vh;
+    box-sizing: border-box;
+
+    .content-container {
+        padding: 22px 32px !important;
+        background-color: $color-background;
+    }
+}

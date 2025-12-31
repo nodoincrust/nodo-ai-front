@@ -1,37 +1,45 @@
 /* ===============================
    Brand Colors
 ================================ */
-
-$primary: #437EF7; 
-$heading-color: #407DF2; 
+$font-family-main: "Inter";
+$primary: #437EF7;
+$heading-color: #407DF2;
 $subheading-color: #1B3249;
 $subheading-color-light: #6D7C8B;
 $login-bg-gradient: linear-gradient(153.99deg, #F5F6F8 0%, #EAF0F8 100.89%);
-$label-color:#222222;
+$label-color: #222222;
 $color-placeholder: #949CA9;
-$border-color:#00000014;
+$border-color: #00000014;
 $color-white: #FFFFFF;
-
+$color-border: #E2E4E9;
 $secondary: #667085;
-$white:#ffffff;  // Secondary color
-$auth-background:#F9F9F9;
-$color-white:#ffffff;
-$adminDashboradbc:#FAFAFA;
+$white: #ffffff;
+$link-active-bg: #ECF2FE;
+$profile-bg: #E0E7FF;
+$profile-color: #3623E3;
+$primary-button-bg: #4580F7;
+$profile-email-color: #1B3249A3;
+$auth-background: #F9F9F9;
+$color-white: #ffffff;
+$adminDashboradbc: #FAFAFA;
+$color-background: #F5F6F8;
+$color-input-shadow: #00000003;
+$table-head-bg: #5C6475;
 // Alias used across layout files
 $color-primary: $primary;
 /* ===============================
    Text Colors
 ================================ */
-$color-badge-text-primary:#344054;
+$color-badge-text-primary: #344054;
 $text-primary: #344054;
 $text-secondary: #667085;
 $text-muted: #98a2b3;
-$Table-th-text:344054;
- $breadcrumb-title: #344054;
+$Table-th-text: 344054;
+$breadcrumb-title: #344054;
 /* ===============================
    Status Colors
 ================================ */
-$status-inactive-bg:#0A0D120D;
+$status-inactive-bg: #0A0D120D;
 $success: #12b76a;
 $danger: #FF5454;
 $warning: #f79009;
@@ -106,7 +114,7 @@ $font-family-main: "Inter", ;
 /* ===============================
    Global Focus Styles
    =============================== */
- 
+
 /* Ant Design overrides with higher specificity */
 .ant-btn.ant-btn:focus-visible,
 .ant-btn.ant-btn:focus,
@@ -131,14 +139,14 @@ $font-family-main: "Inter", ;
    outline: none;
    box-shadow: none;
 }
- 
+
 /* Additional button focus states */
 .ant-btn.ant-btn-primary.ant-btn-primary:hover:focus,
 .ant-btn.ant-btn-primary.ant-btn-primary:hover:focus-visible {
    outline: none;
    box-shadow: none;
 }
- 
+
 /* Generic button and input focus removal */
 button.ant-btn:focus,
 button.ant-btn:focus-visible,
@@ -147,8 +155,8 @@ input.ant-input:focus-visible {
    outline: none;
    box-shadow: none;
 }
- 
- 
+
+
 /* ===============================
    Global Colors
    =============================== */
@@ -162,12 +170,12 @@ $color-white: #FFFFFF;
 $color-otp: #3D84ED;
 $color-focus: #90BDFF;
 $color-shadow: #0A0D120D;
- 
+
 /* ===============================
    Fonts
    =============================== */
 $font-family-main: "Inter";
- 
+
 /* ===============================
    Borders & Shadows
    =============================== */
@@ -175,7 +183,7 @@ $border-radius-sm: 4px;
 $border-radius-md: 8px;
 $border-radius-md-s: 6px;
 $border-radius-lg: 12px;
- 
+
 /* ===============================
    Page-specific Colors
    =============================== */
@@ -185,23 +193,23 @@ $border-color-table: #E9EAEB;
 $color-gray-light: #717680;
 $color-gray-table: #667085;
 $color-table-border: #EAECF0;
- 
+
 /* ===============================
    Application Users Specific
    =============================== */
-$color-status-bg-active: #ECFDF3;
-$color-status-bg-inactive: #FFF5D9;
-$color-status-badge-div-active: #12B76A;
-$color-status-badge-div-inactive: #F79009;
+$color-status-bg-active: #D9FDE8;
+$color-status-bg-inactive: #F3F4F6;
+$color-status-badge-div-active: #027A48;
+$color-status-badge-div-inactive: #00132E;
 $color-status-text-active: #027A48;
 $color-status-text-inactive: #B54708;
- 
+
 /* ===============================
    Buttons
    =============================== */
 $color-btn-primary-shadow: rgba(10, 13, 18, 0.05);
 $color-btn-danger-bg: #D92D20;
- 
+
 /* ===============================
    Sidebar
    =============================== */
@@ -212,43 +220,43 @@ $logout-hover: #D83D2E1F;
 $overlay-bg: rgba(0, 0, 0, 0.5);
 $menu-img-filter: invert(49%) sepia(15%) saturate(242%) hue-rotate(182deg) brightness(90%) contrast(89%);
 $menu-active-img-filter: invert(18%) sepia(100%) saturate(1563%) hue-rotate(203deg) brightness(95%) contrast(99%);
- 
+
 /* ===============================
    Profile Overview
    =============================== */
 $color-gray-light-bg: #F5F5F5;
 $color-tab-count-active-bg: #EDF4FF;
 $tab-transition: 0.3s ease;
- 
+
 /* ===============================
    Modals
    =============================== */
 // Default modal icons
 $color-modal-icon-bg: #FCFBFE;
 $color-modal-icon-border: rgba(0, 0, 0, 0.04);
- 
+
 // Alternate modal icons
 $color-modal-icon-bg: #FEE4E2;
 $color-modal-icon-border: #FEF3F2;
- 
+
 /* ===============================
    Form Elements
    =============================== */
 $color-textbox-bg: #F8F9FC;
 $color-textbox-text: #363F72;
- 
+
 $color-image-bg: #F9F5FF;
 $color-image-text: #6941C6;
- 
+
 $color-textarea-bg: #FFF6ED;
 $color-textarea-text: #C4320A;
- 
+
 $color-dropdown-bg: #F0F9FF;
 $color-dropdown-text: #026AA2;
- 
+
 $color-toggle-bg: #FDF2FA;
 $color-toggle-text: #C11574;
- 
+
 $color-placeholder: #888;
 /* ===============================
    Local Variables
