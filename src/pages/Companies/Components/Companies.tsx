@@ -9,6 +9,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { scrollLayoutToTop } from "../../../utils/utilFunctions";
 import { getCompaniesList } from "../../../services/companies.services";
+import AddEditCompany from "./AddEditCompany";
 
 export default function Companies() {
   const [count, setCount] = useState(0);
@@ -18,7 +19,8 @@ export default function Companies() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(25);
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
-
+  const [isAddEditOpen, setIsAddEditOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,8 +59,15 @@ export default function Companies() {
     scrollLayoutToTop();
   }, [currentPage, location.pathname]);
 
-  const handleNewCompany = () => navigate("/companies/add");
-  const handleEdit = (id: number) => navigate(`/companies/edit/${id}`);
+  const openAddCompany = () => {
+    setSelectedCompany(null);
+    setIsAddEditOpen(true);
+  };
+
+  const openEditCompany = (company: any) => {
+    setSelectedCompany(company);
+    setIsAddEditOpen(true);
+  };
 
   return (
     <div className="companies-container">
@@ -69,7 +78,7 @@ export default function Companies() {
           setSearch(value);
           setCurrentPage(1);
         }}
-        onAddClick={handleNewCompany}
+        onAddClick={openAddCompany}
         addButtonText="Add Company"
         categoryButtonText="Status: All"
         categoryButtonClassName="status-dropdown"
@@ -146,7 +155,7 @@ export default function Companies() {
             <img
               src="/assets/edit.svg"
               alt="Edit"
-              onClick={() => handleEdit(row.id)}
+              onClick={() => openEditCompany(row)}
             />
             <img
               src="/assets/trash.svg"
@@ -160,6 +169,22 @@ export default function Companies() {
         pageSize={pageSize}
         emptyText="No companies found"
       />
+
+      {isAddEditOpen && (
+        <AddEditCompany
+          open={isAddEditOpen}
+          initialData={selectedCompany}
+          onClose={() => {
+            setIsAddEditOpen(false);
+            setSelectedCompany(null);
+          }}
+          onSave={() => {
+            fetchCompanies();
+            setIsAddEditOpen(false);
+            setSelectedCompany(null);
+          }}
+        />
+      )}
     </div>
   );
 }
