@@ -1,6 +1,6 @@
 @use '../../../../variables.scss' as *;
 
-.add-edit-company-modal {
+.profile-modal {
     .ant-modal-content {
         padding: 0;
         border-radius: 20px !important;
@@ -33,17 +33,17 @@
         background-color: $bg-light;
     }
 
-    .company-wrapper {
+    /* WRAPPER */
+    .profile-wrapper {
         display: flex;
         flex-direction: column;
         height: 100%;
         background: $color-white;
         border-radius: 20px;
-        // overflow: hidden;
     }
 
-    /* HEADER - Fixed */
-    .company-header {
+    /* HEADER */
+    .profile-header {
         position: sticky;
         top: 0;
         z-index: 2;
@@ -56,6 +56,14 @@
         padding: 6px 16px 10px;
 
         .left {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            img{
+                width: 24px;
+                height: 24px;
+            }
             h2 {
                 color: $label-color;
                 font-family: $font-family-main;
@@ -70,12 +78,13 @@
             img {
                 width: 24px;
                 height: 24px;
+                cursor: pointer;
             }
         }
     }
 
-    /* FORM - Scrollable */
-    .company-form {
+    /* FORM */
+    .profile-form {
         flex: 1 1 auto;
         overflow-y: auto;
         padding: 5px 16px;
@@ -119,98 +128,10 @@
             font-style: Medium;
             font-size: 12px;
         }
-
-        /* STATUS ROW */
-        .status-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            label {
-                display: flex;
-                flex-direction: column;
-                font-family: $font-family-main;
-                font-weight: 500;
-                font-size: 14px;
-                letter-spacing: 1%;
-                color: $label-color;
-            }
-
-            /* Right side (text + switch) */
-            .d-center {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-            /* STATUS TEXT */
-            .status-text {
-                font-family: $font-family-main;
-                font-weight: 500;
-                font-size: 14px;
-                letter-spacing: -1%;
-                transition: color 300ms ease-out;
-
-                &.active {
-                    color: $primary;
-                }
-
-                &.inactive {
-                    color: $table-head-bg;
-                }
-            }
-
-            /* SWITCH */
-            .status-toggle {
-                display: flex;
-                align-items: center;
-
-                &.ant-switch {
-                    width: 40px;
-                    height: 26px;
-                    min-width: 40px;
-                    background-color: $table-head-bg;
-                    border-radius: 20px;
-                    transition: background-color 300ms ease-out;
-
-                    &:hover {
-                        background-color: $table-head-bg;
-                    }
-                }
-
-                /* ACTIVE SWITCH */
-                &.ant-switch-checked {
-                    background-color: $primary;
-
-                    &:hover {
-                        background-color: $primary;
-                    }
-                }
-
-                /* SWITCH HANDLE */
-                .ant-switch-handle {
-                    width: 22px;
-                    height: 22px;
-                    top: 2px;
-                    left: 2px;
-                    transition: transform 300ms ease-out;
-
-                    &::before {
-                        background-color: #ffffff;
-                        border-radius: 50%;
-                    }
-                }
-
-                /* HANDLE MOVE (Smart Animate) */
-                &.ant-switch-checked .ant-switch-handle {
-                    transform: translateX(14px);
-                }
-            }
-        }
     }
 
-    /* FOOTER - Fixed */
-    .company-footer {
+    /* FOOTER */
+    .profile-footer {
         position: sticky;
         bottom: 0;
         z-index: 2;
@@ -222,7 +143,6 @@
         background: $bg-light;
         gap: 10px;
 
-        .save-btn,
         .cancel-btn {
             height: 40px;
             opacity: 1;
@@ -234,55 +154,25 @@
             font-size: 14px;
             letter-spacing: 1%;
             vertical-align: middle;
-
-            &:disabled {
-                cursor: not-allowed;
-                opacity: 0.5;
-            }
-        }
-
-        .save-btn {
-            background: $primary;
-            color: $color-white;
-            border: 1px solid $border-color;
-            box-shadow: none !important;
-            outline: none !important;
-
-            &:hover,
-            &:focus,
-            &:active,
-            &:focus-visible {
-                background: $primary !important;
-                color: $color-white !important;
-                border-color: $border-color !important;
-                box-shadow: none !important;
-                outline: none !important;
-            }
-
-        }
-
-        .cancel-btn {
+            cursor: pointer;
             background: $color-white;
             color: $subheading-color;
             border: 1px solid $input-border;
             box-shadow: none !important;
-            outline: none !important;
 
             &:hover,
             &:focus,
-            &:active,
-            &:focus-visible {
+            &:active {
                 background: $color-white !important;
                 color: $subheading-color !important;
                 border-color: $input-border !important;
                 box-shadow: none !important;
-                outline: none !important;
             }
         }
     }
 }
 
-/* GLOBAL FIXES */
+/* GLOBAL FORM FIXES */
 .ant-checkbox-inner::after,
 input[type="checkbox"]:not(.custom-checkbox)::after {
     border: none !important;

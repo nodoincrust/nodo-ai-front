@@ -56,12 +56,14 @@
 
             tbody td {
                 padding: 16px;
-                font-family: $font-family-main;
-                font-weight: 400;
-                font-size: 14px;
-                line-height: 20px;
-                color: $color-gray-table;
                 text-align: left;
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-style: Medium;
+                font-size: 14px;
+                line-height: 24px;
+                letter-spacing: 1%;
+                color: $label-color;
 
                 .cell-content {
                     display: flex;
@@ -81,7 +83,7 @@
                 width: 240px;
             }
 
-             th:nth-child(3),
+            th:nth-child(3),
             td:nth-child(3) {
                 width: 280px;
             }
@@ -125,7 +127,7 @@
         color: $color-primary;
         font-family: $font-family-main;
         font-weight: 500;
-        font-size: 16px;
+        font-size: 14px;
         line-height: 24px;
         display: flex;
         align-items: center;
@@ -138,14 +140,40 @@
         flex-direction: column;
 
         .company-name {
+            font-family: $font-family-main;
             font-weight: 500;
+            font-style: Medium;
             font-size: 14px;
-            color: $color-dark;
+            line-height: 24px;
+            letter-spacing: 1%;
+            color: $label-color;
+
         }
 
         .company-email {
             font-size: 14px;
             color: $color-gray-table;
+        }
+    }
+
+    .contact-cell {
+        .contact-name {
+            font-family: $font-family-main;
+            font-weight: 500;
+            font-style: Medium;
+            font-size: 14px;
+            line-height: 24px;
+            letter-spacing: 1%;
+            color: $label-color;
+        }
+
+        .contact-email {
+            font-family: $font-family-main;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: -0.6%;
+            color: $profile-email-color;
         }
     }
 
@@ -161,28 +189,34 @@
         font-weight: 500;
         font-size: 12px;
         line-height: 16px;
-        letter-spacing: 0%;
         border-radius: 4px !important;
         padding: 4px 6px;
-
-        &.active {
-            background-color: $color-status-bg-active;
-            color: $color-status-badge-div-active;
-            max-width: 95px;
-        }
-
-        &.inactive {
-            background-color: $color-status-bg-inactive;
-            color: $color-status-badge-div-inactive;
-        }
 
         .badge-div {
             width: 5px;
             height: 5px;
             border-radius: 50%;
-            background-color: #027A48;
+        }
+
+        &.active {
+            background-color: $color-status-bg-active;
+            color: $color-status-text-active;
+
+            .badge-div {
+                background-color: $color-status-badge-div-active;
+            }
+        }
+
+        &.inactive {
+            background-color: $color-status-bg-inactive;
+            color: $color-status-text-inactive;
+
+            .badge-div {
+                background-color: $color-status-badge-div-inactive;
+            }
         }
     }
+
 
     // ===============================
     // Actions

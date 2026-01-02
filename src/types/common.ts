@@ -93,6 +93,12 @@ export interface SidebarProps {
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
 }
 
+export interface ProfileProps {
+  open: boolean;
+  onClose: () => void;
+  user?: User;
+}
+
 //Table.tsx
 export interface Column<T> {
   title: string;

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import SecondaryButton from "../../Buttons/SecondaryButton";
 import "./Styles/Table.scss"
 import type { TableProps } from "../../../types/common";
+import { Select } from "antd";
+const { Option } = Select;
 
 const Table = <T,>({
     data,
@@ -27,6 +29,14 @@ const Table = <T,>({
 
     const showArrows = windowWidth <= 991;
     const isEmpty = data.length === 0;
+    const pageSizeOptions = [10, 25, 50, 75, 100].map((size, index, arr) => {
+        const prevSize = index === 0 ? 0 : arr[index - 1];
+        return (
+            <Option key={size} value={size} disabled={totalRecords <= prevSize}>
+                {size}
+            </Option>
+        );
+    });
 
     return (
         <div className="language-table-container">
@@ -91,14 +101,24 @@ const Table = <T,>({
                         {/* LEFT */}
                         <div className="rows-per-page">
                             <span>Rows per page:</span>
-                            <select
-                                value={pageSize}
-                                onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-                            >
-                                <option value={10}>10</option>
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                            </select>
+
+                            <div className="select-wrapper">
+                                <Select
+                                    value={pageSize}
+                                    onChange={(value) => onPageSizeChange?.(value)}
+                                    className="rows-select"
+                                    dropdownClassName="rows-select-dropdown"
+                                    suffixIcon={
+                                        <img
+                                            src="/assets/pagination-chevron-down.svg"
+                                            alt=""
+                                            className="select-arrow"
+                                        />
+                                    }
+                                >
+                                    {pageSizeOptions}
+                                </Select>
+                            </div>
                         </div>
 
                         {/* RIGHT */}

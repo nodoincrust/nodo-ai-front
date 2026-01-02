@@ -25,6 +25,8 @@ $adminDashboradbc: #FAFAFA;
 $color-background: #F5F6F8;
 $color-input-shadow: #00000003;
 $table-head-bg: #5C6475;
+$modal-header-border-bottom: #1B32491F;
+$input-border: #CACFD6;
 // Alias used across layout files
 $color-primary: $primary;
 /* ===============================
@@ -202,7 +204,7 @@ $color-status-bg-inactive: #F3F4F6;
 $color-status-badge-div-active: #027A48;
 $color-status-badge-div-inactive: #00132E;
 $color-status-text-active: #027A48;
-$color-status-text-inactive: #B54708;
+$color-status-text-inactive: #00132E;
 
 /* ===============================
    Buttons

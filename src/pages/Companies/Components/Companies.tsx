@@ -17,11 +17,10 @@ export default function Companies() {
   const debouncedSearch = useDebounce(search, 500);
   const [companyList, setCompanyList] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(25);
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
-
+  const [pageSize, setPageSize] = useState(25);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -53,11 +52,11 @@ export default function Companies() {
 
   useEffect(() => {
     fetchCompanies();
-  }, [currentPage, debouncedSearch, status]);
+  }, [currentPage, debouncedSearch, status, pageSize]);
 
   useEffect(() => {
     scrollLayoutToTop();
-  }, [currentPage, location.pathname]);
+  }, [currentPage, pageSize, location.pathname]);
 
   const openAddCompany = () => {
     setSelectedCompany(null);
@@ -73,6 +72,7 @@ export default function Companies() {
     <div className="companies-container">
       <Header
         title="Companies"
+        count={`${count} Companies`}
         searchValue={search}
         onSearchChange={(value) => {
           setSearch(value);
@@ -165,8 +165,13 @@ export default function Companies() {
         )}
         currentPage={currentPage}
         totalPages={Math.ceil(count / pageSize)}
+        totalRecords={count}
         onPageChange={(page) => setCurrentPage(page)}
         pageSize={pageSize}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setCurrentPage(1);
+        }}
         emptyText="No companies found"
       />
 

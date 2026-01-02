@@ -1,7 +1,7 @@
 @use '../../../variables.scss' as *;
 
 .language-header {
-    background: #f8fafc;
+    background: $color-background;
     border-radius: 12px;
 
     /* TOP ROW */
@@ -28,7 +28,8 @@
         }
 
         .language-count {
-            background: #e5e7eb;
+            background: $link-active-bg;
+            color: $primary;
             padding: 2px 8px;
             border-radius: 999px;
             font-size: 14px;
@@ -55,6 +56,20 @@
             border: 1px solid $color-border;
             box-shadow: 0px 11px 7px 0px $color-input-shadow;
 
+        }
+
+        input {
+            height: 38px !important;
+            padding: 12px;
+            background: $color-white;
+
+            &::placeholder {
+                color: #949CA9;
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-style: Medium;
+                font-size: 14px;
+            }
         }
 
         .status-dropdown {

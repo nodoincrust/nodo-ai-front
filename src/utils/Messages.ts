@@ -14,6 +14,8 @@ export const MESSAGES = {
         //Password Reset
         PASSWORD_RESET_SUCCESS: 'Password reset successfully.',
 
+        // Company
+        COMPANY_SAVED_SUCCESSFULLY: "Company saved successfully.",
     },
 
     ERRORS: {
@@ -21,8 +23,9 @@ export const MESSAGES = {
         SOMETHING_WENT_WRONG: "Something went wrong.",
 
         // Login
-        EMAIL_REQUIRED: "Email is required",
-        INVALID_EMAIL: "Invalid email format",
+        EMAIL_REQUIRED: "Email address is required",
+        INVALID_EMAIL: "Invalid email address format",
+        ENTER_VALID_EMAIL: "Enter a valid email address",
         FAILED_TO_SEND_OTP: "Failed to send OTP",
 
         // OTP Verification
@@ -42,8 +45,18 @@ export const MESSAGES = {
         TOKEN_ALREADY_USED: "This reset link has already been used.",
         FAILED_TO_RESET_PASSWORD: "Failed to reset password.",
         EMAIL_FETCH_FAILED: "Failed to fetch email.",
-        
+
         //Filters
-        FILTERS_FETCH_FAILED: "Failed to fetch filter options."
+        FILTERS_FETCH_FAILED: "Failed to fetch filter options.",
+
+        // Company
+        COMPANY_SAVED_FAILED: "Failed to save company.",
+        CONTACT_NUMBER_REQUIRED: "Phone number is required",
+        COMPANY_NAME_REQUIRED: "Company name is required",
+        CONTACT_NAME_REQUIRED: "Contact name is required",
+        STORAGE_REQUIRED: "Storage is required",
+        INVALID_CONTACT_NUMBER: "Enter a valid 10 digits phone number",
+        INVALID_STORAGE: "Enter a valid storage value (greater than 0)",
+        ONLY_NUMBERS_ALLOWED: "Only numbers allowed",
     },
 };

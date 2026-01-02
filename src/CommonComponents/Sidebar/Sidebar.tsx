@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import "./Styles/sidebar.scss";
 import { AuthData, SidebarItem, SidebarProps } from "../../types/common";
+import Profile from "../../pages/Profile/Components/Profile";
+import ConfirmModal from "../Confirm Modal/ConfirmModal";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -10,6 +12,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
   const disabledLinks = ["/dashboard"];
   // =======================
   // READ AUTH DATA
@@ -185,11 +189,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
           {/* BOTTOM */}
           <div className="bottom-div">
-            <div className="menu-item profile-item">
-              {/* <img src={userRoundedIcon} alt="Profile" /> */}
-              <div className="profile-avatar">
-                {userInitials}
-              </div>
+            <div
+              className={`menu-item profile-item ${showProfileModal ? "modal-open-hover" : ""}`}
+              onClick={() => {
+                setShowProfileModal(true);
+                clearFilterSession();
+                if (isMobile) toggleSidebar();
+              }}
+            >
+              <div className="profile-avatar">{userInitials}</div>
               <div className="profile-text">
                 <span className="profile-name">{loggedInUserName}</span>
                 <span className="profile-email">{loggedInUserEmail}</span>
@@ -216,22 +224,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         />
       )}
 
-      {/* LOGOUT MODAL */}
-      {/* {showLogoutModal && (
-        <div className="logout-modal-overlay" onClick={() => setShowLogoutModal(false)}>
-          <div className="logout-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Log Out</h3>
-            <p>Are you sure you want to log out?</p>
+      {/* PROFILE MODAL */}
+      <Profile
+        open={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      // user={authData.user}
+      />
 
-            <div className="actions">
-              <button onClick={() => setShowLogoutModal(false)}>Cancel</button>
-              <button className="danger" onClick={handleLogout}>
-                Log Out
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
+      {/* LOGOUT CONFIRM MODAL */}
+      <ConfirmModal
+        open={showLogoutModal}
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          localStorage.clear();
+          navigate("/");
+        }}
+        title="Log Out"
+        description="Are you sure you want to log out?"
+        confirmText="Log Out"
+        icon="/assets/logout.svg"
+      />
     </>
   );
 };

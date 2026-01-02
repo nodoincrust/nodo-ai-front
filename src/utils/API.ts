@@ -12,8 +12,8 @@ export const API_URL = {
     // ======================
     getCompaniesList: "/getCompanies",
     getCompanyDetails: "/company/company-detail",
-    createCompany: "/company/create-company",
-    updateCompany: "/company/update-company",
+    addCompany: "/addCompany",
+    updateCompany: "/updateCompanyDetails",
 
     // ======================
     // Filters
