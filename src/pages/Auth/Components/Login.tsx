@@ -20,6 +20,8 @@ const Login = () => {
   };
 
   const handleSendOtp = async () => {
+    // ALWAYS clear old session first
+    localStorage.clear();
     const error = validateEmail(email);
     setEmailError(error);
 

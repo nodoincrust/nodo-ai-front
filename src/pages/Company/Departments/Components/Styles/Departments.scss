@@ -1,0 +1,228 @@
+@use '../../../../../variables.scss' as *;
+
+// ===============================
+// Scoped styles for Departments
+// ===============================
+.departments-container {
+
+    .category-btn {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        gap: 4px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid #D5D7DA;
+        background-color: #FFFFFF;
+        font-family: "Inter";
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 20px;
+        color: #414651;
+        cursor: pointer;
+    }
+
+    .reported-row {
+        background-color: $logout-hover;
+    }
+
+    .reported-action-btn {
+        background-color: $logout-hover;
+        padding: 4px;
+        display: inline-block;
+        min-height: 92px;
+
+        img {
+            display: block;
+        }
+    }
+
+    // ===============================
+    // Table
+    // ===============================
+    .language-table {
+        table {
+            border-collapse: separate;
+
+            thead th {
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-size: 12px;
+                line-height: 18px;
+                color: $color-gray-table;
+                padding: 12px 16px;
+                text-align: left;
+            }
+
+            tbody td {
+                padding: 16px;
+                text-align: left;
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-style: Medium;
+                font-size: 14px;
+                line-height: 24px;
+                letter-spacing: 1%;
+                color: $label-color;
+
+                .cell-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+            }
+
+            // Column widths
+            th:nth-child(1),
+            td:nth-child(1) {
+                width: 80px;
+            }
+
+            th:nth-child(2),
+            td:nth-child(2) {
+                width: 200px;
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                width: 280px;
+            }
+
+            th:nth-child(4),
+            td:nth-child(4) {
+                width: 200px;
+            }
+
+            th:nth-child(5),
+            td:nth-child(5) {
+                width: 100px;
+            }
+
+            td:last-child,
+            th:last-child {
+                text-align: center;
+                width: 120px;
+                padding: 0;
+            }
+        }
+    }
+
+    // ===============================
+    // Department Cell (was Company)
+    // ===============================
+    .department-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .department-logo,
+    .department-initial {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .department-initial {
+        background: $color-bg-primary;
+        color: $color-primary;
+        font-family: $font-family-main;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+    }
+
+    .department-info {
+        display: flex;
+        flex-direction: column;
+
+        .department-name {
+            font-family: $font-family-main;
+            font-weight: 500;
+            font-style: Medium;
+            font-size: 14px;
+            line-height: 24px;
+            letter-spacing: 1%;
+            color: $label-color;
+        }
+
+        .department-email {
+            font-size: 14px;
+            color: $color-gray-table;
+        }
+    }
+
+    .contact-cell {
+        .contact-name {
+            font-family: $font-family-main;
+            font-weight: 500;
+            font-style: Medium;
+            font-size: 14px;
+            line-height: 24px;
+            letter-spacing: 1%;
+            color: $label-color;
+        }
+
+        .contact-email {
+            font-family: $font-family-main;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: -0.6%;
+            color: $profile-email-color;
+        }
+    }
+
+    // ===============================
+    // Status Badge (same as Language)
+    // ===============================
+    .status-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-family: $font-family-main;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 16px;
+        border-radius: 4px !important;
+        padding: 4px 6px;
+
+        .badge-div {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        &.active {
+            background-color: $color-status-bg-active;
+            color: $color-status-text-active;
+
+            .badge-div {
+                background-color: $color-status-badge-div-active;
+            }
+        }
+
+        &.inactive {
+            background-color: $color-status-bg-inactive;
+            color: $color-status-text-inactive;
+
+            .badge-div {
+                background-color: $color-status-badge-div-inactive;
+            }
+        }
+    }
+
+    // ===============================
+    // Actions
+    // ===============================
+    .departments-actions img {
+        cursor: pointer;
+    }
+}

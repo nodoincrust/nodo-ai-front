@@ -12,8 +12,8 @@ const OtpRoute = ({ children }: OtpRouteProps) => {
     if (token) {
         const role = getRoleFromToken(token);
 
-        if (role === "SYSTEM_ADMIN") return <Navigate to="/dashboard" replace />;
-        if (role === "COMPANY_ADMIN") return <Navigate to="/companies" replace />;
+        if (role === "SYSTEM_ADMIN") return <Navigate to="/companies" replace />;
+        if (role === "COMPANY_ADMIN") return <Navigate to="/departments" replace />;
     }
 
     return children;

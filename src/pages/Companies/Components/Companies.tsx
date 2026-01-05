@@ -8,8 +8,9 @@ import { useDebounce } from "../../../hooks/useDebounce";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { scrollLayoutToTop } from "../../../utils/utilFunctions";
-import { getCompaniesList } from "../../../services/companies.services";
+import { deleteCompany, getCompaniesList } from "../../../services/companies.services";
 import AddEditCompany from "./AddEditCompany";
+import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 
 export default function Companies() {
   const [count, setCount] = useState(0);
@@ -20,6 +21,8 @@ export default function Companies() {
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [companyToDelete, setCompanyToDelete] = useState<number | null>(null);
   const [pageSize, setPageSize] = useState(25);
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,22 +31,33 @@ export default function Companies() {
   const fetchCompanies = async () => {
     getLoaderControl()?.showLoader();
     try {
-      const res: any = await getCompaniesList({
+      const payload = {
         page: currentPage,
         pagelimit: pageSize,
         search,
-        status: status === "all" ? undefined : status, // optional status filter
-      });
+        status: status === "all" ? undefined : status,
+      };
 
-      // The API returns { data: [...], total: number, page, size }
-      setCompanyList(res.data || []);
-      setCount(res.total || 0);
+      const res: any = await getCompaniesList(payload);
 
+      if (res?.statusCode === 200) {
+        setCompanyList(res?.data || []);
+        setCount(res?.total || 0);
+      } else {
+        setCompanyList([]);
+        setCount(0);
+        notification.error({
+          message:
+            res?.message || MESSAGES.ERRORS.FAILED_TO_FETCH_COMPANIES,
+        });
+      }
     } catch (error: any) {
       setCompanyList([]);
       setCount(0);
       notification.error({
-        message: error?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+        message:
+          error?.response?.data?.message ||
+          MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
       });
     } finally {
       getLoaderControl()?.hideLoader();
@@ -53,6 +67,45 @@ export default function Companies() {
   useEffect(() => {
     fetchCompanies();
   }, [currentPage, debouncedSearch, status, pageSize]);
+
+  const handleDeleteCompany = async () => {
+    if (!companyToDelete) return;
+
+    getLoaderControl()?.showLoader();
+    try {
+      const res: any = await deleteCompany(companyToDelete);
+
+      if (res?.statusCode === 200) {
+        notification.success({
+          message:
+            res?.message ||
+            MESSAGES.SUCCESS.COMPANY_DELETED_SUCCESSFULLY,
+        });
+
+        if (companyList.length === 1 && currentPage > 1) {
+          setCurrentPage((prev) => prev - 1);
+        } else {
+          fetchCompanies();
+        }
+      } else {
+        notification.error({
+          message:
+            res?.message ||
+            MESSAGES.ERRORS.COMPANY_DELETE_FAILED,
+        });
+      }
+    } catch (error: any) {
+      notification.error({
+        message:
+          error?.response?.data?.message ||
+          MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setCompanyToDelete(null);
+      getLoaderControl()?.hideLoader();
+    }
+  };
 
   useEffect(() => {
     scrollLayoutToTop();
@@ -80,6 +133,7 @@ export default function Companies() {
         }}
         onAddClick={openAddCompany}
         addButtonText="Add Company"
+        searchPlaceholder="Search companies by name or owner email"
         categoryButtonText="Status: All"
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-dropdown-text"
@@ -160,6 +214,10 @@ export default function Companies() {
             <img
               src="/assets/trash.svg"
               alt="Delete"
+              onClick={() => {
+                setCompanyToDelete(row.id);
+                setShowDeleteModal(true);
+              }}
             />
           </div>
         )}
@@ -190,6 +248,22 @@ export default function Companies() {
           }}
         />
       )}
+
+      {/* CONFIRM MODAL FOR DELETE */}
+      <ConfirmModal
+        open={showDeleteModal}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setCompanyToDelete(null);
+        }}
+        onConfirm={handleDeleteCompany}
+        title="Delete Company?"
+        description={
+          "Deleting this company will remove all associated departments and reporting links.\nThis action cannot be undone."
+        }
+        confirmText="Delete"
+        icon="/assets/trash-hover.svg"
+      />
     </div>
   );
 }

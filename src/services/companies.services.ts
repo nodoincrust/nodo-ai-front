@@ -19,3 +19,11 @@ export const updateCompany = async (companyId: number, payload: any) => {
   const response = await axios.put(`${API_URL.updateCompany}/${companyId}`, payload);
   return response.data;
 };
+
+// Delete company
+export const deleteCompany = async (companyId: number) => {
+  const response = await axios.delete(
+    `${API_URL.deleteCompany}/${companyId}`
+  );
+  return response.data;
+};

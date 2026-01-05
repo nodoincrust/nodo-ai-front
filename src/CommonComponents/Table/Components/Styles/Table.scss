@@ -66,7 +66,7 @@
 
     .contact-email {
         font-size: 13px;
-        color: #64748b;
+        color: $profile-email-color;
     }
 
     /* --------------------------
@@ -132,6 +132,7 @@
     text-transform: uppercase !important;
     border-bottom: 1px solid $color-border !important;
     background-color: $bg-light !important;
+    color: $secondary !important;
     padding: 16px !important;
     height: 40px !important;
 
@@ -183,6 +184,10 @@
 .language-actions {
     width: 80px;
     text-align: center;
+    position: sticky;
+    right: 0;
+    background: $color-white;
+    z-index: 5;
 }
 
 .language-actions img {
