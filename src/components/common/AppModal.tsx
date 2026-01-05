@@ -7,6 +7,7 @@ interface AppModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   width?: string;
+  height?:string
 }
 
 const AppModal = ({
@@ -15,7 +16,9 @@ const AppModal = ({
   onClose,
   children,
   footer,
-  width = "480px",
+  width = "750px",
+
+
 }: AppModalProps) => {
   if (!open) return null;
 

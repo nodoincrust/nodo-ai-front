@@ -1,0 +1,167 @@
+@use "../../variables.scss" as *;
+
+.document-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid $color-border;
+  background-color: #f9fafb;
+
+  .document-header-left {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .document-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .app-logo {
+      width: 48px;
+      height: 48px;
+    }
+
+    .app-name {
+      font-family: "Inter-semibold";
+      font-size: 22px;
+      color: #1b3249;
+    }
+  }
+
+  .header-separator {
+    color: #1b32493d;
+    font-size: 28px;
+  }
+  .document-header-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .back-button {
+      border: 1px solid #e2e4e9;
+      background: transparent;
+      width: 36px;
+      height: 36px;
+      border-radius: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition;
+      color: $color-gray;
+
+      &:hover {
+        background-color: $bg-light;
+        color: $color-text;
+      }
+    }
+
+    .ant-breadcrumb {
+      font-family: $font-family-main;
+      font-size: 13px;
+      color: $color-gray;
+
+      a {
+        color: $color-gray-table;
+
+        &:hover {
+          color: $color-primary;
+        }
+      }
+      .filename {
+        background-color: #ecf2fe;
+        color: #457ce8;
+        font-family: "inter-regular";
+        font-size: 16px;
+        border-radius: 4px;
+        padding: 2px 6px;
+      }
+      .doc {
+        font-family: "inter-regular";
+        font-size: 16px;
+      }
+    }
+  }
+
+  .document-header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .document-header-title {
+    margin: 0;
+    font-family: "Inter-semibold";
+    font-size: 22px;
+    line-height: 28px;
+    color: $subheading-color;
+  }
+
+  .doc-header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: none;
+    font-size: 12px;
+    font-family: "inter-regular";
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    &.doc-header-status--approved {
+      background-color: #d9fde8;
+      color: #027a48;
+    }
+
+    &.doc-header-status--rejected {
+      background-color: #fdeaea;
+      color: #d92d20;
+    }
+
+    &.doc-header-status--draft {
+      background-color: #f3f4f6;
+      color: #00132e;
+    }
+
+    &.doc-header-status--submitted {
+      background-color: #ffecc8;
+      color: #ff9500;
+    }
+
+    &.doc-header-status--in_review {
+      background-color: #e0f2fe;
+      color: #0369a1;
+    }
+  }
+
+  .document-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .version-select {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    border-radius: 1px solid #e2e4e9;
+  
+
+    .version-dropdown {
+      min-width: 96px;
+    }
+  }
+
+  .document-header-submit-btn {
+    min-width: 96px;
+  }
+}

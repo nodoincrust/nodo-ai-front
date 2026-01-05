@@ -21,6 +21,11 @@
             &.sidebar-collapsed {
                 margin-left: 88px;
             }
+
+            &.no-sidebar {
+                margin-left: 0;
+                background-color: $color-background;
+            }
         }
 
         // small devices (sidebar overlays, so no margin)
@@ -28,6 +33,10 @@
             margin-left: 0 !important;
             margin-top: 57px;
             padding: 0;
+
+            &.no-sidebar {
+                margin-top: 0;
+            }
         }
     }
 }
@@ -48,5 +57,12 @@ body {
     .content-container {
         padding: 22px 32px !important;
         background-color: $color-background;
+        height: 100vh;
+
+        // Remove padding for document detail pages
+        &:has(.document-layout) {
+            padding: 0 !important;
+            background-color: transparent;
+        }
     }
 }

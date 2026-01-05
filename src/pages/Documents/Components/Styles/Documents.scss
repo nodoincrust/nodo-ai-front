@@ -1,0 +1,277 @@
+@use "../../../../variables.scss" as *;
+
+// ===============================
+// Scoped styles for Documents
+// ===============================
+.documents-container {
+  // padding: 24px;
+
+  // ===============================
+  // Status Dropdown
+  // ===============================
+  .status-dropdown {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    gap: 4px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #d5d7da;
+    background-color: #ffffff;
+    font-family: $font-family-main;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    color: #414651;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      border-color: $color-primary;
+    }
+  }
+
+  .status-dropdown-text {
+    color: #414651;
+  }
+
+  // ===============================
+  // Table
+  // ===============================
+  .language-table {
+    table {
+      border-collapse: separate;
+
+      thead th {
+        font-family: $font-family-main;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 18px;
+        color: $color-gray-table;
+        padding: 12px 16px;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      tbody td {
+        padding: 16px;
+        font-family: $font-family-main;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 20px;
+        color: $color-gray-table;
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      // Column widths
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 80px;
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 300px;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 120px;
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 250px;
+      }
+
+      th:nth-child(5),
+      td:nth-child(5) {
+        width: 150px;
+      }
+
+      td:last-child,
+      th:last-child {
+        text-align: center;
+        width: 100px;
+        padding: 0;
+      }
+    }
+  }
+
+  // ===============================
+  // Document Cell
+  // ===============================
+  .document-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .document-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .file-type-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .document-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: $color-dark;
+    word-break: break-word;
+  }
+
+  .document-size {
+    font-weight: 400;
+    font-size: 14px;
+    color: $color-gray-table;
+  }
+
+  // ===============================
+  // Tags
+  // ===============================
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 250px;
+  }
+
+  .tag-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: #ececff;
+    color: #4f4fff;
+    font-family: $font-family-main;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  // ===============================
+  // Status Badge
+  // ===============================
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: $font-family-main;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    border-radius: 4px;
+    padding: 4px 8px;
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    &.approved {
+      background-color: #d9fde8;
+      color: #027a48;
+
+      .badge-dot {
+        background-color: #027a48;
+      }
+    }
+
+    &.draft {
+      background-color: #f3f4f6;
+      color: #00132e;
+
+      .badge-dot {
+        background-color: #00132e;
+      }
+    }
+
+    &.rejected {
+      background-color: #fdeaea;
+      color: #d92d20;
+
+      .badge-dot {
+        background-color: #d92d20;
+      }
+    }
+
+    &.in-review {
+      background-color: #ffecc8;
+      color: #ff9500;
+
+      .badge-dot {
+        background-color: #ff9500;
+      }
+    }
+    &.submitted {
+      background-color: #ffecc8;
+      color: #ff9500;
+
+      .badge-dot {
+        background-color: #ff9500;
+      }
+    }
+  }
+
+  // ===============================
+  // Actions
+  // ===============================
+  .documents-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .view-icon {
+      width: 77px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background-color: #ffffff;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #d1d5db;
+        background-color: #f9fafb;
+      }
+
+      img {
+        width: 16px;
+        height: 16px;
+        display: block;
+        flex-shrink: 0;
+      }
+
+      .spantext {
+        color: #1b3249;
+        font-family: $font-family-main;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 20px;
+        white-space: nowrap;
+      }
+    }
+  }
+}

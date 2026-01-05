@@ -1,5 +1,5 @@
 import React from "react"; // make sure this import exists
-import { Navigate } from "react-router-dom";
+import { Navigate, replace } from "react-router-dom";
 import { getRoleFromToken } from "../../utils/jwt";
 
 interface OtpRouteProps {
@@ -14,6 +14,7 @@ const OtpRoute = ({ children }: OtpRouteProps) => {
 
         if (role === "SYSTEM_ADMIN") return <Navigate to="/dashboard" replace />;
         if (role === "COMPANY_ADMIN") return <Navigate to="/companies" replace />;
+        if(role==="EMPLOYEE") return <Navigate to ="/documents" replace/>;
     }
 
     return children;

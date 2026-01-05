@@ -10,6 +10,7 @@ const Header: React.FC<HeaderProps> = ({
   count,
   searchValue,
   onSearchChange,
+  searchPlaceholder,
   onAddClick,
   addButtonText,
   categoryMenu,
@@ -44,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({
           <Input
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search companies by name or owner email"
+            placeholder={searchPlaceholder || "Search companies by name or owner email"}
             prefix={<img src="/assets/search.svg" alt="Search" />}
             className="search-input"
           />

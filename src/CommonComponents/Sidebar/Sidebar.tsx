@@ -90,8 +90,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   // LOGOUT
   // =======================
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
+    // Clear all authentication data
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("authData");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userDetails");
+    
+    // Clear session storage
+    sessionStorage.clear();
+    
+    // Close modal
+    setShowLogoutModal(false);
+    
+    // Navigate to login
+    navigate("/", { replace: true });
   };
 
 
@@ -202,7 +214,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               onClick={() => setShowLogoutModal(true)}
             >
               <img src="/assets/logout.svg" alt="Logout" />
-              {/* <span>Logout</span> */}
             </button>
           </div>
         </div>
@@ -217,7 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       )}
 
       {/* LOGOUT MODAL */}
-      {/* {showLogoutModal && (
+      {showLogoutModal && (
         <div className="logout-modal-overlay" onClick={() => setShowLogoutModal(false)}>
           <div className="logout-modal" onClick={(e) => e.stopPropagation()}>
             <h3>Log Out</h3>
@@ -231,7 +242,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             </div>
           </div>
         </div>
-      )} */}
+      )}
     </>
   );
 };

@@ -373,3 +373,78 @@
     }
   }
 }
+
+// Logout Modal Styles
+.logout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.logout-modal {
+  background: $color-white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+
+  h3 {
+    font-family: $font-family-main;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 24px;
+    color: $color-dark;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-family: $font-family-main;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: $color-gray-table;
+    margin: 0 0 24px 0;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+
+    button {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: $font-family-main;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      cursor: pointer;
+      border: 1px solid $color-border;
+      background: $color-white;
+      color: $color-gray-table;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $bg-light;
+      }
+
+      &.danger {
+        background: $logout-color;
+        color: $color-white;
+        border-color: $logout-color;
+
+        &:hover {
+          background: darken($logout-color, 10%);
+        }
+      }
+    }
+  }
+}

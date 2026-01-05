@@ -91,10 +91,22 @@ const VerifyOtp = () => {
       }
 
       // Navigate based on role
-      if (role === "SYSTEM_ADMIN") navigate("/companies", { replace: true });
-      else if (role === "COMPANY_ADMIN") navigate("/departments", { replace: true });
-      else if (role === "USER") navigate("/user", { replace: true });
-      else navigate("/", { replace: true });
+      if (role === "SYSTEM_ADMIN") {
+        navigate("/companies", { replace: true });
+      } else if (role === "COMPANY_ADMIN") {
+        navigate("/departments", { replace: true });
+      } else if (role === "EMPLOYEE" || role === "employee") {
+        navigate("/documents", { replace: true });
+      } else if (role === "USER") {
+        navigate("/user", { replace: true });
+      } else {
+        // Default: redirect to first sidebar item or documents
+        if (sidebar && sidebar.length > 0) {
+          navigate(sidebar[0].path, { replace: true });
+        } else {
+          navigate("/documents", { replace: true });
+        }
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || "OTP verification failed");

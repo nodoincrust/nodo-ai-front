@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import './Styles/Layout.scss'
 import { LoaderOverlay } from "../CommonComponents/Loader/loader";
@@ -8,6 +8,11 @@ import Sidebar from "../CommonComponents/Sidebar/Sidebar";
 const Layout: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(window.innerWidth >= 992);
+  const location = useLocation();
+
+  // Check if current route is a document detail page (e.g., /documents/123)
+  const isDocumentDetailPage = /^\/documents\/\d+$/.test(location.pathname);
+  const shouldShowSidebar = !isDocumentDetailPage;
 
   useEffect(() => {
     setLoading(false);
@@ -27,8 +32,10 @@ const Layout: React.FC = () => {
     <div className="d-flex flex-column layout-container">
       {/* <Header /> */}
       <div className="d-flex flex-grow-1">
-        <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
-        <main className={`flex-grow-1 overflow-auto layout-main ${isOpen ? "sidebar-open" : "sidebar-collapsed"}`}>
+        {shouldShowSidebar && (
+          <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+        )}
+        <main className={`flex-grow-1 overflow-auto layout-main ${shouldShowSidebar ? (isOpen ? "sidebar-open" : "sidebar-collapsed") : "no-sidebar"}`}>
           <Container fluid className="p-0 content-container">
             <Outlet />
           </Container>

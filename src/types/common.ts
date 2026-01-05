@@ -1,5 +1,12 @@
 //CommomComponent
-// Breadcrumb.tsx
+// Breadcrumb.tsximport type { ButtonProps, MenuProps } from "antd";
+//Attendance Report
+// types/common.d.ts or types/attendance.d.ts
+
+import { Dayjs } from "dayjs";
+import type { ReactNode } from "react";
+import type { User } from "../pages/companyDashboard/compDashboard";
+import type { ButtonProps } from "antd";
 export interface BreadcrumbItem {
   text: string;
   path?: string;
@@ -13,13 +20,14 @@ export interface BreadcrumbProps {
 
 //Buttons
 // PrimaryButton.tsx
+
 export interface PrimaryButtonProps extends ButtonProps {
-  text?: React.ReactNode;
+  text: string;
   imgSrc?: string;
   imgAlt?: string;
   imgPosition?: "before" | "after";
+  className?: string;
 }
-
 // SecondaryButton.tsx
 export interface SecondaryButtonProps extends ButtonProps {
   text?: React.ReactNode;
@@ -73,6 +81,7 @@ export interface HeaderProps {
   count?: number | string;
   searchValue?: string;
   onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
   onAddClick?: () => void;
   addButtonText?: string;
   onFilterClick?: () => void;
@@ -84,6 +93,25 @@ export interface HeaderProps {
   categoryButtonTextClassName?: string;
   filtersApplied?: boolean;
   onClearFilters?: () => void;
+}
+
+// Document detail header
+export type DocumentStatus = "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+
+export interface DocumentBreadcrumbItem {
+  label: string;
+  path?: string;
+}
+
+export interface DocumentHeaderProps {
+  breadcrumb: DocumentBreadcrumbItem[];
+  fileName: string;
+  status?: DocumentStatus;
+  onBackClick?: () => void;
+  versionOptions?: { label: string; value: string }[];
+  selectedVersion?: string;
+  onVersionChange?: (value: string) => void;
+  onSubmit?: () => void;
 }
 
 // Sidebar.tsx
@@ -361,13 +389,7 @@ export interface Location {
   isactive?: boolean;
 }
 
-import type { ButtonProps, MenuProps } from "antd";
-//Attendance Report
-// types/common.d.ts or types/attendance.d.ts
 
-import { Dayjs } from "dayjs";
-import type { ReactNode } from "react";
-import type { User } from "../pages/companyDashboard/compDashboard";
 
 export interface AttendanceItem {
   id?: number;
@@ -436,4 +458,49 @@ export interface AuthData {
   is_department_head?: boolean;
   department_id?: number | null;
   user?: User;
+}
+
+// Document interface
+export interface ApiDocumentVersion {
+  version_number: number;
+  file_name: string;
+  file_size_bytes: number;
+  tags: string[];
+  summary?: string;
+}
+
+export interface ApiDocument {
+  document_id: number;
+  status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  current_version: number;
+  version: ApiDocumentVersion;
+}
+
+export interface DocumentsListResponse {
+  data: ApiDocument[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+// Document UI type (normalized from ApiDocument for display)
+export interface Document {
+  document_id: number;
+  status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  current_version: number;
+  // Normalized fields for UI
+  name: string;
+  size: number;
+  tags: string[];
+  file_type: string;
+}
+
+// Parameters for getting documents list
+export interface GetDocumentsParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  version?: number;
+  tag?: string;
 }

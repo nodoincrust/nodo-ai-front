@@ -1,454 +1,451 @@
-import { useState, useEffect } from "react";
-import DashboardLayout from "../../layoutes/DashBoardLayout/DashboardLayout";
-import Header from "../../layoutes/Topbar/topbar";
-import DataTable from "../../components/Tables/DataTable";
-import StatusToggle from "../../components/common/StatusToggle ";
-import IconButton from "../../components/common/IconButton";
-import AddCompanyModal from "../../components/Admin/AddCompanyModal";
-import EditCompanyModal from "../../components/Admin/EditCompanyModal";
-import { useAppNotification } from "../../hooks/useAppNotification";
-import "./Dashboard.scss";
-import editIcon from "../../assets/images/edit-button.svg";
-import deleteIcon from "../../assets/images/delete-button.svg";
-import { adminDashboardService } from "../../services/adminDashboard.service";
-import { logout } from "../../utils/storage";
-import StatusBadge from "../../components/common/StatusBadge";
+// import { useState, useEffect } from "react";
+// import DataTable from "../../components/Tables/DataTable";
+// import StatusToggle from "../../components/common/StatusToggle ";
+// import IconButton from "../../components/common/IconButton";
+// import AddCompanyModal from "../../components/Admin/AddCompanyModal";
+// import EditCompanyModal from "../../components/Admin/EditCompanyModal";
+// import { useAppNotification } from "../../hooks/useAppNotification";
+// import "./Dashboard.scss";
 
-export interface Company {
-  id: number;
-  name: string;
-  email: string;
-  owner: string;
+// import { adminDashboardService } from "../../services/adminDashboard.service";
+// import { logout } from "../../utils/storage";
+// import StatusBadge from "../../components/common/StatusBadge";
 
-  status: "Active" | "Inactive";
-}
-const Dashboard = () => {
-  const { notify, contextHolder } = useAppNotification();
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const [searchValue, setSearchValue] = useState<string>("");
-  const [isAddCompanyModalOpen, setIsAddCompanyModalOpen] =
-    useState<boolean>(false);
-  const [isEditCompanyModalOpen, setIsEditCompanyModalOpen] =
-    useState<boolean>(false);
-  const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
+// export interface Company {
+//   id: number;
+//   name: string;
+//   email: string;
+//   owner: string;
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
+//   status: "Active" | "Inactive";
+// }
+// const Dashboard = () => {
+//   const { notify, contextHolder } = useAppNotification();
+//   const [companies, setCompanies] = useState<Company[]>([]);
+//   const [loading, setLoading] = useState<boolean>(true);
+//   const [error, setError] = useState<string>("");
+//   const [searchValue, setSearchValue] = useState<string>("");
+//   const [isAddCompanyModalOpen, setIsAddCompanyModalOpen] =
+//     useState<boolean>(false);
+//   const [isEditCompanyModalOpen, setIsEditCompanyModalOpen] =
+//     useState<boolean>(false);
+//   const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null);
+//   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+//   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
 
-  // Cleanup: Close modal when component unmounts (e.g., on logout/navigation)
-  useEffect(() => {
-    return () => {
-      setIsAddCompanyModalOpen(false);
-    };
-  }, []);
+//   useEffect(() => {
+//     fetchCompanies();
+//   }, []);
 
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to log out?")) {
-      setIsAddCompanyModalOpen(false);
+//   // Cleanup: Close modal when component unmounts (e.g., on logout/navigation)
+//   useEffect(() => {
+//     return () => {
+//       setIsAddCompanyModalOpen(false);
+//     };
+//   }, []);
 
-      setTimeout(() => {
-        logout();
-      }, 100);
-    }
-  };
+//   const handleLogout = () => {
+//     if (window.confirm("Are you sure you want to log out?")) {
+//       setIsAddCompanyModalOpen(false);
 
-  const handleSearch = (value: string) => {
-    setSearchValue(value);
-  };
+//       setTimeout(() => {
+//         logout();
+//       }, 100);
+//     }
+//   };
 
-  // Debounced search effect
-  useEffect(() => {
-    const searchTimer = setTimeout(() => {
-      if (!searchValue.trim()) {
-        fetchCompanies(); // reset to all companies
-        return;
-      }
+//   const handleSearch = (value: string) => {
+//     setSearchValue(value);
+//   };
 
-      const performSearch = async () => {
-        try {
-          setLoading(true);
-          setError("");
-          const res = await adminDashboardService.searchCompanies(
-            searchValue.trim(),
-            1,
-            10
-          );
+//   // Debounced search effect
+//   useEffect(() => {
+//     const searchTimer = setTimeout(() => {
+//       if (!searchValue.trim()) {
+//         fetchCompanies(); // reset to all companies
+//         return;
+//       }
 
-          // Handle different response structures
-          // API might return: [{...}] directly or { data: { data: [...] } }
-          let apiData: any[] = [];
+//       const performSearch = async () => {
+//         try {
+//           setLoading(true);
+//           setError("");
+//           const res = await adminDashboardService.searchCompanies(
+//             searchValue.trim(),
+//             1,
+//             10
+//           );
 
-          if (Array.isArray(res.data)) {
-            // Direct array response: [{...}]
-            apiData = res.data;
-          } else if (res.data?.data && Array.isArray(res.data.data)) {
-            // Nested structure: { data: { data: [...] } }
-            apiData = res.data.data;
-          } else {
-            // Fallback: try to use res.data if it exists
-            console.warn("Unexpected response structure:", res.data);
-            apiData = [];
-          }
+//           // Handle different response structures
+//           // API might return: [{...}] directly or { data: { data: [...] } }
+//           let apiData: any[] = [];
 
-          console.log("Search response:", res.data);
-          console.log("Extracted data:", apiData);
-          console.log("Number of results:", apiData.length);
+//           if (Array.isArray(res.data)) {
+//             // Direct array response: [{...}]
+//             apiData = res.data;
+//           } else if (res.data?.data && Array.isArray(res.data.data)) {
+//             // Nested structure: { data: { data: [...] } }
+//             apiData = res.data.data;
+//           } else {
+//             // Fallback: try to use res.data if it exists
+//             console.warn("Unexpected response structure:", res.data);
+//             apiData = [];
+//           }
 
-          const mapped: Company[] = apiData.map((item) => ({
-            id: item.id,
-            name: item.name,
-            email: item.contact_email,
-            owner: item.contact_person,
-            status: item.is_active ? "Active" : "Inactive",
-          }));
+//           console.log("Search response:", res.data);
+//           console.log("Extracted data:", apiData);
+//           console.log("Number of results:", apiData.length);
 
-          setCompanies(mapped);
-        } catch (err: any) {
-          console.error("Search failed:", err);
-          console.error("Error details:", err.response?.data);
-          const errorMessage =
-            err.response?.data?.message || "Failed to search companies";
-          notify.error("Error", errorMessage);
-          setError(errorMessage);
-          // On error, show all companies
-          fetchCompanies();
-        } finally {
-          setLoading(false);
-        }
-      };
+//           const mapped: Company[] = apiData.map((item) => ({
+//             id: item.id,
+//             name: item.name,
+//             email: item.contact_email,
+//             owner: item.contact_person,
+//             status: item.is_active ? "Active" : "Inactive",
+//           }));
 
-      performSearch();
-    }, 500); // 500ms debounce
+//           setCompanies(mapped);
+//         } catch (err: any) {
+//           console.error("Search failed:", err);
+//           console.error("Error details:", err.response?.data);
+//           const errorMessage =
+//             err.response?.data?.message || "Failed to search companies";
+//           notify.error("Error", errorMessage);
+//           setError(errorMessage);
+//           // On error, show all companies
+//           fetchCompanies();
+//         } finally {
+//           setLoading(false);
+//         }
+//       };
 
-    return () => clearTimeout(searchTimer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue]);
+//       performSearch();
+//     }, 500); // 500ms debounce
 
-  const fetchCompanies = async () => {
-    try {
-      setLoading(true);
-      setError("");
+//     return () => clearTimeout(searchTimer);
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [searchValue]);
 
-      const response = await adminDashboardService.getCompanies();
-      const apiData = response.data.data;
+//   const fetchCompanies = async () => {
+//     try {
+//       setLoading(true);
+//       setError("");
 
-      const mapped: Company[] = apiData.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        email: item.contact_email,
-        owner: item.contact_person,
-        status: item.is_active ? "Active" : "Inactive",
-      }));
+//       const response = await adminDashboardService.getCompanies();
+//       const apiData = response.data.data;
 
-      setCompanies(mapped);
-    } catch (err: any) {
-      console.error("Error fetching companies:", err);
-      setError(err.response?.data?.message || "Failed to fetch companies");
-      setCompanies([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+//       const mapped: Company[] = apiData.map((item: any) => ({
+//         id: item.id,
+//         name: item.name,
+//         email: item.contact_email,
+//         owner: item.contact_person,
+//         status: item.is_active ? "Active" : "Inactive",
+//       }));
 
-  const handleEdit = (company: Company) => {
-    setCompanyToEdit(company);
-    setIsEditCompanyModalOpen(true);
-  };
+//       setCompanies(mapped);
+//     } catch (err: any) {
+//       console.error("Error fetching companies:", err);
+//       setError(err.response?.data?.message || "Failed to fetch companies");
+//       setCompanies([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const handleCloseEditModal = () => {
-    setIsEditCompanyModalOpen(false);
-    setCompanyToEdit(null);
-  };
+//   const handleEdit = (company: Company) => {
+//     setCompanyToEdit(company);
+//     setIsEditCompanyModalOpen(true);
+//   };
 
-  const handleUpdateCompany = async (data: {
-    name: string;
-    email: string;
-    owner: string;
-    is_active: boolean;
-  }) => {
-    if (!companyToEdit) return;
+//   const handleCloseEditModal = () => {
+//     setIsEditCompanyModalOpen(false);
+//     setCompanyToEdit(null);
+//   };
 
-    try {
-      await adminDashboardService.updateCompanyDetails(companyToEdit.id, {
-        name: data.name,
-        contact_email: data.email,
-        contact_person: data.owner,
-      });
+//   const handleUpdateCompany = async (data: {
+//     name: string;
+//     email: string;
+//     owner: string;
+//     is_active: boolean;
+//   }) => {
+//     if (!companyToEdit) return;
 
-      // Update status if changed
-      if (data.is_active !== (companyToEdit.status === "Active")) {
-        await adminDashboardService.updateCompanyStatus(
-          companyToEdit.id,
-          data.is_active
-        );
-      }
+//     try {
+//       await adminDashboardService.updateCompanyDetails(companyToEdit.id, {
+//         name: data.name,
+//         contact_email: data.email,
+//         contact_person: data.owner,
+//       });
 
-      // Show success notification
-      notify.success(
-        "Company Updated",
-        "Company has been updated successfully"
-      );
+//       // Update status if changed
+//       if (data.is_active !== (companyToEdit.status === "Active")) {
+//         await adminDashboardService.updateCompanyStatus(
+//           companyToEdit.id,
+//           data.is_active
+//         );
+//       }
 
-      // Close modal
-      setIsEditCompanyModalOpen(false);
-      setCompanyToEdit(null);
+//       // Show success notification
+//       notify.success(
+//         "Company Updated",
+//         "Company has been updated successfully"
+//       );
 
-      // Refresh companies list
-      fetchCompanies();
-    } catch (err: any) {
-      console.error("Error updating company:", err);
-      const errorMessage =
-        err.response?.data?.message || "Failed to update company";
-      notify.error("Error", errorMessage);
-      setError(errorMessage);
-    }
-  };
+//       // Close modal
+//       setIsEditCompanyModalOpen(false);
+//       setCompanyToEdit(null);
 
-  const handleDelete = (company: Company) => {
-    setCompanyToDelete(company);
-    setShowDeleteModal(true);
-  };
+//       // Refresh companies list
+//       fetchCompanies();
+//     } catch (err: any) {
+//       console.error("Error updating company:", err);
+//       const errorMessage =
+//         err.response?.data?.message || "Failed to update company";
+//       notify.error("Error", errorMessage);
+//       setError(errorMessage);
+//     }
+//   };
 
-  const handleConfirmDelete = async () => {
-    if (!companyToDelete) return;
+//   const handleDelete = (company: Company) => {
+//     setCompanyToDelete(company);
+//     setShowDeleteModal(true);
+//   };
 
-    try {
-      await adminDashboardService.deleteCompany(companyToDelete.id);
+//   const handleConfirmDelete = async () => {
+//     if (!companyToDelete) return;
 
-      // Show success notification
-      notify.success(
-        "Company Deleted",
-        `${companyToDelete.name} has been deleted successfully`
-      );
+//     try {
+//       await adminDashboardService.deleteCompany(companyToDelete.id);
 
-      // Close modal
-      setShowDeleteModal(false);
-      setCompanyToDelete(null);
+//       // Show success notification
+//       notify.success(
+//         "Company Deleted",
+//         `${companyToDelete.name} has been deleted successfully`
+//       );
 
-      // Refresh companies list
-      fetchCompanies();
-    } catch (err: any) {
-      console.error("Error deleting company:", err);
-      const errorMessage =
-        err.response?.data?.message || "Failed to delete company";
-      notify.error("Error", errorMessage);
-      setError(errorMessage);
-    }
-  };
+//       // Close modal
+//       setShowDeleteModal(false);
+//       setCompanyToDelete(null);
 
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setCompanyToDelete(null);
-  };
+//       // Refresh companies list
+//       fetchCompanies();
+//     } catch (err: any) {
+//       console.error("Error deleting company:", err);
+//       const errorMessage =
+//         err.response?.data?.message || "Failed to delete company";
+//       notify.error("Error", errorMessage);
+//       setError(errorMessage);
+//     }
+//   };
 
-  const handleAddCompany = () => {
-    setIsAddCompanyModalOpen(true);
-  };
+//   const handleCancelDelete = () => {
+//     setShowDeleteModal(false);
+//     setCompanyToDelete(null);
+//   };
 
-  const handleCloseModal = () => {
-    setIsAddCompanyModalOpen(false);
-  };
+//   const handleAddCompany = () => {
+//     setIsAddCompanyModalOpen(true);
+//   };
 
-  const handleSaveCompany = async (data: {
-    name: string;
-    email: string;
-    owner: string;
-    is_active: boolean;
-  }) => {
-    try {
-      await adminDashboardService.addCompany({
-        name: data.name,
-        contact_email: data.email,
-        contact_person: data.owner,
-        is_active: data.is_active,
-      });
+//   const handleCloseModal = () => {
+//     setIsAddCompanyModalOpen(false);
+//   };
 
-      // Show success notification
-      notify.success(
-        "Company Created",
-        "Company has been created successfully"
-      );
+//   const handleSaveCompany = async (data: {
+//     name: string;
+//     email: string;
+//     owner: string;
+//     is_active: boolean;
+//   }) => {
+//     try {
+//       await adminDashboardService.addCompany({
+//         name: data.name,
+//         contact_email: data.email,
+//         contact_person: data.owner,
+//         is_active: data.is_active,
+//       });
 
-      // Close modal
-      setIsAddCompanyModalOpen(false);
+//       // Show success notification
+//       notify.success(
+//         "Company Created",
+//         "Company has been created successfully"
+//       );
 
-      // Refresh companies list
-      fetchCompanies();
-    } catch (err: any) {
-      console.error("Error adding company:", err);
-      const errorMessage =
-        err.response?.data?.message || "Failed to create company";
-      notify.error("Error", errorMessage);
-      setError(errorMessage);
-    }
-  };
-  const handleStatusChange = async (companyId: number, newStatus: boolean) => {
-    try {
-      await adminDashboardService.updateCompanyStatus(companyId, newStatus);
+//       // Close modal
+//       setIsAddCompanyModalOpen(false);
 
-      notify.success(
-        "Status Updated",
-        `Company status has been set to ${newStatus ? "Active" : "Inactive"}`
-      );
+//       // Refresh companies list
+//       fetchCompanies();
+//     } catch (err: any) {
+//       console.error("Error adding company:", err);
+//       const errorMessage =
+//         err.response?.data?.message || "Failed to create company";
+//       notify.error("Error", errorMessage);
+//       setError(errorMessage);
+//     }
+//   };
+//   const handleStatusChange = async (companyId: number, newStatus: boolean) => {
+//     try {
+//       await adminDashboardService.updateCompanyStatus(companyId, newStatus);
 
-      fetchCompanies();
-    } catch (err: any) {
-      console.error("Status update failed", err);
-      notify.error("Error", "Failed to update company status");
-    }
-  };
+//       notify.success(
+//         "Status Updated",
+//         `Company status has been set to ${newStatus ? "Active" : "Inactive"}`
+//       );
 
-  return (
-    <DashboardLayout>
-      {contextHolder}
-      <div className="dashboard-page">
-        <Header
-          title="Dashboard"
-          searchPlaceholder="Search"
-          searchValue={searchValue}
-          onSearchChange={handleSearch}
-          secondaryButtonText="Filter"
-          secondaryButtonIcon="/assets/filter.svg"
-          primaryButtonText="Add Company"
-          primaryButtonIcon="/assets/add.svg"
-          onPrimaryButtonClick={handleAddCompany}
-        />
+//       fetchCompanies();
+//     } catch (err: any) {
+//       console.error("Status update failed", err);
+//       notify.error("Error", "Failed to update company status");
+//     }
+//   };
 
-        <div className="dashboard-table-card">
-          {loading ? (
-            <div style={{ textAlign: "center", padding: "40px" }}>
-              <p>Loading companies...</p>
-            </div>
-          ) : (
-            <DataTable<Company>
-              data={companies}
-              columns={[
-                {
-                  title: "Sr.No",
-                  render: (_, index) => String(index + 1).padStart(2, "0"),
-                },
-                { title: "Company Name", render: (row) => row.name },
-                { title: "Company Email", render: (row) => row.email },
-                { title: "Owner", render: (row) => row.owner },
-                {
-                  title: "Status",
-                  render: (row) => <StatusBadge status={row.status} />,
-                },
-              ]}
-              actions={(row) => (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    justifyContent: "center",
-                  }}
-                >
-                  <IconButton
-                    icon={<img src={editIcon} alt="Edit" />}
-                    onClick={() => handleEdit(row)}
-                  />
-                  <IconButton
-                    icon={<img src={deleteIcon} alt="Delete" />}
-                    onClick={() => handleDelete(row)}
-                  />
-                </div>
-              )}
-              actionsTitle="Action"
-            />
-          )}
-        </div>
+//   return (
+//     <DashboardLayout>
+//       {contextHolder}
+//       <div className="dashboard-page">
+//         <Header
+//           title="Dashboard"
+//           searchPlaceholder="Search"
+//           searchValue={searchValue}
+//           onSearchChange={handleSearch}
+//           secondaryButtonText="Filter"
+//           secondaryButtonIcon="/assets/filter.svg"
+//           primaryButtonText="Add Company"
+//           primaryButtonIcon="/assets/add.svg"
+//           onPrimaryButtonClick={handleAddCompany}
+//         />
 
-        <AddCompanyModal
-          open={isAddCompanyModalOpen}
-          onClose={handleCloseModal}
-          onSave={handleSaveCompany}
-        />
+//         <div className="dashboard-table-card">
+//           {loading ? (
+//             <div style={{ textAlign: "center", padding: "40px" }}>
+//               <p>Loading companies...</p>
+//             </div>
+//           ) : (
+//             <DataTable<Company>
+//               data={companies}
+//               columns={[
+//                 {
+//                   title: "Sr.No",
+//                   render: (_, index) => String(index + 1).padStart(2, "0"),
+//                 },
+//                 { title: "Company Name", render: (row) => row.name },
+//                 { title: "Company Email", render: (row) => row.email },
+//                 { title: "Owner", render: (row) => row.owner },
+//                 {
+//                   title: "Status",
+//                   render: (row) => <StatusBadge status={row.status} />,
+//                 },
+//               ]}
+//               actions={(row) => (
+//                 <div
+//                   style={{
+//                     display: "flex",
+//                     alignItems: "center",
+//                     gap: "12px",
+//                     justifyContent: "center",
+//                   }}
+//                 >
+//                   <IconButton
+//                     icon={<img src={editIcon} alt="Edit" />}
+//                     onClick={() => handleEdit(row)}
+//                   />
+//                   <IconButton
+//                     icon={<img src={deleteIcon} alt="Delete" />}
+//                     onClick={() => handleDelete(row)}
+//                   />
+//                 </div>
+//               )}
+//               actionsTitle="Action"
+//             />
+//           )}
+//         </div>
 
-        <EditCompanyModal
-          open={isEditCompanyModalOpen}
-          onClose={handleCloseEditModal}
-          onSave={handleUpdateCompany}
-          company={companyToEdit}
-        />
+//         <AddCompanyModal
+//           open={isAddCompanyModalOpen}
+//           onClose={handleCloseModal}
+//           onSave={handleSaveCompany}
+//         />
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteModal && companyToDelete && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 1000,
-            }}
-            onClick={handleCancelDelete}
-          >
-            <div
-              style={{
-                backgroundColor: "white",
-                padding: "24px",
-                borderRadius: "8px",
-                maxWidth: "400px",
-                width: "90%",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 style={{ marginBottom: "16px" }}>Delete Company</h3>
-              <p style={{ marginBottom: "24px", color: "#667085" }}>
-                Are you sure you want to delete{" "}
-                <strong>{companyToDelete.name}</strong>? This action cannot be
-                undone.
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "12px",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <button
-                  onClick={handleCancelDelete}
-                  style={{
-                    padding: "8px 16px",
-                    border: "1px solid #d0d5dd",
-                    borderRadius: "6px",
-                    background: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmDelete}
-                  style={{
-                    padding: "8px 16px",
-                    border: "none",
-                    borderRadius: "6px",
-                    background: "#f04438",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </DashboardLayout>
-  );
-};
+//         <EditCompanyModal
+//           open={isEditCompanyModalOpen}
+//           onClose={handleCloseEditModal}
+//           onSave={handleUpdateCompany}
+//           company={companyToEdit}
+//         />
 
-export default Dashboard;
+//         {/* Delete Confirmation Modal */}
+//         {showDeleteModal && companyToDelete && (
+//           <div
+//             style={{
+//               position: "fixed",
+//               top: 0,
+//               left: 0,
+//               right: 0,
+//               bottom: 0,
+//               backgroundColor: "rgba(0, 0, 0, 0.5)",
+//               display: "flex",
+//               alignItems: "center",
+//               justifyContent: "center",
+//               zIndex: 1000,
+//             }}
+//             onClick={handleCancelDelete}
+//           >
+//             <div
+//               style={{
+//                 backgroundColor: "white",
+//                 padding: "24px",
+//                 borderRadius: "8px",
+//                 maxWidth: "400px",
+//                 width: "90%",
+//               }}
+//               onClick={(e) => e.stopPropagation()}
+//             >
+//               <h3 style={{ marginBottom: "16px" }}>Delete Company</h3>
+//               <p style={{ marginBottom: "24px", color: "#667085" }}>
+//                 Are you sure you want to delete{" "}
+//                 <strong>{companyToDelete.name}</strong>? This action cannot be
+//                 undone.
+//               </p>
+//               <div
+//                 style={{
+//                   display: "flex",
+//                   gap: "12px",
+//                   justifyContent: "flex-end",
+//                 }}
+//               >
+//                 <button
+//                   onClick={handleCancelDelete}
+//                   style={{
+//                     padding: "8px 16px",
+//                     border: "1px solid #d0d5dd",
+//                     borderRadius: "6px",
+//                     background: "white",
+//                     cursor: "pointer",
+//                   }}
+//                 >
+//                   Cancel
+//                 </button>
+//                 <button
+//                   onClick={handleConfirmDelete}
+//                   style={{
+//                     padding: "8px 16px",
+//                     border: "none",
+//                     borderRadius: "6px",
+//                     background: "#f04438",
+//                     color: "white",
+//                     cursor: "pointer",
+//                   }}
+//                 >
+//                   Delete
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </DashboardLayout>
+//   );
+// };
+
+// export default Dashboard;

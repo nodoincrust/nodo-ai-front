@@ -9,7 +9,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { scrollLayoutToTop } from "../../../utils/utilFunctions";
 import { getCompaniesList } from "../../../services/companies.services";
-import AddEditCompany from "./AddEditCompany";
+// import AddEditCompany from "./AddEditCompany";
 
 export default function Companies() {
   const [count, setCount] = useState(0);
@@ -170,21 +170,21 @@ export default function Companies() {
         emptyText="No companies found"
       />
 
-      {isAddEditOpen && (
-        <AddEditCompany
-          open={isAddEditOpen}
-          initialData={selectedCompany}
-          onClose={() => {
-            setIsAddEditOpen(false);
-            setSelectedCompany(null);
-          }}
-          onSave={() => {
-            fetchCompanies();
-            setIsAddEditOpen(false);
-            setSelectedCompany(null);
-          }}
-        />
-      )}
+      {/* {isAddEditOpen && (
+        // <AddEditCompany
+        //   open={isAddEditOpen}
+        //   initialData={selectedCompany}
+        //   onClose={() => {
+        //     setIsAddEditOpen(false);
+        //     setSelectedCompany(null);
+        //   }}
+        //   onSave={() => {
+        //     fetchCompanies();
+        //     setIsAddEditOpen(false);
+        //     setSelectedCompany(null);
+        //   }}
+        // />
+      )} */}
     </div>
   );
 }

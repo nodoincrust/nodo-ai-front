@@ -20,4 +20,11 @@ export const API_URL = {
     // ======================
     getFilterParams: "/category/filter-params",
     applyFilters: "/category/filter-apply",
+
+
+    // ========================================
+    //   Documents
+    // ===========================================
+    getDocumentList:"/employee/documents",
+    uploadDocument:"/newdocuments/upload"
 };
