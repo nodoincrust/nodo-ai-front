@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { authRoutes } from "../pages/Auth/auth.routes";
 import Layout from "../layout/Layout";
 import ProtectedRoute from "../layout/ProtectedRoute";
@@ -15,13 +15,9 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      {
-        index: true,
-        element: <DefaultRoute />,
-      },
       ...companiesRoutes,
       ...departmentsRoutes,
-      ...documentsRoutes
+      ...documentsRoutes,
     ],
   },
 ]);

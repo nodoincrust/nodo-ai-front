@@ -1,5 +1,4 @@
 import type { ButtonProps, MenuProps } from "antd";
-
 import { Dayjs } from "dayjs";
 import type { ReactNode } from "react";
 export interface VerifyOtpResponse {
@@ -21,10 +20,6 @@ export interface VerifyOtpResponse {
 //Attendance Report
 // types/common.d.ts or types/attendance.d.ts
 
-import { Dayjs } from "dayjs";
-import type { ReactNode } from "react";
-import type { User } from "../pages/companyDashboard/compDashboard";
-import type { ButtonProps } from "antd";
 export interface BreadcrumbItem {
   text: string;
   path?: string;
@@ -111,11 +106,15 @@ export interface HeaderProps {
   categoryButtonTextClassName?: string;
   filtersApplied?: boolean;
   onClearFilters?: () => void;
-  searchPlaceholder?: string
 }
 
 // Document detail header
-export type DocumentStatus = "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+export type DocumentStatus =
+  | "IN_REVIEW"
+  | "APPROVED"
+  | "REJECTED"
+  | "DRAFT"
+  | "SUBMITTED";
 
 export interface DocumentBreadcrumbItem {
   label: string;
@@ -180,11 +179,11 @@ export interface Filters {
   "Device List"?: any[];
   "Worker Category"?: { label: string; value: "new" | "old" }[];
   [key: string]:
-  | { id: string | number; label: string }[]
-  | string[]
-  | [string, string]
-  | { label: string; value: "new" | "old" }[]
-  | undefined;
+    | { id: string | number; label: string }[]
+    | string[]
+    | [string, string]
+    | { label: string; value: "new" | "old" }[]
+    | undefined;
 }
 
 export interface ApiFilters {
@@ -272,4 +271,91 @@ export interface AuthData {
   is_department_head?: boolean;
   department_id?: number | null;
   user?: any;
+}
+
+// Document interface
+export interface ApiDocumentVersion {
+  version_number: number;
+  file_name: string;
+  file_size_bytes: number;
+  tags: string[];
+  summary?: string;
+  // Full URL to the stored file, used by the document viewer (constructed from file_path in service)
+  file_url?: string;
+}
+
+// Actual API response structure
+export interface ApiDocumentDetailResponse {
+  statusCode: number;
+  data: {
+    document: {
+      id: number;
+      status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+      is_active: boolean;
+      created_at: string;
+      current_version: number;
+      uploaded_by: number;
+      department_id: number;
+      company_id: number;
+    };
+    file: {
+      file_name: string;
+      file_url?: string;
+      file_path?: string;
+      file_size_bytes: number;
+      version_number: number;
+    };
+    ai: {
+      ai_document_id: number;
+      session_id: string;
+      file_type: string;
+      file_size_mb: number;
+    };
+    summary: {
+      text: string | null;
+      tags: string[];
+      citations: any[];
+    };
+    review: {
+      status: string | null;
+      reviewed_by: number | null;
+    };
+  };
+}
+
+// Normalized document interface for UI
+export interface ApiDocument {
+  document_id: number;
+  status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  current_version: number;
+  version: ApiDocumentVersion;
+}
+
+export interface DocumentsListResponse {
+  data: ApiDocument[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+// Document UI type (normalized from ApiDocument for display)
+export interface Document {
+  document_id: number;
+  status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  current_version: number;
+  // Normalized fields for UI
+  name: string;
+  size: number;
+  tags: string[];
+  file_type: string;
+}
+
+// Parameters for getting documents list
+export interface GetDocumentsParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  version?: number;
+  tag?: string;
 }

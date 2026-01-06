@@ -91,56 +91,56 @@
     gap: 12px;
   }
 
-  .document-header-title {
-    margin: 0;
-    font-family: "Inter-semibold";
-    font-size: 22px;
-    line-height: 28px;
-    color: $subheading-color;
-  }
-
   .doc-header-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 6px;
-    border-radius: 6px;
-    border: none;
-    font-size: 12px;
-    font-family: "inter-regular";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+ margin-top: 10px;
+  height: 24px;          // ✅ exact height
+  min-width: 79px;       // ✅ exact width (use min-width for dynamic text)
+  padding: 4px 6px;      // ✅ exact padding
+  border-radius: 6px;
+  border: none;
 
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: currentColor;
-    }
+  font-size: 12px;
+  font-family: "inter-regular";
+  line-height: 1;        // ✅ prevents extra height
+  box-sizing: border-box;
 
-    &.doc-header-status--approved {
-      background-color: #d9fde8;
-      color: #027a48;
-    }
-
-    &.doc-header-status--rejected {
-      background-color: #fdeaea;
-      color: #d92d20;
-    }
-
-    &.doc-header-status--draft {
-      background-color: #f3f4f6;
-      color: #00132e;
-    }
-
-    &.doc-header-status--submitted {
-      background-color: #ffecc8;
-      color: #ff9500;
-    }
-
-    &.doc-header-status--in_review {
-      background-color: #e0f2fe;
-      color: #0369a1;
-    }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    flex-shrink: 0;
   }
+
+  &.doc-header-status--approved {
+    background-color: #d9fde8;
+    color: #027a48;
+  }
+
+  &.doc-header-status--rejected {
+    background-color: #fdeaea;
+    color: #d92d20;
+  }
+
+  &.doc-header-status--draft {
+    background-color: #f3f4f6;
+    color: #00132e;
+  }
+
+  &.doc-header-status--submitted {
+    background-color: #ffecc8;
+    color: #ff9500;
+  }
+
+  &.doc-header-status--in_review {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+}
 
   .document-header-right {
     display: flex;
@@ -153,8 +153,8 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 4px;
-    border-radius: 1px solid #e2e4e9;
-  
+    border: 1px solid #e2e4e9;  
+    border-radius: 6px;
 
     .version-dropdown {
       min-width: 96px;

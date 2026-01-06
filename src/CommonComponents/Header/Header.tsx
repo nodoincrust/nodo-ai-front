@@ -10,7 +10,6 @@ const Header: React.FC<HeaderProps> = ({
   count,
   searchValue,
   onSearchChange,
-  searchPlaceholder,
   onAddClick,
   addButtonText,
   categoryMenu,

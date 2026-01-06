@@ -39,5 +39,7 @@ export const API_URL = {
     //   Documents
     // ===========================================
     getDocumentList:"/employee/documents",
-    uploadDocument:"/newdocuments/upload"
+    uploadDocument:"/newdocuments/upload",
+   getDocumentById: (id: number | string) =>
+  `/newdocuments/${id}/details`,
 };

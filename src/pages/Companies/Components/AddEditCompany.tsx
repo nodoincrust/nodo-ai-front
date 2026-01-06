@@ -6,26 +6,26 @@ import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { addCompany, updateCompany } from "../../../services/companies.services";
 import { allowOnlyNumbersInput } from "../../../utils/utilFunctions";
 
-// interface AddEditCompanyProps {
-//     open: boolean;
-//     onClose: () => void;
-//     onSave: () => void;
-//     initialData?: any;
-// }
+interface AddEditCompanyProps {
+    open: boolean;
+    onClose: () => void;
+    onSave: () => void;
+    initialData?: any;
+}
 
-// const AddEditCompany: React.FC<AddEditCompanyProps> = ({
-//     open,
-//     onClose,
-//     onSave,
-//     initialData,
-// }) => {
-//     const isEdit = Boolean(initialData?.id);
-//     const [form] = Form.useForm();
-//     const modalRef = useRef<HTMLDivElement>(null);
+const AddEditCompany: React.FC<AddEditCompanyProps> = ({
+    open,
+    onClose,
+    onSave,
+    initialData,
+}) => {
+    const isEdit = Boolean(initialData?.id);
+    const [form] = Form.useForm();
+    const modalRef = useRef<HTMLDivElement>(null);
 
-//     const [showModal, setShowModal] = useState(open);
-//     const [animateClose, setAnimateClose] = useState(false);
-//     const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
+    const [showModal, setShowModal] = useState(open);
+    const [animateClose, setAnimateClose] = useState(false);
+    const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
 
     useEffect(() => {
         if (open) {
@@ -79,10 +79,10 @@ import { allowOnlyNumbersInput } from "../../../utils/utilFunctions";
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [showModal]);
 
-//     const handleClose = () => {
-//         setAnimateClose(true);
-//         setTimeout(() => onClose(), 300);
-//     };
+    const handleClose = () => {
+        setAnimateClose(true);
+        setTimeout(() => onClose(), 300);
+    };
 
     const handleSubmit = async () => {
         let hasError = false;
@@ -125,7 +125,7 @@ import { allowOnlyNumbersInput } from "../../../utils/utilFunctions";
         }
     };
 
-//     if (!showModal) return null;
+    if (!showModal) return null;
 
     return (
         <Modal

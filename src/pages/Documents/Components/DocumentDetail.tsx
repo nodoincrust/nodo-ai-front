@@ -2,46 +2,30 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
+import DocumentPreview from "../DocumentPreview";
 import { getDocumentById } from "../../../services/documents.service";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import type { DocumentHeaderProps, ApiDocument } from "../../../types/common";
 import "./Styles/DocumentLayout.scss";
 
 
-// Dummy data for UI design
-const DUMMY_DOCUMENT: ApiDocument = {
-  document_id: 99283,
-  status: "APPROVED",
-  current_version: 1,
-  version: {
-    version_number: 1,
-    file_name: "Q3_Financial_Report.pdf",
-    file_size_bytes: 2456789,
-    tags: ["Financials", "Q3 2023", "Confidential", "Sales"],
-    summary: "This document outlines the Q3 financial performance, highlighting a 15% increase in recurring revenue driven by enterprise adoption. Key risks identified include market volatility in the APAC region and supply chain disruptions affecting hardware delivery timelines.",
-  },
-};
-
 const DocumentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [document, setDocument] = useState<ApiDocument | null>(DUMMY_DOCUMENT);
+  const [document, setDocument] = useState<ApiDocument | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<number>(1);
-  const [useDummyData] = useState(true); // Toggle to use dummy data
-
-  const getFileType = (fileName: string): string => {
-    return fileName.split(".").pop()?.toLowerCase() || "";
-  };
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!useDummyData && id) {
+    if (id) {
       fetchDocument();
     }
-  }, [id, useDummyData]);
+  }, [id]);
 
   const fetchDocument = async () => {
     if (!id) return;
 
+    setIsLoading(true);
     getLoaderControl()?.showLoader();
     try {
       const doc = await getDocumentById(Number(id));
@@ -59,6 +43,7 @@ const DocumentDetail: React.FC = () => {
       });
       navigate("/documents");
     } finally {
+      setIsLoading(false);
       getLoaderControl()?.hideLoader();
     }
   };
@@ -79,7 +64,7 @@ const DocumentDetail: React.FC = () => {
     });
   };
 
-  if (!document) {
+  if (isLoading || !document) {
     return (
       <div style={{ padding: "24px", textAlign: "center" }}>
         <p>Loading document...</p>
@@ -91,6 +76,9 @@ const DocumentDetail: React.FC = () => {
   const status = document.status;
   const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
 
+  // Get file URL from version (already processed in service to be full URL)
+  const fileUrl = document.version?.file_url || "";
+    
   // Create version options (assuming we might have multiple versions)
   const versionOptions = Array.from(
     { length: document.current_version || 1 },
@@ -114,75 +102,79 @@ const DocumentDetail: React.FC = () => {
     onSubmit: handleSubmit,
   };
 
+  // Handlers for SummarySidebar
+  const handleSummaryChange = (summary: string) => {
+    // TODO: Implement API call to update summary
+    if (document?.version) {
+      document.version.summary = summary;
+    }
+  };
+
+  const handleAddTag = (tag: string) => {
+    // TODO: Implement API call to add tag
+    if (document?.version?.tags && !document.version.tags.includes(tag)) {
+      document.version.tags.push(tag);
+    }
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    // TODO: Implement API call to remove tag
+    if (document?.version?.tags) {
+      document.version.tags = document.version.tags.filter((t) => t !== tag);
+    }
+  };
+
+  const handleCreateTag = (tag: string) => {
+    // TODO: Implement API call to create new tag
+    notification.success({ message: `Tag "${tag}" created` });
+  };
+
+  const handleSaveMetadata = () => {
+    // TODO: Implement API call to save metadata
+    notification.success({ message: "Metadata saved successfully" });
+  };
+
+  const handleRegenerate = () => {
+    // TODO: Implement API call to regenerate summary
+    notification.info({ message: "Regenerating summary..." });
+  };
+
+  // Handler for ChatSidebar
+  const handleSendMessage = async (message: string, documentId: number) => {
+    // TODO: Implement API call to send chat message
+    // This should call the chat API and update messages
+    console.log("Sending message:", message, "for document:", documentId);
+    // Placeholder: You'll need to implement the actual API call here
+  };
+console.log(fileUrl)
   return (
     <DocumentLayout 
       headerProps={headerProps} 
       showSummarySidebar={true}
       showChatSidebar={true}
+      document={document}
+      onSummaryChange={handleSummaryChange}
+      onAddTag={handleAddTag}
+      onRemoveTag={handleRemoveTag}
+      onCreateTag={handleCreateTag}
+      onSaveMetadata={handleSaveMetadata}
+      onRegenerate={handleRegenerate}
+      onSendMessage={handleSendMessage}
     >
       <div className="document-viewer">
-        <div className="document-content">
-          {/* Document Title Section */}
-          <div className="document-title-section">
-            <h1 className="document-main-title">{documentTitle}</h1>
-            <div className="document-meta">
-              <span className="document-confidential">CONFIDENTIAL</span>
-              <span className="document-id">Doc ID: #{document.document_id}-AX</span>
-            </div>
+        {fileUrl && document.version?.file_name ? (
+          <DocumentPreview 
+            fileName={document.version.file_name}
+            fileUrl={fileUrl}
+          />
+          
+        ) : (
+          <div className="document-placeholder">
+            <span className="document-placeholder-label">
+              Document preview not available
+            </span>
           </div>
-
-          <div className="document-divider"></div>
-
-          {/* Document Introduction */}
-          <div className="document-intro">
-            <p>
-              This document provides a comprehensive overview of the financial performance 
-              for the third quarter of the fiscal year 2023. Key metrics indicate a significant 
-              uptick in recurring revenue streams, driven primarily by the expansion of our 
-              enterprise tier offerings.
-            </p>
-          </div>
-
-          {/* Bar Chart Placeholder */}
-          <div className="document-chart">
-            <div className="chart-container">
-              <div className="chart-bar" style={{ height: "40%" }}></div>
-              <div className="chart-bar" style={{ height: "60%" }}></div>
-              <div className="chart-bar" style={{ height: "80%" }}></div>
-              <div className="chart-bar" style={{ height: "100%" }}></div>
-            </div>
-          </div>
-
-          {/* Executive Summary Section */}
-          <div className="document-section">
-            <h2 className="document-section-title">Executive Summary</h2>
-            <p>
-              Despite macroeconomic headwinds, the organization has demonstrated resilience. 
-              Operating margins have improved by 150 basis points due to strategic cost 
-              optimization initiatives implemented in Q1.
-            </p>
-          </div>
-
-          {/* Additional Content Placeholder */}
-          <div className="document-section">
-            <p>
-              The financial results reflect strong execution across all business units, 
-              with particular strength in our software-as-a-service offerings. Customer 
-              retention rates have remained above 95%, indicating strong product-market fit 
-              and customer satisfaction.
-            </p>
-          </div>
-
-          {/* Document Preview Component - Commented out for now as it requires fileUrl */}
-          {/* {document.version?.file_name && (
-            <div className="document-preview">
-              <DocumentPreview 
-                fileName={document.version.file_name}
-                fileUrl="https://example.com/documents/Q3_Financial_Report.pdf"
-              />
-            </div>
-          )} */}
-        </div>
+        )}
       </div>
     </DocumentLayout>
   );

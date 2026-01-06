@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { DoubleRightOutlined, DoubleLeftOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { notification } from "antd";
 import "./chatSidebar.scss";
+import { AuthData } from "../../types/common";
 
 interface ChatMessage {
   id: number;
   sender: "assistant" | "user";
   text: string;
   time?: string;
+  senderName?: string;
 }
 
 interface ChatSidebarProps {
@@ -15,42 +17,101 @@ interface ChatSidebarProps {
   contextValue?: string;
   isOpen?: boolean;
   onToggle?: () => void;
+  documentId?: number;
+  initialMessages?: ChatMessage[];
+  onSendMessage?: (message: string, documentId: number) => Promise<void>;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
   title = "Ask NODO AI",
   contextLabel = "Context",
-  contextValue = "Q3 Financial Report",
+  contextValue = "",
   isOpen = true,
   onToggle,
+  documentId,
+  initialMessages = [],
+  onSendMessage,
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      sender: "assistant",
-      text:
-        "Hello! I’ve analyzed the Q3 Financial Report. I can help you summarize key metrics, extract revenue data, or compare this quarter to previous ones. What would you like to know?",
-      time: "10:23 AM",
-    },
-    {
-      id: 2,
-      sender: "user",
-      text: "What is the total revenue for this quarter and how does it compare to Q2?",
-      time: "10:23 AM",
-    },
-  ]);
+  // Get user info from localStorage
+  const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const loggedInUserName = authData.user?.name
+    ? authData.user.name
+        .split(" ")
+        .map((w: any) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
+    : "User";
+  const userInitials = authData.user?.name
+    ? authData.user.name
+        .split(" ")
+        .slice(0, 2)
+        .map((word: any) => word.charAt(0).toUpperCase())
+        .join("")
+    : "U";
 
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  const handleSend = () => {
+  // Update messages when initialMessages prop changes
+  useEffect(() => {
+    if (initialMessages.length > 0) {
+      setMessages(initialMessages);
+    }
+  }, [initialMessages]);
+
+  const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed || isSending) return;
 
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now(), sender: "user", text: trimmed, time: "Now" },
-    ]);
+    const now = new Date();
+    const timeString = now.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    // Add user message immediately
+    const userMessage: ChatMessage = {
+      id: Date.now(),
+      sender: "user",
+      text: trimmed,
+      time: timeString,
+      senderName: loggedInUserName,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsSending(true);
+
+    try {
+      if (onSendMessage && documentId) {
+        await onSendMessage(trimmed, documentId);
+      } else {
+        // Fallback: just add a placeholder assistant response
+        setTimeout(() => {
+          const assistantMessage: ChatMessage = {
+            id: Date.now() + 1,
+            sender: "assistant",
+            text: "I'm processing your question. Please implement the API integration to get the actual response.",
+            time: new Date().toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            }),
+            senderName: "NODO AI",
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      notification.error({
+        message: "Failed to send message",
+        description: "Please try again later.",
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -79,10 +140,26 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             onClick={onToggle}
             title={isOpen ? "Collapse" : "Expand"}
           >
-            {isOpen ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+            {isOpen ? (
+              <img src="/assets/expand.svg" alt="" />
+            ) : (
+            
+                <img src="/assets/collapse.svg" alt="" />
+            )}
           </button>
         )}
       </div>
+
+      {!isOpen && (
+        <button
+          type="button"
+          className="chat-icon-btn"
+          onClick={onToggle}
+          title="Open Chat"
+        >
+          <img src="/assets/chat.svg" alt="Chat" />
+        </button>
+      )}
 
       {isOpen && (
         <>
@@ -92,28 +169,46 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             key={msg.id}
             className={`chat-message chat-message--${msg.sender}`}
           >
+            <div className="chat-message-header">
+              {msg.sender === "assistant" ? (
+                <>
+                  <img src="/assets/Main-Logo.svg" alt="NODO AI" className="chat-avatar chat-avatar--assistant" />
+                  <div className="chat-sender-info">
+                    <span className="chat-sender-name">{msg.senderName || "NODO AI"}</span>
+                    {msg.time && <span className="chat-time">{msg.time}</span>}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="chat-sender-info">
+                    {msg.time && <span className="chat-time">{msg.time}</span>}
+                    <span className="chat-sender-name">{msg.senderName || loggedInUserName}</span>
+                  </div>
+                  <div className="chat-avatar chat-avatar--user">{userInitials}</div>
+                </>
+              )}
+            </div>
             <div className="bubble">{msg.text}</div>
-            {msg.time && <span className="time">{msg.time}</span>}
           </div>
         ))}
       </div>
 
       <div className="chat-input">
-        <label className="chat-input-label">Ask a question about this document</label>
+       
         <div className="chat-input-row">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your question here..."
+            placeholder="Ask a question about this document"
           />
           <button
             type="button"
             className="chat-send-btn"
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || isSending}
           >
-            <img src="/assets/send.svg" alt="Send" />
+            <img src="/assets/uparrow.svg" alt="Send" />
           </button>
         </div>
         <p className="chat-input-hint">AI can make mistakes. Verify important info.</p>

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
+import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 
 interface DocumentPreviewProps {
   fileName: string;
-  fileUrl: string; // ✅ actual URL to file
+  fileUrl: string;
 }
 
 const DocumentPreview: React.FC<DocumentPreviewProps> = ({
@@ -11,7 +12,18 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
 }) => {
   const fileType = fileName.split(".").pop()?.toLowerCase();
 
-  /* ================= PDF ================= */
+  // Memoize docs to avoid reloading
+  const docs = useMemo(
+    () => [
+      {
+        uri: fileUrl,
+        fileName,
+      },
+    ],
+    [fileUrl, fileName]
+  );
+
+  // ⚡ FAST PDF PREVIEW (no external service)
   if (fileType === "pdf") {
     return (
       <iframe
@@ -24,45 +36,30 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     );
   }
 
-  /* ================= IMAGE ================= */
+  // ⚡ FAST IMAGE PREVIEW
   if (["png", "jpg", "jpeg", "gif"].includes(fileType || "")) {
     return (
       <img
         src={fileUrl}
         alt={fileName}
-        style={{
-          maxWidth: "100%",
-          maxHeight: "100%",
-          display: "block",
-          margin: "0 auto",
-        }}
+        style={{ maxWidth: "100%", maxHeight: "100%" }}
       />
     );
   }
 
-  /* ================= OFFICE DOCS ================= */
-  if (["doc", "docx", "xls", "xlsx", "xlsm"].includes(fileType || "")) {
-    return (
-      <iframe
-        src={`https://docs.google.com/gview?url=${encodeURIComponent(
-          fileUrl
-        )}&embedded=true`}
-        title="Office Preview"
-        width="100%"
-        height="100%"
-        style={{ border: "none" }}
-      />
-    );
-  }
-
-  /* ================= FALLBACK ================= */
+  // 🐢 Office + Others → react-doc-viewer
   return (
-    <div style={{ textAlign: "center", padding: "24px" }}>
-      <p>Preview not available for this file type.</p>
-      <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-        Download file
-      </a>
-    </div>
+    <DocViewer
+      documents={docs}
+      pluginRenderers={DocViewerRenderers}
+      config={{
+        header: {
+          disableHeader: true,
+          disableFileName: true,
+        },
+      }}
+      style={{  width:"100%", height: "100%" }}
+    />
   );
 };
 
