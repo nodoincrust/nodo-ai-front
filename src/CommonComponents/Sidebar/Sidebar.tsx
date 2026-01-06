@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import "./Styles/sidebar.scss";
 import { AuthData, SidebarItem, SidebarProps } from "../../types/common";
+import Profile from "../../pages/Profile/Components/Profile";
+import ConfirmModal from "../Confirm Modal/ConfirmModal";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -10,7 +12,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const disabledLinks = ["/dashboard"];
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const disabledLinks = ["/dashboard", "/settings"];
   // =======================
   // READ AUTH DATA
   // =======================
@@ -32,6 +36,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       .map((word: any) => word.charAt(0).toUpperCase())
       .join("")
     : "";
+
+  const isCompanyAdmin =
+    authData.user?.role === "COMPANY_ADMIN" ||
+    authData.user?.role === "company_admin";
 
 
   // =======================
@@ -197,24 +205,54 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
           {/* BOTTOM */}
           <div className="bottom-div">
-            <div className="menu-item profile-item">
-              {/* <img src={userRoundedIcon} alt="Profile" /> */}
-              <div className="profile-avatar">
-                {userInitials}
-              </div>
-              <div className="profile-text">
-                <span className="profile-name">{loggedInUserName}</span>
-                <span className="profile-email">{loggedInUserEmail}</span>
-              </div>
-            </div>
+            {/* STORAGE USAGE – ONLY FOR COMPANY ADMIN */}
+            {isCompanyAdmin && (
+              <div className="storage-usage">
+                <div className="storage-header">
+                  <div className="storage-title">
+                    <img src="/assets/ssd.svg" alt="Storage" />
+                    <span>Storage Usage</span>
+                  </div>
+                  <span className="storage-percent">50%</span>
+                </div>
 
-            <button
-              type="button"
-              className={`logout-div ${showLogoutModal ? "modal-open-hover" : ""}`}
-              onClick={() => setShowLogoutModal(true)}
-            >
-              <img src="/assets/logout.svg" alt="Logout" />
-            </button>
+                <div className="storage-bar">
+                  <div className="storage-progress" style={{ width: "50%" }} />
+                </div>
+
+                <div className="storage-text">
+                  <strong>10GB</strong> of <strong>20GB</strong> Used
+                </div>
+              </div>
+            )}
+
+            {/* PROFILE + LOGOUT */}
+            <div className="bottom-actions">
+              <div
+                className={`menu-item profile-item ${showProfileModal ? "modal-open-hover" : ""
+                  }`}
+                onClick={() => {
+                  setShowProfileModal(true);
+                  clearFilterSession();
+                  if (isMobile) toggleSidebar();
+                }}
+              >
+                <div className="profile-avatar">{userInitials}</div>
+                <div className="profile-text">
+                  <span className="profile-name">{loggedInUserName}</span>
+                  <span className="profile-email">{loggedInUserEmail}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={`logout-div ${showLogoutModal ? "modal-open-hover" : ""
+                  }`}
+                onClick={() => setShowLogoutModal(true)}
+              >
+                <img src="/assets/logout.svg" alt="Logout" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -227,22 +265,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         />
       )}
 
-      {/* LOGOUT MODAL */}
-      {showLogoutModal && (
-        <div className="logout-modal-overlay" onClick={() => setShowLogoutModal(false)}>
-          <div className="logout-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Log Out</h3>
-            <p>Are you sure you want to log out?</p>
+      {/* PROFILE MODAL */}
+      <Profile
+        open={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      // user={authData.user}
+      />
 
-            <div className="actions">
-              <button onClick={() => setShowLogoutModal(false)}>Cancel</button>
-              <button className="danger" onClick={handleLogout}>
-                Log Out
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* LOGOUT CONFIRM MODAL */}
+      <ConfirmModal
+        open={showLogoutModal}
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          localStorage.clear();
+          navigate("/");
+        }}
+        title="Log Out"
+        description="Are you sure you want to log out?"
+        confirmText="Log Out"
+        icon="/assets/logout.svg"
+      />
     </>
   );
 };

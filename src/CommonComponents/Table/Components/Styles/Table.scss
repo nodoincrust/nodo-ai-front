@@ -66,7 +66,7 @@
 
     .contact-email {
         font-size: 13px;
-        color: #64748b;
+        color: $profile-email-color;
     }
 
     /* --------------------------
@@ -136,6 +136,7 @@
     text-transform: uppercase !important;
     border-bottom: 1px solid $color-border !important;
     background-color: $bg-light !important;
+    color: $secondary !important;
     padding: 16px !important;
     height: 40px !important;
 
@@ -187,6 +188,10 @@
 .language-actions {
     width: 80px;
     text-align: center;
+    position: sticky;
+    right: 0;
+    background: $color-white;
+    z-index: 5;
 }
 
 .language-actions img {
@@ -291,23 +296,73 @@
     font-family: $font-family-main;
 }
 
+.ant-select {
+    padding: 6px 8px;
+    background-color: $bg-light;
+
+    height: 30px;
+    // padding: 0 44px 0 14px;
+    border-radius: 20px;
+    border: none;
+    box-shadow: none;
+
+    display: flex;
+    align-items: center;
+}
+
+.ant-select-dropdown {
+    padding: 4px 0;
+}
+
 .rows-per-page {
     display: flex;
     align-items: center;
-    // gap: 10px;
+    gap: 8px;
     font-size: 14px;
     color: #475569;
 }
 
-.rows-per-page select {
-    border: none;
-    background: #F9FAFB;
-    border-radius: 20px;
-    padding: 6px 14px 6px 0;
-    font-size: 14px;
-    cursor: pointer;
-    outline: none;
+/* ==============================
+   FIX VERTICAL CENTERING
+================================ */
+/* Selector box */
+.rows-select .ant-select-selector {
+    height: 32px !important;
+    padding: 0 44px 0 14px !important;
+    border-radius: 20px !important;
+    background: #F9FAFB !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    display: flex !important;
+    align-items: center !important;
 }
+
+/* Selected value text */
+.rows-select .ant-select-selection-item {
+    display: flex !important;
+    align-items: center !important;
+
+    height: 100%;
+    line-height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+
+    font-size: 14px;
+    color: #475569;
+}
+
+/* When dropdown is open (AntD adds extra wrapper) */
+.rows-select .ant-select-selection-item>span {
+    display: flex;
+    align-items: center;
+}
+
+/* REMOVE default arrow */
+.rows-select .ant-select-arrow {
+    display: none !important;
+}
+
 
 .footer-right {
     display: flex;

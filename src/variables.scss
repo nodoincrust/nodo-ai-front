@@ -18,6 +18,8 @@ $link-active-bg: #ECF2FE;
 $profile-bg: #E0E7FF;
 $profile-color: #3623E3;
 $primary-button-bg: #4580F7;
+$progressbar-dark-bg: #457CE8;
+$progressbar-light-bg: #CADCFF;
 $profile-email-color: #1B3249A3;
 $auth-background: #F9F9F9;
 $color-white: #ffffff;
@@ -25,6 +27,11 @@ $adminDashboradbc: #FAFAFA;
 $color-background: #F5F6F8;
 $color-input-shadow: #00000003;
 $table-head-bg: #5C6475;
+$modal-header-border-bottom: #1B32491F;
+$input-border: #CACFD6;
+$logout-btn-bg: #FF54541F;
+$logout-color: #FF5454;
+$logout-border: #FF54541F;
 // Alias used across layout files
 $color-primary: $primary;
 /* ===============================
@@ -202,7 +209,7 @@ $color-status-bg-inactive: #F3F4F6;
 $color-status-badge-div-active: #027A48;
 $color-status-badge-div-inactive: #00132E;
 $color-status-text-active: #027A48;
-$color-status-text-inactive: #B54708;
+$color-status-text-inactive: #00132E;
 
 /* ===============================
    Buttons

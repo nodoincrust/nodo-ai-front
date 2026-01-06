@@ -4,10 +4,11 @@ import { notification } from "antd";
 import "./Styles/VerifyOtp.scss";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { authService } from "../../../services/auth.service";
-import type { VerifyOtpResponse } from "../../../types/common";
 import { setToken } from "../../../utils/storage";
 import { getRoleFromToken } from "../../../utils/jwt";
 import AppButton from "../../../components/common/AppButton";
+import { VerifyOtpResponse } from "../../../types/common";
+import { MESSAGES } from "../../../utils/Messages";
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const VerifyOtp = () => {
   const handleVerify = async () => {
     const code = otp.join("");
     if (!/^\d{4}$/.test(code)) {
-      setError("Please enter a valid 4-digit OTP");
+      setError(MESSAGES.ERRORS.INVALID_OTP);
       return;
     }
 
@@ -59,12 +60,12 @@ const VerifyOtp = () => {
       notification.destroy();
 
       const res = await authService.verifyOtp(email, code);
-      const data = res.data as VerifyOtpResponse;
+      const data = res.data.data as VerifyOtpResponse;
 
       const { token, sidebar, is_department_head, department_id, user } = data;
 
       if (!token) {
-        setError("Token not received from server");
+        setError(MESSAGES.ERRORS.TOKEN_NOT_FOUND);
         return;
       }
 
@@ -86,7 +87,7 @@ const VerifyOtp = () => {
       // Decode token and check role
       const role = getRoleFromToken(token);
       if (!role) {
-        setError("Session expired or invalid token");
+        setError(MESSAGES.ERRORS.INVALID_TOKEN);
         return;
       }
 

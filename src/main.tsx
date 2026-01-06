@@ -1,11 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./index.scss"
-import 'antd/dist/reset.css';
 import App from "./App";
+import "./utils/Notification/notificationWrapper";
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />

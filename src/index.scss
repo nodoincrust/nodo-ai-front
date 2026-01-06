@@ -1,7 +1,19 @@
-body {
-  background-color: #ffff;
-  font-family: "inter";
+@use './variables.scss' as *;
+
+// ===============================
+// Root Variables
+// ===============================
+:root {
+  --bs-primary: #{$color-primary};
+  --primary-dark: #{$color-primary};
+  --background: #{$color-white};
+  --field-bg-color: #{$color-bg-primary};
+  --field-border-color: #{$color-border};
 }
+
+// ===============================
+// Base
+// ===============================
 
 @font-face {
   font-family: 'Inter';
@@ -32,17 +44,824 @@ body {
 
 }
 
-/* Full screen Spin overlay */
-.full-screen-spin {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); // perfectly center
-  background: rgba(255, 255, 255, 0.6); // semi-transparent overlay
-  width: 100%;
-  height: 100%;
-  z-index: 9999;
+body {
+  background-color: #ffff;
+  font-family: "inter";
+}
+
+// html {
+//   zoom: 0.8;
+//   transform: scale(0.8);
+//   transform-origin: top left;
+//   width: 125%;
+// }
+
+p {
+  margin: 0;
+}
+
+// ===============================
+// Utilities (Padding, Margin, Border, Typography, Width, Gap, Display)
+// ===============================
+
+// Padding
+.p-4 {
+  padding: 4px !important;
+}
+
+.p-6 {
+  padding: 6px !important;
+}
+
+.p-8 {
+  padding: 8px !important;
+}
+
+.p-12 {
+  padding: 12px !important;
+}
+
+.p-16 {
+  padding: 16px !important;
+}
+
+.p-20 {
+  padding: 20px !important;
+}
+
+.p-24 {
+  padding: 24px !important;
+}
+
+.p-32 {
+  padding: 32px !important;
+}
+
+.p-36 {
+  padding: 36px !important;
+}
+
+// Padding X
+.px-4 {
+  padding-inline: 4px !important;
+}
+
+.px-6 {
+  padding-inline: 6px !important;
+}
+
+.px-8 {
+  padding-inline: 8px !important;
+}
+
+.px-12 {
+  padding-inline: 12px !important;
+}
+
+.px-16 {
+  padding-inline: 16px !important;
+}
+
+.px-20 {
+  padding-inline: 20px !important;
+}
+
+.px-24 {
+  padding-inline: 24px !important;
+}
+
+.px-32 {
+  padding-inline: 32px !important;
+}
+
+.px-36 {
+  padding-inline: 36px !important;
+}
+
+// Padding Y
+.py-4 {
+  padding-block: 4px !important;
+}
+
+.py-6 {
+  padding-block: 6px !important;
+}
+
+.py-8 {
+  padding-block: 8px !important;
+}
+
+.py-12 {
+  padding-block: 12px !important;
+}
+
+.py-16 {
+  padding-block: 16px !important;
+}
+
+.py-20 {
+  padding-block: 20px !important;
+}
+
+.py-24 {
+  padding-block: 24px !important;
+}
+
+.py-32 {
+  padding-block: 32px !important;
+}
+
+.py-36 {
+  padding-block: 36px !important;
+}
+
+// Padding top/right/bottom/left → (kept as you wrote for utility usage)
+// ...
+
+// Margin
+.m-0 {
+  margin: 0;
+}
+
+.m-4 {
+  margin: 4px;
+}
+
+.m-8 {
+  margin: 8px;
+}
+
+.m-12 {
+  margin: 12px;
+}
+
+.m-16 {
+  margin: 16px;
+}
+
+.m-24 {
+  margin: 24px;
+}
+
+.m-32 {
+  margin: 32px;
+}
+
+// Margin top/right/bottom/left → (kept as you wrote)
+// ...
+
+// Border
+.b-0 {
+  border: none !important;
+}
+
+.b-1 {
+  border: 1px solid var(--field-border-color) !important;
+}
+
+.b-2 {
+  border: 2px solid var(--field-border-color) !important;
+}
+
+.b-t-1 {
+  border-top: 1px solid var(--field-border-color) !important;
+}
+
+.b-r-1 {
+  border-right: 1px solid var(--field-border-color) !important;
+}
+
+.b-b-1 {
+  border-bottom: 1px solid var(--field-border-color) !important;
+}
+
+.b-l-1 {
+  border-left: 1px solid var(--field-border-color) !important;
+}
+
+// same for -2
+
+// Typography
+.text-header {
+  color: var(--header-color);
+}
+
+.text-sub-header {
+  color: var(--sub-header-color);
+}
+
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.text-primary-dark {
+  color: var(--primary-dark) !important;
+}
+
+.text-placeholder {
+  color: var(--placeholder-color) !important;
+}
+
+.text-grey {
+  color: var(--grey-color) !important;
+}
+
+.error-messages,
+.star {
+  font-family: $font-family-main;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0px;
+  color: #FF5454 !important;
+}
+
+// Font sizes
+.fs-10 {
+  font-size: 10px;
+}
+
+.fs-11 {
+  font-size: 11px;
+}
+
+.fs-12 {
+  font-size: 12px;
+}
+
+.fs-14 {
+  font-size: 14px;
+}
+
+.fs-16 {
+  font-size: 16px;
+}
+
+.fs-18 {
+  font-size: 18px;
+}
+
+.fs-20 {
+  font-size: 20px;
+}
+
+.fs-22 {
+  font-size: 22px;
+}
+
+.fs-24 {
+  font-size: 24px;
+}
+
+// Font weights
+.fw-100 {
+  font-weight: 100;
+}
+
+.fw-200 {
+  font-weight: 200;
+}
+
+.fw-300 {
+  font-weight: 300;
+}
+
+.fw-400 {
+  font-weight: 400;
+}
+
+.fw-500 {
+  font-weight: 500;
+}
+
+.fw-600 {
+  font-weight: 600;
+}
+
+.fw-700 {
+  font-weight: 700;
+}
+
+// Border radius
+.b-r-a-4 {
+  border-radius: 4px;
+}
+
+.b-r-a-6 {
+  border-radius: 6px;
+}
+
+.b-r-a-8 {
+  border-radius: 8px;
+}
+
+// Helpers
+.text-underline {
+  text-decoration: underline;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+// Width utilities
+.w-4 {
+  width: 4% !important;
+}
+
+.w-6 {
+  width: 6% !important;
+}
+
+// ... (same as you wrote till w-90)
+
+// Gap
+.gap-4 {
+  gap: 4px;
+}
+
+.gap-6 {
+  gap: 6px;
+}
+
+.gap-8 {
+  gap: 8px;
+}
+
+.gap-10 {
+  gap: 10px;
+}
+
+.gap-12 {
+  gap: 12px;
+}
+
+.gap-16 {
+  gap: 16px;
+}
+
+.gap-24 {
+  gap: 24px;
+}
+
+.gap-32 {
+  gap: 32px;
+}
+
+// Display
+.d-center {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.d-flex-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.d-flex-col-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.d-flex-col-start {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.d-start {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.d-end {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.d-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// ===============================
+// Buttons
+// ===============================
+
+.ant-btn-variant-solid:not(:disabled):not(.ant-btn-disabled):active {
+  background-color: var(--bs-primary);
+}
+
+.back-btn {
+  width: 48px;
+  height: 44px;
+  background: #fcfbfe;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+}
+
+.disabled-btn {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.ant-btn-color-primary {
+  box-shadow: none;
+}
+
+// ===============================
+// Form Fields
+// ===============================
+.field-div {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-field,
+.ant-input-outlined {
+  height: 36px;
+  width: 100%;
+  background-color: var(--field-bg-color);
+  border: 1px solid var(--field-border-color);
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.ant-form input[type='checkbox']:focus {
+  box-shadow: none;
+}
+
+.required-star {
+  color: red;
+  margin-left: 1px;
+}
+
+// ===============================
+// Antd Overrides
+// ===============================
+
+.ant-switch .ant-switch-handle {
+  position: absolute;
+  top: 4px;
+}
+
+.ant-switch {
+  margin-left: 4px;
+  background-color: #C6C6C6 !important;
+  width: 40px !important;
+  height: 26px;
+
+  &.ant-switch-checked {
+    background-color: $primary !important;
+  }
+}
+
+/* REMOVE SWITCH SHADOW ON TOGGLE */
+.ant-switch,
+.ant-switch:hover,
+.ant-switch:focus,
+.ant-switch:active,
+.ant-switch:focus-visible {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.ant-switch .ant-switch-handle,
+.ant-switch:hover .ant-switch-handle,
+.ant-switch:focus .ant-switch-handle,
+.ant-switch:active .ant-switch-handle,
+.ant-switch-checked .ant-switch-handle {
+  box-shadow: none !important;
+}
+
+
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  font-family: $font-family-main !important;
+  background-color: $menu-active-bg !important;
+}
+
+.ant-modal-mask {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background-color: #00000052 !important;
+}
+
+.ant-modal-body {
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.ant-spin .ant-spin-dot-item {
+  background-color: var(--primary-dark) !important;
+}
+
+.ant-picker-dropdown {
+  .ant-picker-cell-in-view.ant-picker-cell-selected:not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
+    background-color: $color-primary;
+  }
+
+  .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+    border: 1px solid $color-border;
+  }
+
+  .ant-picker-header-view {
+
+    .ant-picker-year-btn:hover,
+    .ant-picker-month-btn:hover {
+      color: $color-primary !important;
+    }
+  }
+}
+
+.ant-picker-now-btn {
+  color: $color-primary;
+  text-decoration: none;
+
+  &:active {
+    color: $color-primary;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.ant-picker-decade-btn:hover {
+  color: $color-primary !important;
+}
+
+.ant-picker-outlined,
+.ant-input-outlined {
+
+  &:focus,
+  // &:hover,
+  &:focus-within {
+    border-color: $color-focus !important;
+  }
+}
+
+// ===============================
+// Responsive
+// ===============================
+@media (max-width: 512px) {
+  .input-field {
+    font-size: 12px;
+    height: 36px !important;
+    padding: 12px;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  body {
+    font-size: 12px;
+  }
+
+  .back-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+
+    img {
+      margin-left: -5px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .ant-modal-body {
+    max-height: calc(100vh - 170px);
+  }
+}
+
+.ant-modal-body {
+  border-radius: 20px !important;
+}
+
+//=============================== // Hover Effects
+// ===============================
+.hover-bg-light:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.ant-input-outlined {
+  background-color: $color-white !important;
+  height: 36px;
+}
+
+.ant-input-outlined:focus-within,
+.ant-input-outlined:hover {
+  border-color: #00000024 !important;
+  box-shadow: none !important;
+}
+
+// ===============================
+// Scrollbar Styling
+// ===============================
+
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  background-color: #E2EEFF;
+}
+
+.ant-select-focused:where(.css-dev-only-do-not-override-kbg4zp).ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+  border-color: #90BDFF;
+  box-shadow: none;
+  outline: 0;
+}
+
+.ant-input-affix-wrapper .ant-input-prefix {
+  margin-inline-end: 0px;
+}
+
+.empty-state-wrapper,
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: calc(100vh - 150px);
+
+  @media screen and (max-width: 768px) {
+    min-height: calc(100vh - 200px);
+  }
+}
+
+.empty-state img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 16px;
+  line-height: 17.35px;
+  letter-spacing: 0%;
+  color: #6670857A;
+}
+
+.no-data {
+  display: block;
+  margin: 10px 0 10px 0;
+  font-family: $font-family-main;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 140%;
+  color: $subheading-color;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0px;
+
+  img {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+// ===============================
+// Card
+// ===============================
+.card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* ================================
+   GLOBAL SCROLLBAR STYLING
+   Works across the entire app
+================================ */
+
+/* For Chrome, Edge, Safari */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #BFBFBF #F1F1F1;
+}
+
+/* Scrollbar width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Scrollbar track */
+::-webkit-scrollbar-track {
+  background: #D5D7DA !important;
+}
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background: #D5D7DA !important;
+  border-radius: 8px;
+}
+
+/* Prevent color change on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #D5D7DA !important;
+}
+
+input {
+  padding: 10px;
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1411764706);
+  font-family: "Outfit", sans-serif;
+  font-size: 14px;
+  color: #292D32;
+}
+
+
+.ant-select {
+  padding: 0px;
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-family: "Outfit", sans-serif;
+  font-size: 14px;
+  color: #292D32;
+}
+
+/* Status Column Center */
+.status-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  border-radius: 4px !important;
+  padding: 4px 6px;
+
+  .badge-div {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  &.active {
+    background-color: $color-status-bg-active;
+    color: $color-status-text-active;
+
+    .badge-div {
+      background-color: $color-status-badge-div-active;
+    }
+  }
+
+  &.inactive {
+    background-color: $color-status-bg-inactive;
+    color: $color-status-text-inactive;
+
+    .badge-div {
+      background-color: $color-status-badge-div-inactive;
+    }
+  }
+}
+
+.ant-form-item .ant-form-item-explain-error {
+  color: #ff4d4f;
+  font-size: 12px;
+}
+
+.ant-form-item {
+  margin-bottom: 5px !important;
 }
