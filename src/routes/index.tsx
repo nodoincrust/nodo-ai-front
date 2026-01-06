@@ -4,6 +4,7 @@ import Layout from "../layout/Layout";
 import ProtectedRoute from "../layout/ProtectedRoute";
 import { companiesRoutes } from "../pages/Companies/companies.routes";
 import { departmentsRoutes } from "../pages/Company/Departments/departments.routes";
+import { employeesRoutes } from "../pages/Company/Employees/employees.routes";
 const router = createBrowserRouter([
   ...authRoutes,
   {
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
     children: [
       ...companiesRoutes,
       ...departmentsRoutes,
+      ...employeesRoutes
     ],
   },
 ]);

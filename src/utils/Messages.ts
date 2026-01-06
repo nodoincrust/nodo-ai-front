@@ -21,6 +21,11 @@ export const MESSAGES = {
         DEPARTMENT_CREATED_SUCCESSFULLY: "Department created successfully.",
         DEPARTMENT_UPDATED_SUCCESSFULLY: "Department updated successfully.",
         DEPARTMENT_DELETED_SUCCESSFULLY: "Department deleted successfully.",
+
+        // Employees
+        EMPLOYEE_CREATED_SUCCESSFULLY: "Employee added successfully.",
+        EMPLOYEE_UPDATED_SUCCESSFULLY: "Employee updated successfully.",
+        EMPLOYEE_DELETED_SUCCESSFULLY: "Employee deleted successfully.",
     },
 
     ERRORS: {
@@ -76,8 +81,16 @@ export const MESSAGES = {
         DEPARTMENT_NAME_REQUIRED: "Department name is required.",
         INVALID_DEPARTMENT_STORAGE: "Enter a valid department storage value.",
 
-        //Employees
+        // Employees
         FAILED_TO_FETCH_EMPLOYEES: "Failed to fetch employees.",
-
+        EMPLOYEE_CREATE_FAILED: "Failed to add employee.",
+        EMPLOYEE_UPDATE_FAILED: "Failed to update employee.",
+        EMPLOYEE_DELETE_FAILED: "Failed to delete employee.",
+        EMPLOYEE_NAME_REQUIRED: "Employee name is required.",
+        EMPLOYEE_EMAIL_REQUIRED: "Employee email address is required.",
+        EMPLOYEE_ROLE_REQUIRED: "Employee role is required.",
+        EMPLOYEE_DEPARTMENT_REQUIRED: "Employee department is required.",
+        EMPLOYEE_ALREADY_EXISTS: "An employee with this email already exists.",
+        ONLY_CHARS_ALLOWED: "Only characters are allowed",
     },
 };

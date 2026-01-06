@@ -19,6 +19,7 @@ export const API_URL = {
     // Departments
     // ======================
     getDepartmentsList: "/company/getDepartments",
+    getDepartmentsListWithoutPagination: "/company/getDepartmentList",
     addDepartment: "/company/addDepartments",
     updateDepartment: "/company/updateDepartment",
     deleteDepartment: "/company/deleteDepartment",
@@ -27,6 +28,9 @@ export const API_URL = {
     // Employees
     // ======================
     getEmployeesList: "/company/getEmployees",
+    addEmployee: "/company/addEmployee",
+    updateEmployee: "/company/updateEmployee",
+    deleteEmployee: "/company/deleteEmployee",
 
     // ======================
     // Filters

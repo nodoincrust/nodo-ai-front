@@ -37,10 +37,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       .join("")
     : "";
 
-  const isCompanyAdmin =
-    authData.user?.role === "COMPANY_ADMIN" ||
-    authData.user?.role === "company_admin";
-
+  // STORAGE
+  const storageInfo = authData.storage || authData.user?.storage || {};
+  const showStorage = Boolean(storageInfo.is_storage_show);
+  const totalStorage = Number(storageInfo.total_space ?? 0);
+  const usedStorage = Number(storageInfo.used_space ?? 0);
+  const storagePercent = Number(storageInfo.used_percentage ?? 0);
 
   // =======================
   // TOGGLE SIDEBAR
@@ -194,22 +196,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           {/* BOTTOM */}
           <div className="bottom-div">
             {/* STORAGE USAGE – ONLY FOR COMPANY ADMIN */}
-            {isCompanyAdmin && (
+            {showStorage && totalStorage > 0 && (
               <div className="storage-usage">
                 <div className="storage-header">
                   <div className="storage-title">
                     <img src="/assets/ssd.svg" alt="Storage" />
                     <span>Storage Usage</span>
                   </div>
-                  <span className="storage-percent">50%</span>
+                  <span className="storage-percent">{storagePercent}%</span>
                 </div>
 
                 <div className="storage-bar">
-                  <div className="storage-progress" style={{ width: "50%" }} />
+                  <div
+                    className="storage-progress"
+                    style={{ width: `${storagePercent}%` }}
+                  />
                 </div>
 
                 <div className="storage-text">
-                  <strong>10GB</strong> of <strong>20GB</strong> Used
+                  <strong>{usedStorage}GB</strong> of{" "}
+                  <strong>{totalStorage}GB</strong> Used
                 </div>
               </div>
             )}
@@ -268,8 +274,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           localStorage.clear();
           navigate("/");
         }}
-        title="Log Out"
-        description="Are you sure you want to log out?"
+        title="Log out of NODO AI?"
+        description="Are you sure you want to log out of Nodo AI?"
         confirmText="Log Out"
         icon="/assets/logout.svg"
       />

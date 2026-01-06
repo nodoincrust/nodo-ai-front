@@ -244,4 +244,22 @@ export interface AuthData {
   is_department_head?: boolean;
   department_id?: number | null;
   user?: any;
+  storage?: StorageInfo;
 }
+
+export interface StorageInfo {
+  show_storage?: boolean;
+  used_gb?: number;
+  total_gb?: number;
+}
+
+//Employees
+export type Employee = {
+  id: number;
+  name: string;
+  email: string;
+  is_active: boolean;
+  department_id: number;
+  role: string | null;
+  profile_image?: string;
+};

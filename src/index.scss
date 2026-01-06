@@ -17,32 +17,51 @@
 
 @font-face {
   font-family: 'Inter';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
-
-
-}
-
-@font-face {
-  font-family: 'Inter-bold';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
-  font-weight: 700;
-
-}
-
-@font-face {
-  font-family: 'Inter-semibold';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-
-}
-
-
-@font-face {
-  font-family: 'Inter-regular';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+  src: url('/assets/fonts/static/Inter_18pt-Regular.ttf') format('truetype');
   font-weight: 400;
-
+  font-style: normal;
 }
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/static/Inter_18pt-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/static/Inter_18pt-Bold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+// @font-face {
+//   font-family: 'Inter';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+// }
+
+// @font-face {
+//   font-family: 'Inter-bold';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
+//   font-weight: 700;
+
+// }
+
+// @font-face {
+//   font-family: 'Inter-semibold';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
+//   font-weight: 600;
+
+// }
+
+
+// @font-face {
+//   font-family: 'Inter-regular';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+//   font-weight: 400;
+
+// }
 
 body {
   background-color: #ffff;
@@ -831,6 +850,7 @@ input {
   line-height: 16px;
   border-radius: 4px !important;
   padding: 4px 6px;
+  margin: 0 auto;
 
   .badge-div {
     width: 5px;
@@ -841,6 +861,7 @@ input {
   &.active {
     background-color: $color-status-bg-active;
     color: $color-status-text-active;
+    max-width: 100px;
 
     .badge-div {
       background-color: $color-status-badge-div-active;
@@ -850,11 +871,78 @@ input {
   &.inactive {
     background-color: $color-status-bg-inactive;
     color: $color-status-text-inactive;
+    max-width: 100px;
 
     .badge-div {
       background-color: $color-status-badge-div-inactive;
     }
   }
+}
+
+.department-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  border-radius: 4px !important;
+  padding: 4px 6px;
+}
+
+// Department pill
+.department-pill {
+  background: $department-pill-bg;
+  color: $department-pill-color;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.avatar-initial {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  font-family: $font-family-main;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: 1%;
+  text-align: center;
+}
+
+/* 4 color variations */
+.avatar-initial.color-1 {
+  background: $employee-initial-bg-1;
+  color: $employee-initial-text-1;
+}
+
+.avatar-initial.color-2 {
+  background: $employee-initial-bg-2;
+  color: $employee-initial-text-2;
+}
+
+.avatar-initial.color-3 {
+  background: $employee-initial-bg-3;
+  color: $employee-initial-text-3;
+}
+
+.avatar-initial.color-4 {
+  background: $employee-initial-bg-4;
+  color: $employee-initial-text-4;
 }
 
 .ant-form-item .ant-form-item-explain-error {

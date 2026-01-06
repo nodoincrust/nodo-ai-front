@@ -19,7 +19,7 @@ export default function Departments() {
     const [departmentList, setDepartmentList] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
-    const [pageSize, setPageSize] = useState(25);
+    const [pageSize, setPageSize] = useState(10);
     const [isAddEditOpen, setIsAddEditOpen] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);

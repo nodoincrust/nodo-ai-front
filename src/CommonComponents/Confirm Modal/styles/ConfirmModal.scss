@@ -109,7 +109,8 @@
         .confirm-btn {
           flex: 1;
           min-width: 156px;
-          min-height: 44px;
+          min-height: 40px;
+          max-height: 40px;
           padding: 10px 16px;
           border-radius: $border-radius-md;
           font-family: $font-family-main;

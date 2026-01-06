@@ -12,6 +12,19 @@
         gap: 12px;
         justify-content: space-between;
         margin-bottom: 16px;
+
+        button{
+            box-shadow: none;
+        }
+
+        .button-text {
+            font-family: $font-family-main;
+            font-weight: 600;
+            letter-spacing: -4%;
+            vertical-align: middle;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
     }
 
     .language-title-count {

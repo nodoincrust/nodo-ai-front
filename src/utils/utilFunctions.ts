@@ -17,6 +17,18 @@ export const getInitials = (name: string): string => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
+export const getAvatarColorClass = (value: string, totalColors = 4) => {
+  if (!value) return "color-1";
+
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const colorIndex = Math.abs(hash) % totalColors;
+  return `color-${colorIndex + 1}`;
+};
+
 // --- Compare Filters (for equality) ---
 export const filtersAreEqual = (a: Filters, b: Filters): boolean => {
   const keys: (keyof Filters)[] = [

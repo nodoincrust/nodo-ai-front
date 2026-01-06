@@ -155,10 +155,10 @@ export default function Companies() {
         columns={[
           {
             title: "Company Name",
-            render: (row) => (
+            render: (row, index) => (
               <div className="company-cell">
-                <div className="company-initial">
-                  {row.name?.slice(0, 2).toUpperCase()}
+                <div className={`avatar-initial color-${((index ?? 0) % 4) + 1}`}>
+                  {row.name ? row.name.slice(0, 2).toUpperCase() : "—"}
                 </div>
 
                 <div className="company-info">

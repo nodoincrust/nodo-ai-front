@@ -3,7 +3,8 @@ import { Modal, Input, Button, Form, Switch, notification, Select } from "antd";
 import "./Styles/AddEditDepartment.scss";
 import { MESSAGES } from "../../../../utils/Messages";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
-import { addDepartment, getEmployeesList, updateDepartment } from "../../../../services/departments.services";
+import { addDepartment, updateDepartment } from "../../../../services/departments.services";
+import { getEmployeesList } from "../../../../services/employees.services";
 
 interface AddEditDepartmentProps {
     open: boolean;
