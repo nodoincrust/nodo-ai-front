@@ -1,10 +1,7 @@
 import React from "react"; // make sure this import exists
 import { Navigate } from "react-router-dom";
 import { getRoleFromToken } from "../../utils/jwt";
-
-interface OtpRouteProps {
-    children: React.ReactElement;
-}
+import { OtpRouteProps } from "../../types/common";
 
 const OtpRoute = ({ children }: OtpRouteProps) => {
     const token = localStorage.getItem("accessToken");

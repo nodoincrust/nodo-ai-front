@@ -1,8 +1,6 @@
 @use '../../../../../variables.scss' as *;
 
-// ===============================
 // Scoped styles for Departments
-// ===============================
 .departments-container {
 
     .category-btn {
@@ -37,9 +35,7 @@
         }
     }
 
-    // ===============================
     // Table
-    // ===============================
     .language-table {
         table {
             border-collapse: separate;
@@ -111,9 +107,7 @@
         }
     }
 
-    // ===============================
     // Department Cell (was Company)
-    // ===============================
     .department-cell {
         display: flex;
         align-items: center;
@@ -169,9 +163,7 @@
         }
     }
 
-    // ===============================
     // Actions
-    // ===============================
     .departments-actions img {
         cursor: pointer;
     }

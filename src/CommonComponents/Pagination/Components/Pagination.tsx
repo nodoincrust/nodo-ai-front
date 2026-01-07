@@ -76,6 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
           {/* Records Per Page Dropdown */}
           <div className="page-dropdown">
             <Select
+              virtual={false}
               value={pageSize}
               onChange={(val) => onPageSizeChange(val)}
               options={pageSizeOptions}
@@ -146,7 +147,7 @@ const Pagination: React.FC<PaginationProps> = ({
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               onChange={(e) => {
-                let val = e.target.value.replace(/\D/g, ""); // numeric only
+                let val = e.target.value.replace(/\D/g, "");
                 if (val === "") {
                   setJumpValue("");
                   return;

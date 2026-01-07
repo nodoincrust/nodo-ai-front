@@ -261,6 +261,7 @@
             border-radius: 14px !important;
             border: 1px solid $color-border !important;
             background: $color-white !important;
+            color: $color-placeholder !important;
 
             .ant-select-selector {
                 display: flex !important;
@@ -415,21 +416,4 @@ input[type="checkbox"]:not(.custom-checkbox)::after {
 .ant-form-item-label label .ant-form-item-required-mark {
     order: 1;
     margin-left: 4px;
-}
-
-.ant-select-dropdown {
-    max-height: 200px !important;
-    // overflow-y: auto !important;
-    scroll-behavior: smooth; // smooth dropdown scroll
-    -webkit-overflow-scrolling: touch;
-}
-
-.rc-virtual-list {
-    max-height: 200px !important;
-    overflow: auto !important;
-     
-}
-
-.rc-virtual-list-scrollbar {
-    display: none !important; // hide virtual list scrollbar
 }

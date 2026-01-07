@@ -9,13 +9,8 @@ import {
     updateEmployee,
 } from "../../../../services/employees.services";
 import { getDepartmentsListWithoutPagination } from "../../../../services/departments.services";
-
-interface AddEditEmployeeProps {
-    open: boolean;
-    onClose: () => void;
-    onSave: () => void;
-    initialData?: any;
-}
+import { useDebounce } from "../../../../hooks/useDebounce";
+import { AddEditEmployeeProps } from "../../../../types/common";
 
 const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
     open,
@@ -26,7 +21,8 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
     const isEdit = Boolean(initialData?.id);
     const [form] = Form.useForm();
     const modalRef = useRef<HTMLDivElement>(null);
-
+    const [search, setSearch] = useState("");
+    const debouncedSearch = useDebounce(search, 300);
     const [showModal, setShowModal] = useState(open);
     const [animateClose, setAnimateClose] = useState(false);
     const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
@@ -128,18 +124,31 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
         onClose();
     };
 
-    const fetchDepartments = async (search = "") => {
+    const fetchDepartments = async (search: string) => {
+        getLoaderControl()?.showLoader();
         try {
-            const res = await getDepartmentsListWithoutPagination({ search });
+            const res = await getDepartmentsListWithoutPagination({ payload: { search: search } });
             if (res.statusCode === 200) {
                 setDepartments(res.data || []);
+            } else {
+                setDepartments([]);
+                notification.error({
+                    message: res.message || MESSAGES.ERRORS.FAILED_TO_FETCH_DEPARTMENTS,
+                });
             }
-        } catch {
+        } catch (error: any) {
+            setDepartments([]);
             notification.error({
-                message: MESSAGES.ERRORS.FAILED_TO_FETCH_DEPARTMENTS,
+                message: error?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
             });
+        } finally {
+            getLoaderControl()?.hideLoader();
         }
     };
+
+    useEffect(() => {
+        fetchDepartments(debouncedSearch);
+    }, [debouncedSearch]);
 
     const handleSubmit = async () => {
         let hasError = false;
@@ -182,9 +191,9 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                             : MESSAGES.ERRORS.EMPLOYEE_CREATE_FAILED),
                 });
             }
-        } catch {
+        } catch (error: any) {
             notification.error({
-                message: MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+                message: error?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
             });
         } finally {
             getLoaderControl()?.hideLoader();
@@ -257,7 +266,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                     </Form.Item>
 
                     <Form.Item
-                        label={<span>Employee Department <span className="star">*</span></span>}
+                        label={<span>Department <span className="star">*</span></span>}
                         name="department"
                         rules={[
                             {
@@ -271,29 +280,34 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                         ]}
                     >
                         <Select
+                            virtual={false}
                             labelInValue
-                            placeholder="- Search Employee Department -"
+                            placeholder="- Search Department -"
+                            showSearch={{
+                                filterOption: false,
+                                onSearch: (value) => setSearch(value),
+                            }}
+                            onOpenChange={(open) => {
+                                setDeptOpen(open);
+                                if (open && departments.length === 0) fetchDepartments("");
+                            }}
                             suffixIcon={
                                 <img
                                     src={deptOpen ? "/assets/search.svg" : "/assets/chevron-down.svg"}
                                     alt="icon"
-                                    style={{ width: 24, height: 24 }}
+                                    style={{
+                                        width: deptOpen ? 18 : 24,
+                                        height: deptOpen ? 18 : 24,
+                                        marginRight: deptOpen ? 4 : 0,
+                                    }}
                                 />
                             }
-                            showSearch
-                            filterOption={false}
-                            onSearch={(value) => fetchDepartments(value)}
-                            onDropdownVisibleChange={(open) => {
-                                setDeptOpen(open);
-                                if (open && departments.length === 0) fetchDepartments("");
-                            }}
-                            dropdownStyle={{ maxHeight: 200, overflowY: "auto" }} // ✅ allow scroll only here
                             getPopupContainer={() => document.body}
                         >
-                            {departments.map(d => (
-                                <Option key={d.id} value={d.id}>
+                            {departments.map((d) => (
+                                <Select.Option key={d.id} value={d.id}>
                                     {d.name}
-                                </Option>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -313,10 +327,10 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                         ]}
                     >
                         <Select
+                            virtual={false}
                             labelInValue
                             placeholder="- Select Employee Role -"
-                            dropdownStyle={{ maxHeight: 200, overflowY: "auto" }} // ✅ only dropdown scroll
-                            onDropdownVisibleChange={(open) => setRoleOpen(open)}
+                            onOpenChange={setRoleOpen}
                             suffixIcon={
                                 <img
                                     src="/assets/chevron-down.svg"

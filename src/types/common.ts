@@ -103,7 +103,12 @@ export interface HeaderProps {
   filtersApplied?: boolean;
   onClearFilters?: () => void;
   searchPlaceholder?: string
+  showDropdown?: boolean;
+  status?: StatusType;
+  onStatusChange?: (status: StatusType) => void;
 }
+
+export type StatusType = "all" | "active" | "inactive";
 
 // Sidebar.tsx
 export interface SidebarProps {
@@ -138,52 +143,6 @@ export interface TableProps<T> {
   totalRecords?: number;
   emptyText?: string;
   rowClassName?: (row: T, index?: number) => string;
-}
-
-// --- Filter Types ---
-export interface Filters {
-  Status: string[];
-  // Status?: { id: string; label: string }[];
-  Date?: [string, string] | [];
-  "Role Permissions"?: string[];
-  "Role Name"?: string[];
-  "Project Name"?: string[];
-  "Vendor Name"?: string[];
-  "Device List"?: any[];
-  "Worker Category"?: { label: string; value: "new" | "old" }[];
-  [key: string]:
-  | { id: string | number; label: string }[]
-  | string[]
-  | [string, string]
-  | { label: string; value: "new" | "old" }[]
-  | undefined;
-}
-
-export interface ApiFilters {
-  university_id?: number[];
-  category_id?: number[];
-  isactive?: boolean[];
-  order_status?: string[];
-  isfeatured?: boolean[];
-  rating?: string[];
-  date?: { start: string; end: string };
-}
-
-// --- Default Values ---
-export const DEFAULT_FILTERS: Filters = {
-  Status: [],
-  "Role Permissions": [],
-  "Role Name": [],
-  "Project Name": [],
-  "Vendor Name": [],
-  "Device List": [],
-  "Worker Category": [],
-  Date: [],
-};
-
-export interface UseFiltersProps {
-  initialFilters?: Filters;
-  onApply?: (filters: Filters, apiFilters: ApiFilters) => void;
 }
 
 //Pages
@@ -263,3 +222,39 @@ export type Employee = {
   role: string | null;
   profile_image?: string;
 };
+
+export interface AddEditEmployeeProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  initialData?: any;
+}
+
+//Comapanies
+export interface AddEditCompanyProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  initialData?: any;
+}
+
+//Departments
+export interface AddEditDepartmentProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  initialData?: any;
+}
+
+//Profile
+export interface ProfileProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export const statusItems: { key: StatusType; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "inactive", label: "Inactive" },
+];
+

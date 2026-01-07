@@ -6,7 +6,7 @@ import "./Styles/Employees.scss";
 import { useDebounce } from "../../../../hooks/useDebounce";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
-import { getInitials, scrollLayoutToTop } from "../../../../utils/utilFunctions";
+import { getAvatarColorIndex, getInitials, scrollLayoutToTop } from "../../../../utils/utilFunctions";
 import Header from "../../../../CommonComponents/Header/Header";
 import AddEditEmployee from "./AddEditEmployee";
 import ConfirmModal from "../../../../CommonComponents/Confirm Modal/ConfirmModal";
@@ -16,7 +16,7 @@ import { Employee } from "../../../../types/common";
 export default function Employees() {
     const [count, setCount] = useState(0);
     const [search, setSearch] = useState("");
-    const debouncedSearch = useDebounce(search, 500);
+    const debouncedSearch = useDebounce(search, 300);
     const [employeeList, setEmployeeList] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
@@ -29,9 +29,7 @@ export default function Employees() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // ===============================
     // Fetch employees
-    // ===============================
     const fetchEmployees = async () => {
         getLoaderControl()?.showLoader();
         try {
@@ -77,9 +75,7 @@ export default function Employees() {
         scrollLayoutToTop();
     }, [currentPage, pageSize, location.pathname]);
 
-    // ===============================
     // Add / Edit
-    // ===============================
     const openAddEmployee = () => {
         setSelectedEmployee(null);
         setIsAddEditOpen(true);
@@ -90,9 +86,7 @@ export default function Employees() {
         setIsAddEditOpen(true);
     };
 
-    // ===============================
     // Delete
-    // ===============================
     const handleDeleteEmployee = async () => {
         if (!employeeToDelete) return;
 
@@ -145,19 +139,25 @@ export default function Employees() {
                 onAddClick={openAddEmployee}
                 addButtonText="Add Employee"
                 searchPlaceholder="Search employee by name or email"
-                categoryButtonText="Status: All"
-                categoryButtonClassName="status-dropdown"
-                categoryButtonTextClassName="status-dropdown-text"
-                categoryMenu={{
-                    items: [
-                        { key: "all", label: "All" },
-                        { key: "active", label: "Active" },
-                        { key: "inactive", label: "Inactive" },
-                    ],
-                    onClick: ({ key }) => {
-                        setStatus(key as "all" | "active" | "inactive");
-                        setCurrentPage(1);
-                    },
+                // categoryButtonText={`Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}
+                // categoryButtonClassName="status-dropdown"
+                // categoryButtonTextClassName="status-dropdown-text"
+                // categoryMenu={{
+                //     items: [
+                //         { key: "all", label: "All" },
+                //         { key: "active", label: "Active" },
+                //         { key: "inactive", label: "Inactive" },
+                //     ],
+                //     onClick: ({ key }) => {
+                //         setStatus(key as "all" | "active" | "inactive");
+                //         setCurrentPage(1);
+                //     },
+                // }}
+                showDropdown={true}
+                status={status}
+                onStatusChange={(val) => {
+                    setStatus(val);
+                    setCurrentPage(1);
                 }}
             />
 
@@ -171,7 +171,7 @@ export default function Employees() {
                                 {row.profile_image ? (
                                     <img src={row.profile_image} className="employee-avatar" />
                                 ) : (
-                                    <div className={`avatar-initial color-${((index ?? 0) % 4) + 1}`}>
+                                    <div className={`avatar-initial color-${getAvatarColorIndex(row.id || row.email)}`}>
                                         {getInitials(row.name || "")}
                                     </div>
                                 )}
@@ -264,7 +264,7 @@ export default function Employees() {
                 }}
                 onConfirm={handleDeleteEmployee}
                 title="Delete Employee?"
-                description="Deleting this employee will permanently remove their access and data. This action cannot be undone."
+                description={"Deleting this employee will permanently remove their access and data.\nThis action cannot be undone."}
                 confirmText="Delete"
                 icon="/assets/trash-hover.svg"
             />

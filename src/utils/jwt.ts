@@ -1,5 +1,5 @@
 // utils/jwt.ts
-import { jwtDecode } from "jwt-decode"; // ✅ correct for ESM
+import { jwtDecode } from "jwt-decode";
 
 export interface JwtPayload {
   role: string;

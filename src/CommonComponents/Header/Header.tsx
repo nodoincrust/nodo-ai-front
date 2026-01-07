@@ -1,9 +1,9 @@
-import React from "react";
-import { Input, Dropdown } from "antd";
+import React, { useState } from "react";
+import { Input, Dropdown, type MenuProps } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import "./Styles/Header.scss";
-import type { HeaderProps } from "../../types/common";
+import { statusItems, StatusType, type HeaderProps } from "../../types/common";
 
 const Header: React.FC<HeaderProps> = ({
   title,
@@ -17,7 +17,19 @@ const Header: React.FC<HeaderProps> = ({
   categoryButtonClassName,
   categoryButtonTextClassName,
   searchPlaceholder,
+  showDropdown = false,
+  status = "all",
+  onStatusChange,
 }) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const menu: MenuProps["items"] = statusItems.map((item) => ({
+    key: item.key,
+    label: item.label,
+  }));
+  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
+    onStatusChange && onStatusChange(key as StatusType);
+  };
   return (
     <div className="language-header">
       {/* TOP ROW */}
@@ -51,16 +63,27 @@ const Header: React.FC<HeaderProps> = ({
           />
         )}
 
-        {categoryMenu && categoryButtonText && (
+        {showDropdown && onStatusChange && (
           <Dropdown
-            menu={categoryMenu}
+            menu={{ items: menu, selectedKeys: [status], onClick: handleMenuClick }}
             trigger={["click"]}
+            open={dropdownOpen}
+            onOpenChange={setDropdownOpen}
           >
-            <div className={categoryButtonClassName}>
-              <span className={categoryButtonTextClassName}>
-                {categoryButtonText}
+            <div className="status-dropdown">
+              <span className="status-title">
+                Status: {status.charAt(0).toUpperCase() + status.slice(1)}
               </span>
-              <DownOutlined />
+              <img
+                src="/assets/chevron-down.svg"
+                alt="arrow"
+                style={{
+                  width: 24,
+                  height: 24,
+                  transition: "transform 0.2s ease",
+                  transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
             </div>
           </Dropdown>
         )}

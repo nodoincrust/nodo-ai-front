@@ -21,7 +21,9 @@ const Login = () => {
 
   const handleSendOtp = async () => {
     // ALWAYS clear old session first
-    localStorage.clear();
+    // localStorage.clear();
+    localStorage.removeItem("authData");
+    localStorage.removeItem("accessToken");
     const error = validateEmail(email);
     setEmailError(error);
 

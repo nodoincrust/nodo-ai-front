@@ -1,8 +1,6 @@
 @use './variables.scss' as *;
 
-// ===============================
 // Root Variables
-// ===============================
 :root {
   --bs-primary: #{$color-primary};
   --primary-dark: #{$color-primary};
@@ -11,10 +9,7 @@
   --field-border-color: #{$color-border};
 }
 
-// ===============================
 // Base
-// ===============================
-
 @font-face {
   font-family: 'Inter';
   src: url('/assets/fonts/static/Inter_18pt-Regular.ttf') format('truetype');
@@ -79,9 +74,7 @@ p {
   margin: 0;
 }
 
-// ===============================
 // Utilities (Padding, Margin, Border, Typography, Width, Gap, Display)
-// ===============================
 
 // Padding
 .p-4 {
@@ -391,8 +384,6 @@ p {
   width: 6% !important;
 }
 
-// ... (same as you wrote till w-90)
-
 // Gap
 .gap-4 {
   gap: 4px;
@@ -471,9 +462,7 @@ p {
   align-items: center;
 }
 
-// ===============================
 // Buttons
-// ===============================
 
 .ant-btn-variant-solid:not(:disabled):not(.ant-btn-disabled):active {
   background-color: var(--bs-primary);
@@ -496,9 +485,7 @@ p {
   box-shadow: none;
 }
 
-// ===============================
 // Form Fields
-// ===============================
 .field-div {
   display: flex;
   flex-direction: column;
@@ -526,10 +513,7 @@ p {
   margin-left: 1px;
 }
 
-// ===============================
 // Antd Overrides
-// ===============================
-
 .ant-switch .ant-switch-handle {
   position: absolute;
   top: 4px;
@@ -631,9 +615,7 @@ p {
   }
 }
 
-// ===============================
 // Responsive
-// ===============================
 @media (max-width: 512px) {
   .input-field {
     font-size: 12px;
@@ -671,8 +653,7 @@ p {
   border-radius: 20px !important;
 }
 
-//=============================== // Hover Effects
-// ===============================
+// Hover Effects
 .hover-bg-light:hover {
   background-color: rgba(0, 0, 0, 0.05) !important;
   transition: background-color 0.2s ease-in-out;
@@ -689,10 +670,7 @@ p {
   box-shadow: none !important;
 }
 
-// ===============================
 // Scrollbar Styling
-// ===============================
-
 .ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   color: rgba(0, 0, 0, 0.88);
   font-weight: 600;
@@ -763,9 +741,7 @@ p {
   }
 }
 
-// ===============================
 // Card
-// ===============================
 .card {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
@@ -830,6 +806,15 @@ input {
   font-family: "Outfit", sans-serif;
   font-size: 14px;
   color: #292D32;
+}
+
+.ant-select-placeholder {
+  color: $color-placeholder !important;
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  margin-top: 1px;
 }
 
 /* Status Column Center */

@@ -15,7 +15,7 @@ import ConfirmModal from "../../../../CommonComponents/Confirm Modal/ConfirmModa
 export default function Departments() {
     const [count, setCount] = useState(0);
     const [search, setSearch] = useState("");
-    const debouncedSearch = useDebounce(search, 500);
+    const debouncedSearch = useDebounce(search, 300);
     const [departmentList, setDepartmentList] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
@@ -132,19 +132,25 @@ export default function Departments() {
                 onAddClick={openAddDepartment}
                 addButtonText="Add Department"
                 searchPlaceholder="Search departments by name"
-                categoryButtonText="Status: All"
-                categoryButtonClassName="status-dropdown"
-                categoryButtonTextClassName="status-dropdown-text"
-                categoryMenu={{
-                    items: [
-                        { key: "all", label: "All" },
-                        { key: "active", label: "Active" },
-                        { key: "inactive", label: "Inactive" },
-                    ],
-                    onClick: ({ key }) => {
-                        setStatus(key as "all" | "active" | "inactive");
-                        setCurrentPage(1);
-                    },
+                // categoryButtonText={`Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}
+                // categoryButtonClassName="status-dropdown"
+                // categoryButtonTextClassName="status-dropdown-text"
+                // categoryMenu={{
+                //     items: [
+                //         { key: "all", label: "All" },
+                //         { key: "active", label: "Active" },
+                //         { key: "inactive", label: "Inactive" },
+                //     ],
+                //     onClick: ({ key }) => {
+                //         setStatus(key as "all" | "active" | "inactive");
+                //         setCurrentPage(1);
+                //     },
+                // }}
+                showDropdown={true}
+                status={status}
+                onStatusChange={(val) => {
+                    setStatus(val);
+                    setCurrentPage(1);
                 }}
             />
 
@@ -238,7 +244,7 @@ export default function Departments() {
                 onConfirm={handleDeleteDepartment}
                 title="Delete Department?"
                 description={
-                    "Deleting this department will remove all associated employees and reporting links.\nThis action cannot be undone."
+                    "Deleting this department will remove its reporting links, while employee records will remain intact. \nThis action cannot be undone."
                 }
                 confirmText="Delete"
                 icon="/assets/trash-hover.svg"

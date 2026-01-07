@@ -4,6 +4,7 @@ import "./Styles/sidebar.scss";
 import { AuthData, SidebarItem, SidebarProps } from "../../types/common";
 import Profile from "../../pages/Profile/Components/Profile";
 import ConfirmModal from "../Confirm Modal/ConfirmModal";
+import { getInitials } from "../../utils/utilFunctions";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -15,27 +16,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const disabledLinks = ["/dashboard", "/settings"];
-  // =======================
   // READ AUTH DATA
-  // =======================
   const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
   const sidebarItems: SidebarItem[] = authData.sidebar || [];
 
-
-  const loggedInUserEmail = authData.user?.email;
-  const loggedInUserName = authData.user?.name
-    ? authData.user.name
-      .split(" ")
-      .map((w: any) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ")
-    : "User";
-  const userInitials = authData.user?.name
-    ? authData.user.name
-      .split(" ")
-      .slice(0, 2) // first two words
-      .map((word: any) => word.charAt(0).toUpperCase())
-      .join("")
-    : "";
+  const loggedInUserName = authData.user?.name || "-";
+  const loggedInUserEmail = authData.user?.email || "-";
+  const userInitials = getInitials(loggedInUserName);
 
   // STORAGE
   const storageInfo = authData.storage || authData.user?.storage || {};
@@ -44,9 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const usedStorage = Number(storageInfo.used_space ?? 0);
   const storagePercent = Number(storageInfo.used_percentage ?? 0);
 
-  // =======================
   // TOGGLE SIDEBAR
-  // =======================
   const toggleSidebar = () => {
     if (isOpen) {
       setIsOpen(false);
@@ -57,9 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     }
   };
 
-  // =======================
   // RESPONSIVE HANDLING
-  // =======================
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -88,17 +71,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     };
   }, [isMobile, isOpen]);
 
-  // =======================
   // CLEAR FILTER SESSION
-  // =======================
   const clearFilterSession = () => {
     sessionStorage.removeItem("appliedFilters");
     sessionStorage.removeItem("apiAppliedFilters");
   };
 
-  // =======================
   // LOGOUT
-  // =======================
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -132,8 +111,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             </div>
           ) : (
             <img
-              src="/assets/Icon-collapse.svg"
-              alt="Toggle Sidebar"
+              src={isOpen ? "/assets/icon-collapse.svg" : "/assets/icon-expand.svg"}
+              alt={isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
               className={`desktop-toggle ${!isOpen ? "absolute-toggle" : ""}`}
               onClick={toggleSidebar}
             />
@@ -152,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   <span
                     key={item.id}
                     className="menu-item disabled"
-                    onClick={(e) => e.preventDefault()} // prevent navigation
+                    onClick={(e) => e.preventDefault()}
                   >
                     {item.icon ? (
                       <span
