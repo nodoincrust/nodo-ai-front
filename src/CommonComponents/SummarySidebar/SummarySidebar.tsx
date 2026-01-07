@@ -7,7 +7,7 @@ import {
   ReloadOutlined,
   FolderOutlined,
 } from "@ant-design/icons";
-import { notification } from "antd";
+import { notification, Spin } from "antd";
 import "./SummarySidebar.scss";
 
 interface SummarySidebarProps {
@@ -22,7 +22,7 @@ interface SummarySidebarProps {
   onRemoveTag?: (tag: string) => void;
   onCreateTag?: (tag: string) => void;
   onSaveMetadata?: () => void;
-  onRegenerate?: () => void;
+  onRegenerate?: () => Promise<void> | void;
   documentId?: number;
 }
 
@@ -46,6 +46,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   const [activeTags, setActiveTags] = useState<string[]>(propActiveTags);
   const [newTag, setNewTag] = useState("");
   const [isEditingSummary, setIsEditingSummary] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Update local state when props change
   useEffect(() => {
@@ -75,11 +76,17 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
     setIsEditingSummary(true);
   };
 
-  const handleRegenerate = () => {
-    if (onRegenerate) {
-      onRegenerate();
-    } else {
+  const handleRegenerate = async () => {
+    if (!onRegenerate) {
       notification.info({ message: "Regenerating summary..." });
+      return;
+    }
+
+    try {
+      setIsRegenerating(true);
+      await onRegenerate();
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -110,14 +117,26 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   };
 
   const handleCreateTag = () => {
-    if (newTag.trim()) {
-      if (onCreateTag) {
-        onCreateTag(newTag.trim());
-      } else {
-        notification.success({ message: `Tag "${newTag}" created` });
+    const value = newTag.trim();
+    if (!value) return;
+
+    // Update local active tags immediately
+    if (!activeTags.includes(value)) {
+      const updated = [...activeTags, value];
+      setActiveTags(updated);
+      if (onAddTag) {
+        onAddTag(value);
       }
-      setNewTag("");
     }
+
+    // Notify parent about new tag creation
+    if (onCreateTag) {
+      onCreateTag(value);
+    } else {
+      notification.success({ message: `Tag "${value}" created` });
+    }
+
+    setNewTag("");
   };
 
   const handleSaveMetadata = () => {
@@ -166,6 +185,19 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
           <div className="summary-body">
             {/* AI Generated Section */}
             <div className="summary-ai-section">
+              {isRegenerating && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 8,
+                  }}
+                >
+                  <Spin size="small" />
+                  <span>Regenerating summary...</span>
+                </div>
+              )}
               <div className="summary-text-box">
                 <div className="summary-ai-header">
                   <div className="summary-ai-badge">
@@ -244,6 +276,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                     type="button"
                     className="summary-action-btn"
                     onClick={handleRegenerate}
+                    disabled={isRegenerating}
                   >
                     <svg
                       className="action-icon"
@@ -307,7 +340,11 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                   />
                 </div>
                 <div className="summary-button">
-                  <button type="button" className="tag-add-button">
+                  <button
+                    type="button"
+                    className="tag-add-button"
+                    onClick={handleCreateTag}
+                  >
                     <span className="tag-plus">Add</span>
                   </button>
                 </div>

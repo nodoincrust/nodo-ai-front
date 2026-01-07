@@ -1,65 +1,33 @@
-import React, { useMemo } from "react";
-import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
+import PdfViewer from "./Components/Document Preview Components/PdfViewer";
+import DocxViewer from "./Components/Document Preview Components/DocxViewer";
+import ExcelViewer from "./Components/Document Preview Components/ExcelViewer";
+import ImageViewer from "./Components/Document Preview Components/ImageViewer";
 
-interface DocumentPreviewProps {
-  fileName: string;
-  fileUrl: string;
-}
-
-const DocumentPreview: React.FC<DocumentPreviewProps> = ({
-  fileName,
-  fileUrl,
-}) => {
+const DocumentPreview = ({ fileName, fileUrl }: any) => {
   const fileType = fileName.split(".").pop()?.toLowerCase();
 
-  // Memoize docs to avoid reloading
-  const docs = useMemo(
-    () => [
-      {
-        uri: fileUrl,
-        fileName,
-      },
-    ],
-    [fileUrl, fileName]
-  );
-
-  // ⚡ FAST PDF PREVIEW (no external service)
   if (fileType === "pdf") {
-    return (
-      <iframe
-        src={fileUrl}
-        title="PDF Preview"
-        width="100%"
-        height="100%"
-        style={{ border: "none" }}
-      />
-    );
+    return <PdfViewer fileUrl={fileUrl} />;
   }
 
-  // ⚡ FAST IMAGE PREVIEW
-  if (["png", "jpg", "jpeg", "gif"].includes(fileType || "")) {
-    return (
-      <img
-        src={fileUrl}
-        alt={fileName}
-        style={{ maxWidth: "100%", maxHeight: "100%" }}
-      />
-    );
+  if (["png", "jpg", "jpeg", "gif", "webp"].includes(fileType || "")) {
+    return <ImageViewer fileUrl={fileUrl} fileName={fileName} />;
   }
 
-  // 🐢 Office + Others → react-doc-viewer
+  if (["doc", "docx"].includes(fileType || "")) {
+    return <DocxViewer fileUrl={fileUrl} />;
+  }
+
+  if (["xls", "xlsx"].includes(fileType || "")) {
+    return <ExcelViewer fileUrl={fileUrl} />;
+  }
+
   return (
-    <DocViewer
-      documents={docs}
-      pluginRenderers={DocViewerRenderers}
-      config={{
-        header: {
-          disableHeader: true,
-          disableFileName: true,
-        },
-      }}
-      style={{  width:"100%", height: "100%" }}
-    />
+    <div style={{ textAlign: "center", padding: "40px" }}>
+      Preview not available.  
+      <br />
+      <a href={fileUrl} download>Download File</a>
+    </div>
   );
 };
 

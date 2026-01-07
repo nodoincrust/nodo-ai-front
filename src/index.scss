@@ -1,4 +1,4 @@
-@use './variables.scss' as *;
+@use "./variables.scss" as *;
 
 // ===============================
 // Root Variables
@@ -16,32 +16,29 @@
 // ===============================
 
 @font-face {
-  font-family: 'Inter';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
-
-
+  font-family: "Inter";
+  src: url("./assets/fonts/Inter/static/Inter_18pt-Regular.ttf")
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Inter-bold';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
+  font-family: "Inter-bold";
+  src: url("./assets/fonts/Inter/static/Inter_18pt-Bold.ttf") format("truetype");
   font-weight: 700;
-
 }
 
 @font-face {
-  font-family: 'Inter-semibold';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
+  font-family: "Inter-semibold";
+  src: url("./assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf")
+    format("truetype");
   font-weight: 600;
-
 }
 
-
 @font-face {
-  font-family: 'Inter-regular';
-  src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+  font-family: "Inter-regular";
+  src: url("./assets/fonts/Inter/static/Inter_18pt-Regular.ttf")
+    format("truetype");
   font-weight: 400;
-
 }
 
 body {
@@ -63,7 +60,18 @@ p {
 // ===============================
 // Utilities (Padding, Margin, Border, Typography, Width, Gap, Display)
 // ===============================
-
+.react-doc-viewer .pg-viewer-wrapper canvas + canvas {
+  display: none !important;
+}
+.react-pdf__Page__canvas {
+  display: block;
+}
+.react-pdf__Page__annotationLayer {
+  display: none !important;
+}
+.react-pdf__Page__textContent {
+  display: none !important;
+}
 // Padding
 .p-4 {
   padding: 4px !important;
@@ -272,7 +280,7 @@ p {
   font-weight: 400;
   font-size: 12px;
   letter-spacing: 0px;
-  color: #FF5454 !important;
+  color: #ff5454 !important;
 }
 
 // Font sizes
@@ -498,7 +506,7 @@ p {
   color: var(--text-color);
 }
 
-.ant-form input[type='checkbox']:focus {
+.ant-form input[type="checkbox"]:focus {
   box-shadow: none;
 }
 
@@ -518,7 +526,7 @@ p {
 
 .ant-switch {
   margin-left: 4px;
-  background-color: #C6C6C6 !important;
+  background-color: #c6c6c6 !important;
   width: 40px !important;
   height: 26px;
 
@@ -545,8 +553,8 @@ p {
   box-shadow: none !important;
 }
 
-
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   font-family: $font-family-main !important;
   background-color: $menu-active-bg !important;
 }
@@ -568,16 +576,19 @@ p {
 }
 
 .ant-picker-dropdown {
-  .ant-picker-cell-in-view.ant-picker-cell-selected:not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
+  .ant-picker-cell-in-view.ant-picker-cell-selected:not(
+      .ant-picker-cell-disabled
+    )
+    .ant-picker-cell-inner {
     background-color: $color-primary;
   }
 
-  .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  .ant-picker-cell-in-view.ant-picker-cell-today
+    .ant-picker-cell-inner::before {
     border: 1px solid $color-border;
   }
 
   .ant-picker-header-view {
-
     .ant-picker-year-btn:hover,
     .ant-picker-month-btn:hover {
       color: $color-primary !important;
@@ -604,7 +615,6 @@ p {
 
 .ant-picker-outlined,
 .ant-input-outlined {
-
   &:focus,
   // &:hover,
   &:focus-within {
@@ -674,14 +684,20 @@ p {
 // Scrollbar Styling
 // ===============================
 
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   color: rgba(0, 0, 0, 0.88);
   font-weight: 600;
-  background-color: #E2EEFF;
+  background-color: #e2eeff;
 }
 
-.ant-select-focused:where(.css-dev-only-do-not-override-kbg4zp).ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
-  border-color: #90BDFF;
+.ant-select-focused:where(
+    .css-dev-only-do-not-override-kbg4zp
+  ).ant-select-outlined:not(.ant-select-disabled):not(
+    .ant-select-customize-input
+  ):not(.ant-pagination-size-changer)
+  .ant-select-selector {
+  border-color: #90bdff;
   box-shadow: none;
   outline: 0;
 }
@@ -717,7 +733,7 @@ p {
   font-size: 16px;
   line-height: 17.35px;
   letter-spacing: 0%;
-  color: #6670857A;
+  color: #6670857a;
 }
 
 .no-data {
@@ -764,7 +780,7 @@ p {
 /* For Chrome, Edge, Safari */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #BFBFBF #F1F1F1;
+  scrollbar-color: #bfbfbf #f1f1f1;
 }
 
 /* Scrollbar width */
@@ -775,18 +791,18 @@ p {
 
 /* Scrollbar track */
 ::-webkit-scrollbar-track {
-  background: #D5D7DA !important;
+  background: #d5d7da !important;
 }
 
 /* Scrollbar thumb */
 ::-webkit-scrollbar-thumb {
-  background: #D5D7DA !important;
+  background: #d5d7da !important;
   border-radius: 8px;
 }
 
 /* Prevent color change on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #D5D7DA !important;
+  background: #d5d7da !important;
 }
 
 input {
@@ -794,23 +810,22 @@ input {
   width: 100%;
   height: 40px;
   border-radius: 10px;
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.1411764706);
   font-family: "Outfit", sans-serif;
   font-size: 14px;
-  color: #292D32;
+  color: #292d32;
 }
-
 
 .ant-select {
   padding: 0px;
   width: 100%;
   height: 40px;
   border-radius: 10px;
-  background: #FFFFFF;
+  background: #ffffff;
   font-family: "Outfit", sans-serif;
   font-size: 14px;
-  color: #292D32;
+  color: #292d32;
 }
 
 /* Status Column Center */
@@ -864,4 +879,16 @@ input {
 
 .ant-form-item {
   margin-bottom: 5px !important;
+}
+
+.docx-wrapper {
+  background: unset !important;
+  padding: 0px !important;
+}
+
+.document-viewer{
+
+  tbody, td, tfoot, th, thead, tr {
+    border-width: 1px !important;
+  }
 }

@@ -280,7 +280,6 @@ export interface ApiDocumentVersion {
   file_size_bytes: number;
   tags: string[];
   summary?: string;
-  // Full URL to the stored file, used by the document viewer (constructed from file_path in service)
   file_url?: string;
 }
 
@@ -358,4 +357,17 @@ export interface GetDocumentsParams {
   status?: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
   version?: number;
   tag?: string;
+}
+
+export interface AssignableEmployee {
+  user_id: number;
+  name: string;
+  role: string;
+  is_department_head: boolean;
+  order: number;
+}
+
+export interface AssignableEmployeeResponse {
+  status: number;
+  data: AssignableEmployee[];
 }

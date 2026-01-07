@@ -16,7 +16,7 @@ const AppModal = ({
   onClose,
   children,
   footer,
-  width = "750px",
+  width ,
 
 
 }: AppModalProps) => {

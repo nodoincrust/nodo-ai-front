@@ -39,7 +39,7 @@ export default function Documents() {
     if (type === "xlsm" || type === "xlsx" || type === "xls" || type === "xlc") return "/assets/xlc_icon.svg";
     if (type === "pptx" || type === "ppt") return "/assets/ppt_icon.svg";
     // For image files, we can use a default or add an image icon later
-    if (type === "png" || type === "jpg" || type === "jpeg" || type === "gif") return "/assets/doc_icon.svg";
+    if (type === "png" || type === "jpg" || type === "jpeg" || type === "gif") return "/assets/imag.svg";
     // Default to doc icon for unknown types
     return "/assets/doc_icon.svg";
   };

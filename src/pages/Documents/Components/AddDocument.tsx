@@ -1,10 +1,12 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { notification } from "antd";
+import { notification, Spin } from "antd";
 import AppModal from "../../../components/common/AppModal";
 import AppButton from "../../../components/common/AppButton";
-import { addDocument } from "../../../services/documents.service";
-import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
+import {
+  addDocument,
+  regenerateSummary,
+} from "../../../services/documents.service";
 import "./Styles/AddDocument.scss";
 
 interface AddDocumentProps {
@@ -21,6 +23,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx"];
@@ -98,7 +101,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
       return;
     }
 
-    getLoaderControl()?.showLoader();
+    setIsUploading(true);
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
@@ -119,24 +122,34 @@ const AddDocument: React.FC<AddDocumentProps> = ({
       onClose();
 
       // Navigate to document detail page
-      // The API should return document_id or document object
-      const documentId = response?.document_id || response?.id || response?.data?.document_id;
+      // Upload API response example:
+      // {
+      //   status: "success",
+      //   documentId: 32,
+      //   filepath: "storage\\companies\\8\\documents\\32\\v1_file.xlsx",
+      //   ...
+      // }
+      const documentId = (response as any)?.documentId;
+
       if (documentId) {
         navigate(`/documents/${documentId}`);
+        await regenerateSummary(documentId);
+        notification.info({
+          message: "Generating AI Summary",
+          description: "AI is analyzing the document...",
+        });
       } else {
-        // If no ID returned, refresh the list and stay on documents page
-        // The user can click on the document from the list
+        console.warn("upload: no documentId in response", response);
       }
     } catch (error: any) {
       notification.error({
         message: "Upload failed",
         description:
           error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to upload document. Please try again.",
+          error?.response?.data?.detail 
       });
     } finally {
-      getLoaderControl()?.hideLoader();
+      setIsUploading(false);
     }
   };
 
@@ -151,6 +164,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   return (
     <AppModal
       open={open}
+      width="750px"
       title="Add Document"
       onClose={handleClose}
       footer={
@@ -159,13 +173,32 @@ const AddDocument: React.FC<AddDocumentProps> = ({
             variant="primary"
             label="Upload"
             onClick={handleUpload}
-            disabled={!selectedFile}
+            disabled={!selectedFile || isUploading}
             className="upload-btn"
           />
         </div>
       }
     >
-      <div className="add-document-content">
+      <div className="add-document-content" style={{ position: "relative" }}>
+        {isUploading && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10,
+              borderRadius: "8px",
+            }}
+          >
+            <Spin size="large" />
+          </div>
+        )}
         <div
           className={`file-upload-area ${isDragging ? "dragging" : ""} ${
             selectedFile ? "has-file" : ""
@@ -187,7 +220,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
             <>
               <div className="upload-icon">
                 <img
-                 src="/assets/Upload.svg"
+                  src="/assets/Upload.svg"
                   alt="Upload"
                   width={48}
                   height={48}

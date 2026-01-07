@@ -16,7 +16,7 @@
 }
 
 .app-modal {
-
+max-height: 92vh;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
@@ -38,11 +38,13 @@
 }
 
 .app-modal-header {
+  background-color: #F9FAFB;
   padding: 24px;
   border-bottom: 1px solid #1B32491F;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-radius: 20px 20px 0 0;
 
   h3 {
     margin: 0;
@@ -74,4 +76,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  background-color: #F9FAFB;
+  border-radius:0 0 20px 20px;
 }
