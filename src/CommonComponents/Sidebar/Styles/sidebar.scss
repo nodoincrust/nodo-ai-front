@@ -581,7 +581,7 @@
         border-color: $logout-color;
 
         &:hover {
-          background: darken($logout-color, 10%);
+          background: $logout-color;
         }
       }
     }
