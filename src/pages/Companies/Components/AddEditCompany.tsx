@@ -6,7 +6,6 @@ import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { addCompany, updateCompany } from "../../../services/companies.services";
 import { allowOnlyNumbersInput } from "../../../utils/utilFunctions";
 import { AddEditCompanyProps } from "../../../types/common";
-
 const AddEditCompany: React.FC<AddEditCompanyProps> = ({
     open,
     onClose,
@@ -151,7 +150,7 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                         label={<span>Company Name <span className="star">*</span></span>}
                         name="company_name"
                         rules={[{
-                            validator: (_, value) => {
+                            validator: (_: any, value: any) => {
                                 if (!value || !value.trim()) return Promise.reject(MESSAGES.ERRORS.COMPANY_NAME_REQUIRED);
                                 return Promise.resolve();
                             },
@@ -165,7 +164,7 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                         label={<span>Contact Person Name <span className="star">*</span></span>}
                         name="contact_name"
                         rules={[{
-                            validator: (_, value) => {
+                            validator: (_: any, value: any) => {
                                 if (!value || !value.trim()) return Promise.reject(MESSAGES.ERRORS.CONTACT_NAME_REQUIRED);
                                 return Promise.resolve();
                             },
@@ -179,7 +178,7 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                         label={<span>Contact Person Email Address <span className="star">*</span></span>}
                         name="contact_email"
                         rules={[{
-                            validator: (_, value) => {
+                            validator: (_: any, value: any) => {
                                 if (!value || !value.trim()) return Promise.reject(MESSAGES.ERRORS.EMAIL_REQUIRED);
                                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                                 if (!emailRegex.test(value)) return Promise.reject(MESSAGES.ERRORS.ENTER_VALID_EMAIL);
@@ -201,7 +200,7 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                         validateTrigger={["onChange", "onBlur"]}
                         rules={[
                             {
-                                validator: (_, value) => {
+                                validator: (_: any, value: any) => {
                                     if (!value || !value.trim()) {
                                         return Promise.reject(
                                             MESSAGES.ERRORS.CONTACT_NUMBER_REQUIRED
@@ -288,7 +287,7 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                         validateTrigger={["onChange", "onBlur"]}
                         rules={[
                             {
-                                validator: (_, value) => {
+                                validator: (_: any, value: any) => {
                                     if (!value || !value.toString().trim()) {
                                         return Promise.reject(
                                             MESSAGES.ERRORS.STORAGE_REQUIRED
@@ -299,6 +298,10 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                                         return Promise.reject(
                                             MESSAGES.ERRORS.INVALID_STORAGE
                                         );
+                                    }
+
+                                    if (Number(value) > 1024) {
+                                        return Promise.reject("Storage cannot exceed 1024 GB");
                                     }
 
                                     return Promise.resolve();

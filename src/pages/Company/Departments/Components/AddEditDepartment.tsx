@@ -7,6 +7,7 @@ import { addDepartment, updateDepartment } from "../../../../services/department
 import { getEmployeesList } from "../../../../services/employees.services";
 import { useDebounce } from "../../../../hooks/useDebounce";
 import { AddEditDepartmentProps } from "../../../../types/common";
+import type { FormInstance } from "antd/es/form";
 
 const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
     open,
@@ -205,7 +206,7 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
                         label={<span>Department Name <span className="star">*</span></span>}
                         name="department_name"
                         rules={[{
-                            validator: (_, value) => {
+                            validator: (_: any, value: any) => {
                                 if (!value || !value.trim()) return Promise.reject(MESSAGES.ERRORS.DEPARTMENT_NAME_REQUIRED);
                                 return Promise.resolve();
                             },
@@ -238,10 +239,9 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
                                 />
                             }
                             placement="bottomLeft"
-                            showSearch={{
-                                filterOption: false,
-                                onSearch: (value) => setSearch(value),
-                            }}
+                            showSearch
+                            filterOption={false}
+                            onSearch={(value: any) => setSearch(value)}
                             /* Replaces onDropdownVisibleChange */
                             onOpenChange={(open) => {
                                 setDeptOpen(open);
