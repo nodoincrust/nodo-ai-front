@@ -5,6 +5,7 @@ import { getRoleFromToken } from "../../../utils/jwt";
 import { ProfileProps } from "../../../types/common";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { MESSAGES } from "../../../utils/Messages";
+import type { FormInstance } from "antd/es/form";
 
 const Profile: React.FC<ProfileProps> = ({ open, onClose }) => {
     const modalRef = useRef<HTMLDivElement>(null);

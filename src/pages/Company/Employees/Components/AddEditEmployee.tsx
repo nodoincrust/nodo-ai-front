@@ -230,7 +230,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                         name="employee_name"
                         rules={[
                             {
-                                validator: (_, value) => {
+                                validator: (_: any, value: any) => {
                                     if (!value || !value.trim()) {
                                         return Promise.reject(MESSAGES.ERRORS.EMPLOYEE_NAME_REQUIRED);
                                     }
@@ -251,7 +251,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                         name="employee_email"
                         rules={[
                             {
-                                validator: (_, value) => {
+                                validator: (_: any, value: any) => {
                                     if (!value || !value.trim())
                                         return Promise.reject(MESSAGES.ERRORS.EMPLOYEE_EMAIL_REQUIRED);
                                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -270,7 +270,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                         name="department"
                         rules={[
                             {
-                                validator: (_, value) => {
+                                validator: (_: any, value: any) => {
                                     if (!value || !value.value) {
                                         return Promise.reject(MESSAGES.ERRORS.EMPLOYEE_DEPARTMENT_REQUIRED);
                                     }
@@ -283,10 +283,9 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                             virtual={false}
                             labelInValue
                             placeholder="- Search Department -"
-                            showSearch={{
-                                filterOption: false,
-                                onSearch: (value) => setSearch(value),
-                            }}
+                            showSearch
+                            filterOption={false}
+                            onSearch={(value: any) => setSearch(value)}
                             onOpenChange={(open) => {
                                 setDeptOpen(open);
                                 if (open && departments.length === 0) fetchDepartments("");
@@ -317,7 +316,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                         name="role"
                         rules={[
                             {
-                                validator: (_, value) => {
+                                validator: (_: any, value: any) => {
                                     if (!value || !value.value) {
                                         return Promise.reject(MESSAGES.ERRORS.EMPLOYEE_ROLE_REQUIRED);
                                     }
