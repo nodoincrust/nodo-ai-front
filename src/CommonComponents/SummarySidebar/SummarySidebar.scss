@@ -9,6 +9,15 @@
   height: calc(100vh - 72px);
   max-height: 100%;
 
+  .summary-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: #6b7280;
+  }
+
   .summary-header {
     padding: 16px 20px 12px 20px;
 
@@ -312,7 +321,7 @@
     .tag-plus {
       font-size: 14px;
       font-weight: 600;
-      color: #6D7C8B;
+      color: #6d7c8b;
     }
   }
 
@@ -413,7 +422,7 @@
     color: #ffffff;
     font-family: $font-family-main;
     font-size: 16px;
- font-weight: 600;
+    font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
     transition: all 0.2s ease;

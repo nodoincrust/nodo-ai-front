@@ -16,6 +16,7 @@ interface DocumentLayoutProps {
   showSummarySidebar?: boolean;
   showChatSidebar?: boolean;
   children?: React.ReactNode;
+  isSummaryGenerating?: boolean;
   document?: ApiDocument | null;
   onSummaryChange?: (summary: string) => void;
   onAddTag?: (tag: string) => void;
@@ -24,9 +25,9 @@ interface DocumentLayoutProps {
   onSaveMetadata?: () => void;
   onRegenerate?: () => void;
   onSendMessage?: (
-  message: string,
-  documentId: number
-) => Promise<AiChatResult>;
+    message: string,
+    documentId: number
+  ) => Promise<AiChatResult>;
 }
 
 const DocumentLayout: React.FC<DocumentLayoutProps> = ({
@@ -35,6 +36,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
   showChatSidebar = true,
   children,
   document,
+  isSummaryGenerating,
   onSummaryChange,
   onAddTag,
   onRemoveTag,
@@ -121,6 +123,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
               onSaveMetadata={onSaveMetadata}
               onRegenerate={onRegenerate}
               documentId={document?.document_id}
+              isSummaryGenerating={isSummaryGenerating}
             />
           </div>
         )}
@@ -143,8 +146,8 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
               isChatOpen ? "open" : "collapsed"
             } ${isChatClosing ? "closing" : ""}`}
           >
-            <ChatSidebar 
-              isOpen={isChatOpen} 
+            <ChatSidebar
+              isOpen={isChatOpen}
               onToggle={toggleChatSidebar}
               contextValue={document?.version?.file_name || ""}
               documentId={document?.document_id}
@@ -158,5 +161,3 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
 };
 
 export default DocumentLayout;
-
-

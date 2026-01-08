@@ -31,7 +31,7 @@ const DocumentPreview = ({ fileName, fileUrl }: any) => {
     <div style={{ textAlign: "center", padding: "40px" }}>
       Preview not available.  
       <br />
-      <a href={fileUrl} download>Download File</a>
+    
     </div>
   );
 };

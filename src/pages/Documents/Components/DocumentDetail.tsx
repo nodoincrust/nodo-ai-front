@@ -24,6 +24,8 @@ import "./Styles/DocumentLayout.scss";
 const DocumentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [isSummaryGenerating, setIsSummaryGenerating] = useState(false);
+
   const [document, setDocument] = useState<ApiDocument | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -240,7 +242,7 @@ const DocumentDetail: React.FC = () => {
 
     try {
       const jobId = await startSummary(docId);
-
+      setIsSummaryGenerating(true);
       pollSummaryStatus(
         jobId,
         (result) => {
@@ -255,14 +257,15 @@ const DocumentDetail: React.FC = () => {
               },
             };
           });
-
+          setIsSummaryGenerating(false);
           notification.success({
-            message: "Summary generated successfully",
-            
-            
+            message: "Summary generated",
+            description: "AI summary has been generated successfully.",
+            duration: 3,
           });
         },
         (err) => {
+          setIsSummaryGenerating(false);
           notification.error({
             message: "Summary failed",
             description: String(err),
@@ -270,6 +273,7 @@ const DocumentDetail: React.FC = () => {
         }
       );
     } catch (err) {
+      setIsSummaryGenerating(false);
       notification.error({
         message: "Failed to start summary",
       });
@@ -375,6 +379,7 @@ const DocumentDetail: React.FC = () => {
         onSaveMetadata={handleSaveMetadata}
         onRegenerate={handleRegenerate}
         onSendMessage={handleSendMessage}
+        isSummaryGenerating={isSummaryGenerating}
       >
         <div className="document-viewer">
           {fileUrl && document.version?.file_name ? (

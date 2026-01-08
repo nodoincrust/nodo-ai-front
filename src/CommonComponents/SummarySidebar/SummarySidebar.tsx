@@ -24,6 +24,7 @@ interface SummarySidebarProps {
   onSaveMetadata?: () => void;
   onRegenerate?: () => Promise<void> | void;
   documentId?: number;
+  isSummaryGenerating?: boolean;
 }
 
 const SummarySidebar: React.FC<SummarySidebarProps> = ({
@@ -33,6 +34,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   summary: propSummary = "",
   suggestedTags: propSuggestedTags = [],
   activeTags: propActiveTags = [],
+  isSummaryGenerating,
   onSummaryChange,
   onAddTag,
   onRemoveTag,
@@ -46,7 +48,6 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   const [activeTags, setActiveTags] = useState<string[]>(propActiveTags);
   const [newTag, setNewTag] = useState("");
   const [isEditingSummary, setIsEditingSummary] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Update local state when props change
   useEffect(() => {
@@ -76,18 +77,8 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
     setIsEditingSummary(true);
   };
 
-  const handleRegenerate = async () => {
-    if (!onRegenerate) {
-      notification.info({ message: "Regenerating summary..." });
-      return;
-    }
-
-    try {
-      setIsRegenerating(true);
-      await onRegenerate();
-    } finally {
-      setIsRegenerating(false);
-    }
+  const handleRegenerate = () => {
+    onRegenerate?.();
   };
 
   const handleWriteOwnSummary = () => {
@@ -185,17 +176,10 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
           <div className="summary-body">
             {/* AI Generated Section */}
             <div className="summary-ai-section">
-              {isRegenerating && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: 8,
-                  }}
-                >
+              {isSummaryGenerating && (
+                <div className="summary-loading">
                   <Spin size="small" />
-                  <span>Regenerating summary...</span>
+                  <span>AI is generating summary...</span>
                 </div>
               )}
               <div className="summary-text-box">
@@ -251,7 +235,9 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                     placeholder="Enter your summary..."
                   />
                 ) : (
-                  <p className="summary-text">{summary || "No summary available."}</p>
+                  <p className="summary-text">
+                    {summary || "No summary available."}
+                  </p>
                 )}
 
                 <div className="summary-actions">
@@ -276,7 +262,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                     type="button"
                     className="summary-action-btn"
                     onClick={handleRegenerate}
-                    disabled={isRegenerating}
+                    disabled={isSummaryGenerating}
                   >
                     <svg
                       className="action-icon"
@@ -388,7 +374,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
               className="summary-save-btn"
               onClick={handleSaveMetadata}
             >
-               <img src="/assets/save.svg" alt="" />
+              <img src="/assets/save.svg" alt="" />
               <span>Save Metadata</span>
             </button>
           </div>
