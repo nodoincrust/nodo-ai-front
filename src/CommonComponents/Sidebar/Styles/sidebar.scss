@@ -11,7 +11,7 @@
   z-index: 1050;
 
   width: 280px;
-  padding: 22px 0px;
+  padding: 16px 0px;
   border-right: 1px solid $color-border;
 
   .fixed-logo {
@@ -93,7 +93,7 @@
       flex: 1 1 auto;
       overflow-y: auto;
       min-height: 0;
-      padding: 15px 16px;
+      padding: 4px 16px 16px;
 
       &::-webkit-scrollbar {
         width: 6px;
@@ -114,7 +114,7 @@
         gap: 12px;
         padding: 8px 10px;
         border-radius: 8px;
-        margin-bottom: 6px;
+        margin-bottom: 12px;
         text-decoration: none;
         transition: background-color 0.2s ease;
 
@@ -132,6 +132,10 @@
           vertical-align: middle;
           color: $subheading-color;
         }
+      }
+
+      .menu-item:last-child{
+        margin-bottom: 0;
       }
 
       .menu-item.active {
@@ -169,7 +173,7 @@
         flex-direction: column;
         gap: 10px;
         width: 100%;
-        padding: 24px 16px 0;
+        padding: 16px 16px 0;
 
         .storage-header {
           display: flex;
@@ -233,7 +237,7 @@
         justify-content: space-between;
         width: 100%;
         border-top: 1px solid $color-border;
-        padding: 24px 16px 12px;
+        padding: 16px 16px 0;
       }
 
       .profile-item {
@@ -241,7 +245,7 @@
         align-items: center;
         justify-content: flex-start;
         gap: 12px;
-        padding: 8px 10px;
+        padding: 8px 10px 8px 0;
         border-radius: 8px;
         cursor: pointer;
         width: 100%;
