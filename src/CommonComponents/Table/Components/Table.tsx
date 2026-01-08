@@ -104,10 +104,10 @@ const Table = <T,>({
 
                             <div className="select-wrapper">
                                 <Select
+                                    virtual={false}
                                     value={pageSize}
                                     onChange={(value) => onPageSizeChange?.(value)}
                                     className="rows-select"
-                                    dropdownClassName="rows-select-dropdown"
                                     suffixIcon={
                                         <img
                                             src="/assets/pagination-chevron-down.svg"
@@ -137,7 +137,7 @@ const Table = <T,>({
                                 disabled={currentPage === 1}
                                 onClick={() => onPageChange(currentPage - 1)}
                             >
-                                <img src="/assets/chevron-left.svg" alt="" />
+                                <img src={currentPage === 1 ? "/assets/chevron-left-light.svg" : "/assets/chevron-left.svg"} alt="chevron-left" />
                             </button>
 
                             <button
@@ -145,7 +145,7 @@ const Table = <T,>({
                                 disabled={currentPage === totalPages}
                                 onClick={() => onPageChange(currentPage + 1)}
                             >
-                                <img src="/assets/chevron-right.svg" alt="" />
+                                <img src={currentPage === totalPages ? "/assets/chevron-right-light.svg" : "/assets/chevron-right.svg"} alt="chevron-right" />
                             </button>
                         </div>
                     </div>

@@ -8,6 +8,11 @@ export const getDepartmentsList = async (payload: ApiPayload = {}) => {
     return response.data;
 };
 
+export const getDepartmentsListWithoutPagination = async (payload: ApiPayload = {}) => {
+    const response = await axios.post(API_URL.getDepartmentsListWithoutPagination, payload);
+    return response.data;
+};
+
 // Add department
 export const addDepartment = async (payload: any) => {
     const response = await axios.post(API_URL.addDepartment, payload);
@@ -28,11 +33,5 @@ export const deleteDepartment = async (departmentId: number) => {
     const response = await axios.delete(
         `${API_URL.deleteDepartment}/${departmentId}`
     );
-    return response.data;
-};
-
-// Fetch employees (search, pagination)
-export const getEmployeesList = async (payload: ApiPayload = {}) => {
-    const response = await axios.post(API_URL.getEmployeesList, payload);
     return response.data;
 };

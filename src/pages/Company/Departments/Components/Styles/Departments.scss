@@ -1,8 +1,6 @@
 @use '../../../../../variables.scss' as *;
 
-// ===============================
 // Scoped styles for Departments
-// ===============================
 .departments-container {
 
     .category-btn {
@@ -37,9 +35,7 @@
         }
     }
 
-    // ===============================
     // Table
-    // ===============================
     .language-table {
         table {
             border-collapse: separate;
@@ -76,26 +72,30 @@
             th:nth-child(1),
             td:nth-child(1) {
                 width: 80px;
+                min-width: 80px;
             }
 
             th:nth-child(2),
             td:nth-child(2) {
                 width: 200px;
+                min-width: 200px;
             }
 
             th:nth-child(3),
             td:nth-child(3) {
                 width: 280px;
+                min-width: 280px;
             }
 
             th:nth-child(4),
             td:nth-child(4) {
-                width: 200px;
+                width: 160px;
+                min-width: 160px;
             }
 
             th:nth-child(5),
             td:nth-child(5) {
-                width: 100px;
+                text-align: center;
             }
 
             td:last-child,
@@ -107,35 +107,19 @@
         }
     }
 
-    // ===============================
     // Department Cell (was Company)
-    // ===============================
     .department-cell {
         display: flex;
         align-items: center;
         gap: 12px;
     }
 
-    .department-logo,
-    .department-initial {
+    .department-logo {
         width: 40px;
         height: 40px;
         border-radius: 50%;
         object-fit: cover;
         flex-shrink: 0;
-    }
-
-    .department-initial {
-        background: $color-bg-primary;
-        color: $color-primary;
-        font-family: $font-family-main;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-transform: uppercase;
     }
 
     .department-info {
@@ -179,49 +163,7 @@
         }
     }
 
-    // ===============================
-    // Status Badge (same as Language)
-    // ===============================
-    .status-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        font-family: $font-family-main;
-        font-weight: 500;
-        font-size: 12px;
-        line-height: 16px;
-        border-radius: 4px !important;
-        padding: 4px 6px;
-
-        .badge-div {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-        }
-
-        &.active {
-            background-color: $color-status-bg-active;
-            color: $color-status-text-active;
-
-            .badge-div {
-                background-color: $color-status-badge-div-active;
-            }
-        }
-
-        &.inactive {
-            background-color: $color-status-bg-inactive;
-            color: $color-status-text-inactive;
-
-            .badge-div {
-                background-color: $color-status-badge-div-inactive;
-            }
-        }
-    }
-
-    // ===============================
     // Actions
-    // ===============================
     .departments-actions img {
         cursor: pointer;
     }

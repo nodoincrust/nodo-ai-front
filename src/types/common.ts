@@ -106,31 +106,12 @@ export interface HeaderProps {
   categoryButtonTextClassName?: string;
   filtersApplied?: boolean;
   onClearFilters?: () => void;
+  showDropdown?: boolean;
+  status?: StatusType;
+  onStatusChange?: (status: StatusType) => void;
 }
 
-// Document detail header
-export type DocumentStatus =
-  | "IN_REVIEW"
-  | "APPROVED"
-  | "REJECTED"
-  | "DRAFT"
-  | "SUBMITTED";
-
-export interface DocumentBreadcrumbItem {
-  label: string;
-  path?: string;
-}
-
-export interface DocumentHeaderProps {
-  breadcrumb: DocumentBreadcrumbItem[];
-  fileName: string;
-  status?: DocumentStatus;
-  onBackClick?: () => void;
-  versionOptions?: { label: string; value: string }[];
-  selectedVersion?: string;
-  onVersionChange?: (value: string) => void;
-  onSubmit?: () => void;
-}
+export type StatusType = "all" | "active" | "inactive";
 
 // Sidebar.tsx
 export interface SidebarProps {
@@ -165,52 +146,6 @@ export interface TableProps<T> {
   totalRecords?: number;
   emptyText?: string;
   rowClassName?: (row: T, index?: number) => string;
-}
-
-// --- Filter Types ---
-export interface Filters {
-  Status: string[];
-  // Status?: { id: string; label: string }[];
-  Date?: [string, string] | [];
-  "Role Permissions"?: string[];
-  "Role Name"?: string[];
-  "Project Name"?: string[];
-  "Vendor Name"?: string[];
-  "Device List"?: any[];
-  "Worker Category"?: { label: string; value: "new" | "old" }[];
-  [key: string]:
-    | { id: string | number; label: string }[]
-    | string[]
-    | [string, string]
-    | { label: string; value: "new" | "old" }[]
-    | undefined;
-}
-
-export interface ApiFilters {
-  university_id?: number[];
-  category_id?: number[];
-  isactive?: boolean[];
-  order_status?: string[];
-  isfeatured?: boolean[];
-  rating?: string[];
-  date?: { start: string; end: string };
-}
-
-// --- Default Values ---
-export const DEFAULT_FILTERS: Filters = {
-  Status: [],
-  "Role Permissions": [],
-  "Role Name": [],
-  "Project Name": [],
-  "Vendor Name": [],
-  "Device List": [],
-  "Worker Category": [],
-  Date: [],
-};
-
-export interface UseFiltersProps {
-  initialFilters?: Filters;
-  onApply?: (filters: Filters, apiFilters: ApiFilters) => void;
 }
 
 //Pages
@@ -271,103 +206,58 @@ export interface AuthData {
   is_department_head?: boolean;
   department_id?: number | null;
   user?: any;
+  storage?: StorageInfo;
 }
 
-// Document interface
-export interface ApiDocumentVersion {
-  version_number: number;
-  file_name: string;
-  file_size_bytes: number;
-  tags: string[];
-  summary?: string;
-  file_url?: string;
+export interface StorageInfo {
+  show_storage?: boolean;
+  used_gb?: number;
+  total_gb?: number;
 }
 
-// Actual API response structure
-export interface ApiDocumentDetailResponse {
-  statusCode: number;
-  data: {
-    document: {
-      id: number;
-      status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
-      is_active: boolean;
-      created_at: string;
-      current_version: number;
-      uploaded_by: number;
-      department_id: number;
-      company_id: number;
-    };
-    file: {
-      file_name: string;
-      file_url?: string;
-      file_path?: string;
-      file_size_bytes: number;
-      version_number: number;
-    };
-    ai: {
-      ai_document_id: number;
-      session_id: string;
-      file_type: string;
-      file_size_mb: number;
-    };
-    summary: {
-      text: string | null;
-      tags: string[];
-      citations: any[];
-    };
-    review: {
-      status: string | null;
-      reviewed_by: number | null;
-    };
-  };
-}
-
-// Normalized document interface for UI
-export interface ApiDocument {
-  document_id: number;
-  status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
-  current_version: number;
-  version: ApiDocumentVersion;
-}
-
-export interface DocumentsListResponse {
-  data: ApiDocument[];
-  total: number;
-  page: number;
-  size: number;
-}
-
-// Document UI type (normalized from ApiDocument for display)
-export interface Document {
-  document_id: number;
-  status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
-  current_version: number;
-  // Normalized fields for UI
+//Employees
+export type Employee = {
+  id: number;
   name: string;
-  size: number;
-  tags: string[];
-  file_type: string;
+  email: string;
+  is_active: boolean;
+  department_id: number;
+  role: string | null;
+  profile_image?: string;
+};
+
+export interface AddEditEmployeeProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  initialData?: any;
 }
 
-// Parameters for getting documents list
-export interface GetDocumentsParams {
-  page?: number;
-  size?: number;
-  search?: string;
-  status?: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
-  version?: number;
-  tag?: string;
+//Comapanies
+export interface AddEditCompanyProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  initialData?: any;
 }
 
-export interface AssignableEmployee {
-  user_id: number;
-  name: string;
-  role: string;
-  is_department_head: boolean;
-  order: number;
+//Departments
+export interface AddEditDepartmentProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  initialData?: any;
 }
 
-export interface AssignableEmployeeResponse {
-  status: number;
-  data: AssignableEmployee[];
+//Profile
+export interface ProfileProps {
+  open: boolean;
+  onClose: () => void;
 }
+
+export const statusItems: { key: StatusType; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "inactive", label: "Inactive" },
+];
+

@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Input, Button, Form } from "antd";
+import { Modal, Input, Button, Form, notification } from "antd";
 import "./Styles/Profile.scss";
 import { getRoleFromToken } from "../../../utils/jwt";
-
-export interface ProfileProps {
-    open: boolean;
-    onClose: () => void;
-}
+import { ProfileProps } from "../../../types/common";
+import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
+import { MESSAGES } from "../../../utils/Messages";
 
 const Profile: React.FC<ProfileProps> = ({ open, onClose }) => {
     const modalRef = useRef<HTMLDivElement>(null);
@@ -37,8 +35,20 @@ const Profile: React.FC<ProfileProps> = ({ open, onClose }) => {
 
     /** Load user from localStorage + decode role */
     const loadUser = () => {
+        getLoaderControl()?.showLoader();
         try {
             const stored = localStorage.getItem("authData");
+
+            // User not found
+            if (!stored) {
+                notification.error({
+                    message: MESSAGES.ERRORS.FAILED_TO_FETCH_PROFILE,
+                });
+                setUser({});
+                return;
+            }
+
+            // User found
             if (stored) {
                 const parsed = JSON.parse(stored);
                 const role = parsed.token ? getRoleFromToken(parsed.token) : "";
@@ -48,9 +58,11 @@ const Profile: React.FC<ProfileProps> = ({ open, onClose }) => {
                     role: role || "",
                 });
             }
-        } catch (err) {
-            console.error("Error reading user from localStorage", err);
+        } catch (err: any) {
+            notification.error({ message: err?.message || err?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG });
             setUser({});
+        } finally {
+            getLoaderControl()?.hideLoader();
         }
     };
 

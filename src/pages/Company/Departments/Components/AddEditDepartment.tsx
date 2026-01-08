@@ -3,14 +3,10 @@ import { Modal, Input, Button, Form, Switch, notification, Select } from "antd";
 import "./Styles/AddEditDepartment.scss";
 import { MESSAGES } from "../../../../utils/Messages";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
-import { addDepartment, getEmployeesList, updateDepartment } from "../../../../services/departments.services";
-
-interface AddEditDepartmentProps {
-    open: boolean;
-    onClose: () => void;
-    onSave: () => void;
-    initialData?: any;
-}
+import { addDepartment, updateDepartment } from "../../../../services/departments.services";
+import { getEmployeesList } from "../../../../services/employees.services";
+import { useDebounce } from "../../../../hooks/useDebounce";
+import { AddEditDepartmentProps } from "../../../../types/common";
 
 const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
     open,
@@ -21,11 +17,13 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
     const isEdit = Boolean(initialData?.id);
     const [form] = Form.useForm();
     const modalRef = useRef<HTMLDivElement>(null);
-
+    const [search, setSearch] = useState("");
+    const debouncedSearch = useDebounce(search, 300);
     const [showModal, setShowModal] = useState(open);
     const [animateClose, setAnimateClose] = useState(false);
     const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
     const [employees, setEmployees] = useState<any[]>([]);
+    const [deptOpen, setDeptOpen] = useState(false);
 
     useEffect(() => {
         if (!open) {
@@ -103,7 +101,7 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
         onClose();
     };
 
-    const fetchEmployees = async (search = "") => {
+    const fetchEmployees = async (search: string) => {
         try {
             getLoaderControl()?.showLoader();
 
@@ -124,6 +122,10 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
             getLoaderControl()?.hideLoader();
         }
     };
+
+    useEffect(() => {
+        fetchEmployees(debouncedSearch);
+    }, [debouncedSearch]);
 
     const handleSubmit = async () => {
         let hasError = false;
@@ -220,28 +222,36 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
                     </Form.Item>
                     <Form.Item label="Assign To" name="assign_to">
                         <Select
+                            virtual={false}
                             labelInValue
                             optionLabelProp="label"
                             placeholder="- Search Employees -"
-                            suffixIcon={<img src="/assets/search.svg" alt="search" />}
+                            suffixIcon={
+                                <img
+                                    src={deptOpen ? "/assets/search.svg" : "/assets/chevron-down.svg"}
+                                    alt="icon"
+                                    style={{
+                                        width: deptOpen ? 18 : 24,
+                                        height: deptOpen ? 18 : 24,
+                                        marginRight: deptOpen ? 4 : 0,
+                                    }}
+                                />
+                            }
                             placement="bottomLeft"
                             showSearch={{
                                 filterOption: false,
-                                onSearch: (value) => fetchEmployees(value),
+                                onSearch: (value) => setSearch(value),
                             }}
-
                             /* Replaces onDropdownVisibleChange */
                             onOpenChange={(open) => {
-                                if (open && employees.length <= 1) {
-                                    fetchEmployees("");
-                                }
+                                setDeptOpen(open);
+                                if (open && employees.length === 0) fetchEmployees("");
                             }}
-
                             options={employees.map(emp => ({
                                 label: emp.name,
                                 value: emp.id,
                             }))}
-                            getPopupContainer={(triggerNode) => triggerNode.parentElement!}
+                            getPopupContainer={() => document.body}
                         />
                     </Form.Item>
 

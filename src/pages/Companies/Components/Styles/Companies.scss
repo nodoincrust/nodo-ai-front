@@ -1,10 +1,7 @@
 @use '../../../../variables.scss' as *;
 
-// ===============================
 // Scoped styles for Companies
-// ===============================
 .companies-container {
-
     .category-btn {
         display: flex;
         align-items: center;
@@ -37,9 +34,7 @@
         }
     }
 
-    // ===============================
     // Table
-    // ===============================
     .language-table {
         table {
             border-collapse: separate;
@@ -104,9 +99,7 @@
         }
     }
 
-    // ===============================
     // Company Cell
-    // ===============================
     .company-cell {
         display: flex;
         align-items: center;
@@ -122,17 +115,17 @@
         flex-shrink: 0;
     }
 
-    .company-initial {
-        background: $color-bg-primary;
-        color: $color-primary;
-        font-family: $font-family-main;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 24px;
+    .avatar-initial {
         display: flex;
         align-items: center;
         justify-content: center;
         text-transform: uppercase;
+        font-family: $font-family-main;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 14px;
+        letter-spacing: 1%;
+        text-align: center;
     }
 
     .company-info {
@@ -177,50 +170,8 @@
         }
     }
 
-    // ===============================
-    // Status Badge (same as Language)
-    // ===============================
-    .status-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        font-family: $font-family-main;
-        font-weight: 500;
-        font-size: 12px;
-        line-height: 16px;
-        border-radius: 4px !important;
-        padding: 4px 6px;
 
-        .badge-div {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-        }
-
-        &.active {
-            background-color: $color-status-bg-active;
-            color: $color-status-text-active;
-
-            .badge-div {
-                background-color: $color-status-badge-div-active;
-            }
-        }
-
-        &.inactive {
-            background-color: $color-status-bg-inactive;
-            color: $color-status-text-inactive;
-
-            .badge-div {
-                background-color: $color-status-badge-div-inactive;
-            }
-        }
-    }
-
-
-    // ===============================
     // Actions
-    // ===============================
     .companies-actions img {
         cursor: pointer;
     }

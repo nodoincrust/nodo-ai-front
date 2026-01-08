@@ -7,7 +7,7 @@ import "./Styles/Companies.scss";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { getAvatarColorIndex, getInitials, scrollLayoutToTop } from "../../../utils/utilFunctions";
 import { deleteCompany, getCompaniesList } from "../../../services/companies.services";
 import AddEditCompany from "./AddEditCompany";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
@@ -15,7 +15,7 @@ import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 export default function Companies() {
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(search, 300);
   const [companyList, setCompanyList] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
@@ -23,7 +23,7 @@ export default function Companies() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<number | null>(null);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -134,19 +134,25 @@ export default function Companies() {
         onAddClick={openAddCompany}
         addButtonText="Add Company"
         searchPlaceholder="Search companies by name or owner email"
-        categoryButtonText="Status: All"
-        categoryButtonClassName="status-dropdown"
-        categoryButtonTextClassName="status-dropdown-text"
-        categoryMenu={{
-          items: [
-            { key: "all", label: "All" },
-            { key: "active", label: "Active" },
-            { key: "inactive", label: "Inactive" },
-          ],
-          onClick: ({ key }) => {
-            setStatus(key as "all" | "active" | "inactive"); // TS typecast
-            setCurrentPage(1);
-          },
+        // categoryButtonText={`Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}
+        // categoryButtonClassName="status-dropdown"
+        // categoryButtonTextClassName="status-dropdown-text"
+        // categoryMenu={{
+        //   items: [
+        //     { key: "all", label: "All" },
+        //     { key: "active", label: "Active" },
+        //     { key: "inactive", label: "Inactive" },
+        //   ],
+        //   onClick: ({ key }) => {
+        //     setStatus(key as "all" | "active" | "inactive");
+        //     setCurrentPage(1);
+        //   },
+        // }}
+        showDropdown={true}
+        status={status}
+        onStatusChange={(val) => {
+          setStatus(val);
+          setCurrentPage(1);
         }}
       />
 
@@ -155,10 +161,10 @@ export default function Companies() {
         columns={[
           {
             title: "Company Name",
-            render: (row) => (
+            render: (row, index) => (
               <div className="company-cell">
-                <div className="company-initial">
-                  {row.name?.slice(0, 2).toUpperCase()}
+                <div className={`avatar-initial color-${getAvatarColorIndex(row.id || row.name)}`}>
+                  {getInitials(row.name)}
                 </div>
 
                 <div className="company-info">

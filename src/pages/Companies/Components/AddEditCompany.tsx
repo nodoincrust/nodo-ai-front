@@ -5,13 +5,7 @@ import { MESSAGES } from "../../../utils/Messages";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { addCompany, updateCompany } from "../../../services/companies.services";
 import { allowOnlyNumbersInput } from "../../../utils/utilFunctions";
-
-interface AddEditCompanyProps {
-    open: boolean;
-    onClose: () => void;
-    onSave: () => void;
-    initialData?: any;
-}
+import { AddEditCompanyProps } from "../../../types/common";
 
 const AddEditCompany: React.FC<AddEditCompanyProps> = ({
     open,

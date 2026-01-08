@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (reqConfig) => {
     const localAuthData = localStorage.getItem("authData");
-    const token = localAuthData ? JSON.parse(localAuthData)?.token : null; // <-- updated
+    const token = localAuthData ? JSON.parse(localAuthData)?.token : null;
 
     // Skip attaching token for login & OTP APIs
     const skipAuth = reqConfig.url?.includes("admin-login") ||
@@ -37,21 +37,21 @@ axiosInstance.interceptors.response.use(
   async (error) => {
 
     // Optional: redirect to login if 401
-    // if (error.response?.status === 401) {
-    //   getLoaderControl()?.hideLoader();
-    //   localStorage.clear();
-    //   await new Promise((res) => setTimeout(res, 300));
-    //   // Show notification
-    //   notification.error({
-    //     message: "Session Expired",
-    //     description: "Your session has expired. Please login again.",
-    //     duration: 2,
-    //   });
-    //   setTimeout(() => {
-    //     window.location.href = "/";
-    //   }, 2000);
-    //   return new Promise(() => { });
-    // }
+    if (error.response?.status === 401) {
+      getLoaderControl()?.hideLoader();
+      localStorage.clear();
+      await new Promise((res) => setTimeout(res, 300));
+      // Show notification
+      notification.error({
+        message: "Session Expired",
+        description: "Your session has expired. Please login again.",
+        duration: 2,
+      });
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+      return new Promise(() => { });
+    }
 
     return Promise.reject(error);
   }

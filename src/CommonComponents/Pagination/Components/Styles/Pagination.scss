@@ -129,7 +129,7 @@
         margin-right: 12px;
 
         span {
-          color: #6b7280; // subtle gray text
+          color: #6b7280;
           font-weight: 500;
         }
 
@@ -146,7 +146,7 @@
           background: #fff;
 
           &:focus {
-            border-color: #2563eb; // primary blue
+            border-color: #2563eb;
             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
           }
 
@@ -184,19 +184,19 @@
   /* Mobile: make pagination-center scrollable */
   @media (max-width: 600px) {
     .pagination-content {
-      flex-direction: column; // keep content stacked
+      flex-direction: column;
       gap: 8px;
-      align-items: flex-start; // so scroll starts from left
+      align-items: flex-start;
     }
 
     .pagination-center {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex-wrap: nowrap; // keep items in single row
-      overflow-x: auto; // allow horizontal scroll
+      flex-wrap: nowrap;
+      overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      width: 100%; // full width of container
+      width: 100%;
     }
 
     .pagination-center::-webkit-scrollbar {
@@ -209,7 +209,7 @@
     }
 
     .page-numbers {
-      flex: 0 0 auto; // prevent shrinking
+      flex: 0 0 auto;
       display: flex;
       gap: 6px;
 
@@ -222,7 +222,7 @@
     }
 
     .nav-button {
-      flex: 0 0 auto; // prevent shrinking
+      flex: 0 0 auto;
       padding: 4px 6px;
     }
 

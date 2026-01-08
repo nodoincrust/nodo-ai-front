@@ -51,7 +51,7 @@
 
       &.absolute-toggle {
         position: absolute;
-        right: -11px;
+        right: -12px;
       }
     }
 
@@ -136,7 +136,10 @@
 
       .menu-item.active {
         background-color: $menu-active-bg;
-        color: $color-primary;
+
+        .menu-label {
+          color: $color-primary;
+        }
       }
 
       .menu-item.disabled {
@@ -227,7 +230,7 @@
       .bottom-actions {
         display: flex;
         align-items: center;
-        justify-content: space-between; // profile left, logout right
+        justify-content: space-between;
         width: 100%;
         border-top: 1px solid $color-border;
         padding: 24px 16px 12px;
@@ -236,7 +239,7 @@
       .profile-item {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         gap: 12px;
         padding: 8px 10px;
         border-radius: 8px;
@@ -253,6 +256,7 @@
           width: 44px;
           height: 44px;
           border-radius: 50%;
+          flex-shrink: 0;
           background-color: $profile-bg;
           color: $profile-color;
           font-size: 16px;
@@ -349,14 +353,19 @@
     &.collapsed {
       width: 88px;
 
+      .fixed-logo {
+        justify-content: center;
+      }
+
       .menu-item {
-        // justify-content: center;
+        justify-content: center;
 
         .menu-label {
-          opacity: 0;
+          // opacity: 0;  
           width: 0;
           overflow: hidden;
           white-space: nowrap;
+          display: none;
         }
 
         .menu-icon {
@@ -369,7 +378,7 @@
       /* PROFILE SECTION FIX */
       .bottom-div {
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-end;
         align-items: center;
 
         .storage-usage {
@@ -386,8 +395,14 @@
           }
         }
 
+        .bottom-actions {
+          flex-direction: column;
+          padding: 12px;
+          gap: 12px;
+        }
+
         .profile-item {
-          justify-content: center; // center icon
+          justify-content: center;
           padding: 8px 0;
           margin-left: 12px;
 

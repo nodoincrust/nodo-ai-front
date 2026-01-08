@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import "./Styles/VerifyOtp.scss";
@@ -17,9 +17,16 @@ const VerifyOtp = () => {
 
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
-
+  // create a ref for the first OTP input
+  const firstOtpRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!email) navigate("/", { replace: true });
+    // Focus the first input after the component renders
+    const timer = setTimeout(() => {
+      firstOtpRef.current?.focus();
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [email, navigate]);
 
   const handleChange = (value: string, index: number) => {
@@ -163,6 +170,7 @@ const VerifyOtp = () => {
             onKeyDown={(e) => handleKeyDown(e, i)}
             onFocus={(e) => e.target.select()}
             className={`otp-input ${error ? "input-error" : ""}`}
+            ref={i === 0 ? firstOtpRef : null}
           />
         ))}
       </div>

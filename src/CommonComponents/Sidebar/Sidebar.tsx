@@ -4,6 +4,7 @@ import "./Styles/sidebar.scss";
 import { AuthData, SidebarItem, SidebarProps } from "../../types/common";
 import Profile from "../../pages/Profile/Components/Profile";
 import ConfirmModal from "../Confirm Modal/ConfirmModal";
+import { getInitials } from "../../utils/utilFunctions";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -15,36 +16,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const disabledLinks = ["/dashboard", "/settings"];
-  // =======================
   // READ AUTH DATA
-  // =======================
   const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
   const sidebarItems: SidebarItem[] = authData.sidebar || [];
 
+  const loggedInUserName = authData.user?.name || "-";
+  const loggedInUserEmail = authData.user?.email || "-";
+  const userInitials = getInitials(loggedInUserName);
 
-  const loggedInUserEmail = authData.user?.email;
-  const loggedInUserName = authData.user?.name
-    ? authData.user.name
-      .split(" ")
-      .map((w: any) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ")
-    : "User";
-  const userInitials = authData.user?.name
-    ? authData.user.name
-      .split(" ")
-      .slice(0, 2) // first two words
-      .map((word: any) => word.charAt(0).toUpperCase())
-      .join("")
-    : "";
+  // STORAGE
+  const storageInfo = authData.storage || authData.user?.storage || {};
+  const showStorage = Boolean(storageInfo.is_storage_show);
+  const totalStorage = Number(storageInfo.total_space ?? 0);
+  const usedStorage = Number(storageInfo.used_space ?? 0);
+  const storagePercent = Number(storageInfo.used_percentage ?? 0);
 
-  const isCompanyAdmin =
-    authData.user?.role === "COMPANY_ADMIN" ||
-    authData.user?.role === "company_admin";
-
-
-  // =======================
   // TOGGLE SIDEBAR
-  // =======================
   const toggleSidebar = () => {
     if (isOpen) {
       setIsOpen(false);
@@ -55,9 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     }
   };
 
-  // =======================
   // RESPONSIVE HANDLING
-  // =======================
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -86,17 +71,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     };
   }, [isMobile, isOpen]);
 
-  // =======================
   // CLEAR FILTER SESSION
-  // =======================
   const clearFilterSession = () => {
     sessionStorage.removeItem("appliedFilters");
     sessionStorage.removeItem("apiAppliedFilters");
   };
 
-  // =======================
   // LOGOUT
-  // =======================
   const handleLogout = () => {
     // Clear all authentication data
     localStorage.removeItem("accessToken");
@@ -142,8 +123,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             </div>
           ) : (
             <img
-              src="/assets/Icon-collapse.svg"
-              alt="Toggle Sidebar"
+              src={isOpen ? "/assets/icon-collapse.svg" : "/assets/icon-expand.svg"}
+              alt={isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
               className={`desktop-toggle ${!isOpen ? "absolute-toggle" : ""}`}
               onClick={toggleSidebar}
             />
@@ -162,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   <span
                     key={item.id}
                     className="menu-item disabled"
-                    onClick={(e) => e.preventDefault()} // prevent navigation
+                    onClick={(e) => e.preventDefault()}
                   >
                     {item.icon ? (
                       <span
@@ -206,22 +187,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           {/* BOTTOM */}
           <div className="bottom-div">
             {/* STORAGE USAGE – ONLY FOR COMPANY ADMIN */}
-            {isCompanyAdmin && (
+            {showStorage && totalStorage > 0 && (
               <div className="storage-usage">
                 <div className="storage-header">
                   <div className="storage-title">
                     <img src="/assets/ssd.svg" alt="Storage" />
                     <span>Storage Usage</span>
                   </div>
-                  <span className="storage-percent">50%</span>
+                  <span className="storage-percent">{storagePercent}%</span>
                 </div>
 
                 <div className="storage-bar">
-                  <div className="storage-progress" style={{ width: "50%" }} />
+                  <div
+                    className="storage-progress"
+                    style={{ width: `${storagePercent}%` }}
+                  />
                 </div>
 
                 <div className="storage-text">
-                  <strong>10GB</strong> of <strong>20GB</strong> Used
+                  <strong>{usedStorage}GB</strong> of{" "}
+                  <strong>{totalStorage}GB</strong> Used
                 </div>
               </div>
             )}
@@ -280,8 +265,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           localStorage.clear();
           navigate("/");
         }}
-        title="Log Out"
-        description="Are you sure you want to log out?"
+        title="Log out of NODO AI?"
+        description="Are you sure you want to log out of Nodo AI?"
         confirmText="Log Out"
         icon="/assets/logout.svg"
       />

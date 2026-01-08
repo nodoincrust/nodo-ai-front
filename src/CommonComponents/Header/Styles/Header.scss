@@ -12,6 +12,19 @@
         gap: 12px;
         justify-content: space-between;
         margin-bottom: 16px;
+
+        button {
+            box-shadow: none;
+        }
+
+        .button-text {
+            font-family: $font-family-main;
+            font-weight: 600;
+            letter-spacing: -4%;
+            vertical-align: middle;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
     }
 
     .language-title-count {
@@ -81,8 +94,10 @@
         }
 
         .status-dropdown {
+            // min-width: 150px;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             max-width: 169px;
             height: 40px;
             gap: 6px;
@@ -95,6 +110,32 @@
             border: 1px solid $color-border;
             box-shadow: 0px 11px 7px 0px $color-input-shadow;
 
+            .status-title {
+                font-family: $font-family-main;
+                font-weight: 400;
+                letter-spacing: -4%;
+                vertical-align: middle;
+                font-size: 14px;
+                color: $subheading-color;
+                margin-bottom: 0;
+            }
         }
+    }
+}
+
+/* Dropdown Menu Items */
+.ant-dropdown-menu-item {
+    padding: 8px 10px;
+    margin-bottom: 2px !important;
+    cursor: pointer !important;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+        background: $link-active-bg !important;
+    }
+
+    &.ant-dropdown-menu-item-selected {
+        background: $link-active-bg !important;
+        color: $primary !important;
     }
 }

@@ -1,8 +1,6 @@
 @use "./variables.scss" as *;
 
-// ===============================
 // Root Variables
-// ===============================
 :root {
   --bs-primary: #{$color-primary};
   --primary-dark: #{$color-primary};
@@ -11,35 +9,54 @@
   --field-border-color: #{$color-border};
 }
 
-// ===============================
 // Base
-// ===============================
-
 @font-face {
-  font-family: "Inter";
-  src: url("./assets/fonts/Inter/static/Inter_18pt-Regular.ttf")
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Inter-bold";
-  src: url("./assets/fonts/Inter/static/Inter_18pt-Bold.ttf") format("truetype");
-  font-weight: 700;
-}
-
-@font-face {
-  font-family: "Inter-semibold";
-  src: url("./assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf")
-    format("truetype");
-  font-weight: 600;
-}
-
-@font-face {
-  font-family: "Inter-regular";
-  src: url("./assets/fonts/Inter/static/Inter_18pt-Regular.ttf")
-    format("truetype");
+  font-family: 'Inter';
+  src: url('/assets/fonts/static/Inter_18pt-Regular.ttf') format('truetype');
   font-weight: 400;
+  font-style: normal;
 }
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/static/Inter_18pt-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/static/Inter_18pt-Bold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+// @font-face {
+//   font-family: 'Inter';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+// }
+
+// @font-face {
+//   font-family: 'Inter-bold';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
+//   font-weight: 700;
+
+// }
+
+// @font-face {
+//   font-family: 'Inter-semibold';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
+//   font-weight: 600;
+
+// }
+
+
+// @font-face {
+//   font-family: 'Inter-regular';
+//   src: url('./assets/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+//   font-weight: 400;
+
+// }
 
 body {
   background-color: #ffff;
@@ -57,21 +74,8 @@ p {
   margin: 0;
 }
 
-// ===============================
 // Utilities (Padding, Margin, Border, Typography, Width, Gap, Display)
-// ===============================
-.react-doc-viewer .pg-viewer-wrapper canvas + canvas {
-  display: none !important;
-}
-.react-pdf__Page__canvas {
-  display: block;
-}
-.react-pdf__Page__annotationLayer {
-  display: none !important;
-}
-.react-pdf__Page__textContent {
-  display: none !important;
-}
+
 // Padding
 .p-4 {
   padding: 4px !important;
@@ -380,8 +384,6 @@ p {
   width: 6% !important;
 }
 
-// ... (same as you wrote till w-90)
-
 // Gap
 .gap-4 {
   gap: 4px;
@@ -460,9 +462,7 @@ p {
   align-items: center;
 }
 
-// ===============================
 // Buttons
-// ===============================
 
 .ant-btn-variant-solid:not(:disabled):not(.ant-btn-disabled):active {
   background-color: var(--bs-primary);
@@ -485,9 +485,7 @@ p {
   box-shadow: none;
 }
 
-// ===============================
 // Form Fields
-// ===============================
 .field-div {
   display: flex;
   flex-direction: column;
@@ -515,10 +513,7 @@ p {
   margin-left: 1px;
 }
 
-// ===============================
 // Antd Overrides
-// ===============================
-
 .ant-switch .ant-switch-handle {
   position: absolute;
   top: 4px;
@@ -622,9 +617,7 @@ p {
   }
 }
 
-// ===============================
 // Responsive
-// ===============================
 @media (max-width: 512px) {
   .input-field {
     font-size: 12px;
@@ -662,8 +655,7 @@ p {
   border-radius: 20px !important;
 }
 
-//=============================== // Hover Effects
-// ===============================
+// Hover Effects
 .hover-bg-light:hover {
   background-color: rgba(0, 0, 0, 0.05) !important;
   transition: background-color 0.2s ease-in-out;
@@ -680,12 +672,8 @@ p {
   box-shadow: none !important;
 }
 
-// ===============================
 // Scrollbar Styling
-// ===============================
-
-.ant-select-dropdown
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   color: rgba(0, 0, 0, 0.88);
   font-weight: 600;
   background-color: #e2eeff;
@@ -760,9 +748,7 @@ p {
   }
 }
 
-// ===============================
 // Card
-// ===============================
 .card {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
@@ -825,7 +811,16 @@ input {
   background: #ffffff;
   font-family: "Outfit", sans-serif;
   font-size: 14px;
-  color: #292d32;
+  color: #292D32;
+}
+
+.ant-select-placeholder {
+  color: $color-placeholder !important;
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  margin-top: 1px;
 }
 
 /* Status Column Center */
@@ -846,6 +841,7 @@ input {
   line-height: 16px;
   border-radius: 4px !important;
   padding: 4px 6px;
+  margin: 0 auto;
 
   .badge-div {
     width: 5px;
@@ -856,6 +852,7 @@ input {
   &.active {
     background-color: $color-status-bg-active;
     color: $color-status-text-active;
+    max-width: 100px;
 
     .badge-div {
       background-color: $color-status-badge-div-active;
@@ -865,11 +862,78 @@ input {
   &.inactive {
     background-color: $color-status-bg-inactive;
     color: $color-status-text-inactive;
+    max-width: 100px;
 
     .badge-div {
       background-color: $color-status-badge-div-inactive;
     }
   }
+}
+
+.department-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  border-radius: 4px !important;
+  padding: 4px 6px;
+}
+
+// Department pill
+.department-pill {
+  background: $department-pill-bg;
+  color: $department-pill-color;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.avatar-initial {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  font-family: $font-family-main;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: 1%;
+  text-align: center;
+}
+
+/* 4 color variations */
+.avatar-initial.color-1 {
+  background: $employee-initial-bg-1;
+  color: $employee-initial-text-1;
+}
+
+.avatar-initial.color-2 {
+  background: $employee-initial-bg-2;
+  color: $employee-initial-text-2;
+}
+
+.avatar-initial.color-3 {
+  background: $employee-initial-bg-3;
+  color: $employee-initial-text-3;
+}
+
+.avatar-initial.color-4 {
+  background: $employee-initial-bg-4;
+  color: $employee-initial-text-4;
 }
 
 .ant-form-item .ant-form-item-explain-error {
