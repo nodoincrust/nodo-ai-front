@@ -7,17 +7,17 @@ export const scrollLayoutToTop = () => {
 };
 
 // --- Password Validator ---
-export const validatePassword = (value: string): string => {
-  if (!value) return MESSAGES.ERRORS.PASSWORD_REQUIRED;
-  if (value.length < 8) return MESSAGES.ERRORS.PASSWORD_MIN_LENGTH.replace("{min}", "8");
-  if (/\s/.test(value)) return MESSAGES.ERRORS.PASSWORD_NO_SPACES;
-  if (!/(?=.*[a-z])/.test(value) ||
-    !/(?=.*[A-Z])/.test(value) ||
-    !/(?=.*\d)/.test(value) ||
-    !/(?=.*[@$!%*?&^#()_+=[\]{}|\\:;\"'<>,.?/~`-])/.test(value))
-    return MESSAGES.ERRORS.PASSWORD_COMPLEXITY;
-  return "";
-};
+// export const validatePassword = (value: string): string => {
+//   if (!value) return MESSAGES.ERRORS.PASSWORD_REQUIRED;
+//   if (value.length < 8) return MESSAGES.ERRORS.PASSWORD_MIN_LENGTH.replace("{min}", "8");
+//   if (/\s/.test(value)) return MESSAGES.ERRORS.PASSWORD_NO_SPACES;
+//   if (!/(?=.*[a-z])/.test(value) ||
+//     !/(?=.*[A-Z])/.test(value) ||
+//     !/(?=.*\d)/.test(value) ||
+//     !/(?=.*[@$!%*?&^#()_+=[\]{}|\\:;\"'<>,.?/~`-])/.test(value))
+//     return MESSAGES.ERRORS.PASSWORD_COMPLEXITY;
+//   return "";
+// };
 
 // --- Email Validator ---
 export const validateEmail = (value: string) => {
