@@ -3,10 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { notification, Spin } from "antd";
 import AppModal from "../../../components/common/AppModal";
 import AppButton from "../../../components/common/AppButton";
-import {
-  addDocument,
-  regenerateSummary,
-} from "../../../services/documents.service";
+import { addDocument, startSummary } from "../../../services/documents.service";
 import "./Styles/AddDocument.scss";
 
 interface AddDocumentProps {
@@ -133,10 +130,11 @@ const AddDocument: React.FC<AddDocumentProps> = ({
 
       if (documentId) {
         navigate(`/documents/${documentId}`);
-        await regenerateSummary(documentId);
+        startSummary(documentId);
+
         notification.info({
           message: "Generating AI Summary",
-          description: "AI is analyzing the document...",
+          description: "AI is analyzing the document in background...",
         });
       } else {
         console.warn("upload: no documentId in response", response);
@@ -145,8 +143,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
       notification.error({
         message: "Upload failed",
         description:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail 
+          error?.response?.data?.message || error?.response?.data?.detail,
       });
     } finally {
       setIsUploading(false);

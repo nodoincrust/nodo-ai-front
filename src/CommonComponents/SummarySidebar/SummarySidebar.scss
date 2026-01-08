@@ -72,10 +72,11 @@
 
   .summary-title {
     margin: 0;
-    font-family: "Inter-semibold";
+    font-family: $font-family-main;
     font-size: 24px;
     line-height: 140%;
     color: $subheading-color;
+    font-weight: 600;
   }
 
   .summary-body {
@@ -169,6 +170,7 @@
     line-height: 20px;
     color: $color-text;
     white-space: pre-wrap;
+    font-weight: 400;
   }
 
   .summary-textarea {
@@ -182,6 +184,7 @@
     color: $color-text;
     resize: vertical;
     outline: none;
+    font-weight: 400;
 
     &::placeholder {
       color: $color-gray-table;
@@ -202,10 +205,10 @@
     padding: 2px;
 
     cursor: pointer;
-    font-family: "inter-semibold";
+    font-family: $font-family-main;
     font-size: 14px;
     color: #1b3249; // dark navy like image
-
+    font-weight: 600;
     transition: color 0.2s ease;
 
     &:hover {
@@ -226,9 +229,10 @@
     border-radius: 8px;
     background-color: $color-white;
     color: #1b3249;
-    font-family: "inter-semibold";
-    font-size: 16px;
+    font-family: $font-family-main;
 
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
 
@@ -257,22 +261,25 @@
   }
 
   .summary-label {
-    font-family: "inter-semibold";
+    font-family: $font-family-main;
     font-size: 24px;
     color: #1b3249;
-    margin: 10px;
+    margin: 8px;
+    font-weight: 600;
   }
 
   .summary-tag-label {
-    font-family: "inter-semibold";
+    font-family: $font-family-main;
     font-size: 14px;
     color: #a0aab4;
     margin: 10px;
+    font-weight: 600;
   }
   .summary-tag {
-    font-family: "inter-semibold";
+    font-family: $font-family-main;
     font-size: 16px;
     color: #1b3249;
+    font-weight: 500;
   }
 
   .summary-tags-list {
@@ -287,11 +294,12 @@
     gap: 4px;
     padding: 6px 12px;
     border: 1px solid #e0e7ff;
-    border-radius: 999px;
+    border-radius: 100px;
     background-color: #f8f9ff;
     color: #1b3249;
-    font-family: "inter-regular";
+    font-family: $font-family-main;
     font-size: 14px;
+    font-weight: 400;
 
     cursor: pointer;
     transition: all 0.2s ease;
@@ -304,7 +312,7 @@
     .tag-plus {
       font-size: 14px;
       font-weight: 600;
-      color: #6366f1;
+      color: #6D7C8B;
     }
   }
 
@@ -375,11 +383,12 @@
         border: 1px solid #cacfd6;
         border-radius: 14px;
         background-color: #f1f5f9;
-        font-family: "inter-semibold";
+        font-family: $font-family-main;
         font-size: 16px;
         color: #8d9db4;
         outline: none;
         transition: border-color 0.2s ease;
+        font-weight: 500;
       }
     }
   }
@@ -400,11 +409,11 @@
     padding: 10px 16px;
     border-radius: 32px;
     border: none;
-    background-color: #4580F7;
+    background-color: #4580f7;
     color: #ffffff;
-    font-family: "inter-semibold";
+    font-family: $font-family-main;
     font-size: 16px;
-  
+ font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
     transition: all 0.2s ease;

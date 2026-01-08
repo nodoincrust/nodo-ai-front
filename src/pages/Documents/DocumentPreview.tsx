@@ -2,6 +2,7 @@ import PdfViewer from "./Components/Document Preview Components/PdfViewer";
 import DocxViewer from "./Components/Document Preview Components/DocxViewer";
 import ExcelViewer from "./Components/Document Preview Components/ExcelViewer";
 import ImageViewer from "./Components/Document Preview Components/ImageViewer";
+import TextPreview from "./Components/Document Preview Components/TextPreview";
 
 const DocumentPreview = ({ fileName, fileUrl }: any) => {
   const fileType = fileName.split(".").pop()?.toLowerCase();
@@ -20,6 +21,10 @@ const DocumentPreview = ({ fileName, fileUrl }: any) => {
 
   if (["xls", "xlsx"].includes(fileType || "")) {
     return <ExcelViewer fileUrl={fileUrl} />;
+  }
+
+  if (fileType === "txt") {
+    return <TextPreview fileUrl={fileUrl} />;
   }
 
   return (

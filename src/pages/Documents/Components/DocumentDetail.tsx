@@ -6,10 +6,12 @@ import DocumentPreview from "../DocumentPreview";
 import SubmitDocument from "./submitDocument";
 import {
   getDocumentById,
-  regenerateSummary,
+  startSummary,
+  pollSummaryStatus,
   saveDocumentMetadata,
   submitDocumentForReview,
   getAssignableEmployees,
+  getAiChatResponse,
 } from "../../../services/documents.service";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import type {
@@ -231,63 +233,68 @@ const DocumentDetail: React.FC = () => {
     const docId = documentId || document?.document_id;
     if (!docId) return;
 
-    // Don't show global loader - let SummarySidebar show its own loader
     notification.info({
-      message: "Regenerating summary",
-      description: "AI is generating a new summary...",
+      message: "Generating summary",
+      description: "AI is analyzing the document...",
     });
 
     try {
-      const response = await regenerateSummary(docId);
+      const jobId = await startSummary(docId);
 
-      /**
-       * Actual API response structure:
-       * {
-       *   status: "success",
-       *   refined: true,
-       *   summary: "The document provides information...",
-       *   tags: ["Rahul Gote", "Software Developer"],
-       *   citations: [{page_number: 1}]
-       * }
-       */
+      pollSummaryStatus(
+        jobId,
+        (result) => {
+          setDocument((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              version: {
+                ...prev.version,
+                summary: result.summary,
+                tags: result.tags ?? prev.version.tags,
+              },
+            };
+          });
 
-      const newSummary = response?.summary || response?.data?.summary;
-      const newTags = response?.tags || response?.data?.tags || [];
-
-      // ✅ Update document state immutably
-      setDocument((prev) => {
-        if (!prev) return prev;
-
-        return {
-          ...prev,
-          version: {
-            ...prev.version,
-            summary: newSummary ?? prev.version.summary,
-            tags: newTags.length > 0 ? newTags : prev.version.tags,
-          },
-        };
-      });
-
-      notification.success({
-        message: "Summary regenerated successfully",
-      });
-    } catch (error: any) {
+          notification.success({
+            message: "Summary generated successfully",
+            
+            
+          });
+        },
+        (err) => {
+          notification.error({
+            message: "Summary failed",
+            description: String(err),
+          });
+        }
+      );
+    } catch (err) {
       notification.error({
-        message: "Failed to regenerate summary",
-        description:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Something went wrong",
+        message: "Failed to start summary",
       });
     }
   };
 
   // Handler for ChatSidebar
   const handleSendMessage = async (message: string, documentId: number) => {
-    // TODO: Implement API call to send chat message
-    // This should call the chat API and update messages
-    console.log("Sending message:", message, "for document:", documentId);
-    // Placeholder: You'll need to implement the actual API call here
+    try {
+      const response = await getAiChatResponse(documentId, message);
+
+      return {
+        text: response.answer,
+        sessionId: response.session_id,
+        citations: response.citations,
+      };
+    } catch (error: any) {
+      notification.error({
+        message: "AI Chat failed",
+        description:
+          error?.response?.data?.message || "Unable to get response from AI",
+      });
+
+      throw error;
+    }
   };
 
   // Auto-trigger regenerate summary once if there is no summary yet

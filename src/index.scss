@@ -948,6 +948,9 @@ input {
 .docx-wrapper {
   background: unset !important;
   padding: 0px !important;
+  section{
+   box-shadow: none !important;
+  }
 }
 
 .document-viewer{

@@ -6,7 +6,11 @@ import type { DocumentHeaderProps } from "../../../types/common";
 import "./Styles/DocumentLayout.scss";
 
 import type { ApiDocument } from "../../../types/common";
-
+interface AiChatResult {
+  text: string;
+  sessionId: string;
+  citations: any[];
+}
 interface DocumentLayoutProps {
   headerProps: DocumentHeaderProps;
   showSummarySidebar?: boolean;
@@ -19,7 +23,10 @@ interface DocumentLayoutProps {
   onCreateTag?: (tag: string) => void;
   onSaveMetadata?: () => void;
   onRegenerate?: () => void;
-  onSendMessage?: (message: string, documentId: number) => Promise<void>;
+  onSendMessage?: (
+  message: string,
+  documentId: number
+) => Promise<AiChatResult>;
 }
 
 const DocumentLayout: React.FC<DocumentLayoutProps> = ({

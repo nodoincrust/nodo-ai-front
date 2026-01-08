@@ -2,13 +2,21 @@ import React, { useState, useEffect } from "react";
 import { notification } from "antd";
 import "./chatSidebar.scss";
 import { AuthData } from "../../types/common";
+import TypingDots from "../Threedots/TypingDots";
+import { scrollLayoutToBottom } from "../../utils/utilFunctions";
 
 interface ChatMessage {
   id: number;
   sender: "assistant" | "user";
-  text: string;
+  text?: string;
   time?: string;
   senderName?: string;
+  isTyping?: boolean
+}
+interface AiChatResult {
+  text: string;
+  sessionId: string;
+  citations: any[];
 }
 
 interface ChatSidebarProps {
@@ -19,7 +27,10 @@ interface ChatSidebarProps {
   onToggle?: () => void;
   documentId?: number;
   initialMessages?: ChatMessage[];
-  onSendMessage?: (message: string, documentId: number) => Promise<void>;
+onSendMessage?: (
+  message: string,
+  documentId: number
+) => Promise<AiChatResult>;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -33,7 +44,9 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSendMessage,
 }) => {
   // Get user info from localStorage
-  const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const authData: AuthData = JSON.parse(
+    localStorage.getItem("authData") || "{}"
+  );
   const loggedInUserName = authData.user?.name
     ? authData.user.name
         .split(" ")
@@ -59,62 +72,75 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
     }
   }, [initialMessages]);
 
-  const handleSend = async () => {
-    const trimmed = input.trim();
-    if (!trimmed || isSending) return;
+ const handleSend = async () => {
+  const trimmed = input.trim();
+  if (!trimmed || isSending) return;
 
-    const now = new Date();
-    const timeString = now.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+  const now = new Date();
+  const timeString = now.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 
-    // Add user message immediately
-    const userMessage: ChatMessage = {
-      id: Date.now(),
-      sender: "user",
-      text: trimmed,
-      time: timeString,
-      senderName: loggedInUserName,
-    };
+  const userMessage: ChatMessage = {
+    id: Date.now(),
+    sender: "user",
+    text: trimmed,
+    time: timeString,
+    senderName: loggedInUserName,
+  };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsSending(true);
+  const typingMessageId = Date.now() + 1;
 
-    try {
-      if (onSendMessage && documentId) {
-        await onSendMessage(trimmed, documentId);
-      } else {
-        // Fallback: just add a placeholder assistant response
-        setTimeout(() => {
-          const assistantMessage: ChatMessage = {
-            id: Date.now() + 1,
+  const typingMessage: ChatMessage = {
+    id: typingMessageId,
+    sender: "assistant",
+    senderName: "NODO AI",
+    isTyping: true, // 👈 typing state
+  };
+
+  setMessages((prev) => [...prev, userMessage, typingMessage]);
+  setInput("");
+  setIsSending(true);
+
+  try {
+    if (onSendMessage && documentId) {
+      const result = await onSendMessage(trimmed, documentId);
+
+      setMessages((prev) =>
+        prev
+          .filter((m) => m.id !== typingMessageId) // ❌ remove typing
+          .concat({
+            id: Date.now() + 2,
             sender: "assistant",
-            text: "I'm processing your question. Please implement the API integration to get the actual response.",
+            text: result?.text || "No response received.",
             time: new Date().toLocaleTimeString("en-US", {
               hour: "numeric",
               minute: "2-digit",
               hour12: true,
             }),
             senderName: "NODO AI",
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-        }, 1000);
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      notification.error({
-        message: "Failed to send message",
-        description: "Please try again later.",
-      });
-    } finally {
-      setIsSending(false);
+          })
+      );
     }
-  };
+  } catch (error) {
+    notification.error({
+      message: "Failed to send message",
+      description: "Please try again later.",
+    });
+  } finally {
+    setIsSending(false);
+  }
+};
 
-  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+useEffect(() => {
+  scrollLayoutToBottom();
+}, [messages]);
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (
+    e
+  ) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -143,8 +169,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             {isOpen ? (
               <img src="/assets/expand.svg" alt="" />
             ) : (
-            
-                <img src="/assets/collapse.svg" alt="" />
+              <img src="/assets/collapse.svg" alt="" />
             )}
           </button>
         )}
@@ -164,55 +189,72 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
       {isOpen && (
         <>
           <div className="chat-messages">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`chat-message chat-message--${msg.sender}`}
-          >
-            <div className="chat-message-header">
-              {msg.sender === "assistant" ? (
-                <>
-                  <img src="/assets/Main-Logo.svg" alt="NODO AI" className="chat-avatar chat-avatar--assistant" />
-                  <div className="chat-sender-info">
-                    <span className="chat-sender-name">{msg.senderName || "NODO AI"}</span>
-                    {msg.time && <span className="chat-time">{msg.time}</span>}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="chat-sender-info">
-                    {msg.time && <span className="chat-time">{msg.time}</span>}
-                    <span className="chat-sender-name">{msg.senderName || loggedInUserName}</span>
-                  </div>
-                  <div className="chat-avatar chat-avatar--user">{userInitials}</div>
-                </>
-              )}
-            </div>
-            <div className="bubble">{msg.text}</div>
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`chat-message chat-message--${msg.sender}`}
+              >
+                <div className="chat-message-header">
+                  {msg.sender === "assistant" ? (
+                    <>
+                      <img
+                        src="/assets/Main-Logo.svg"
+                        alt="NODO AI"
+                        className="chat-avatar chat-avatar--assistant"
+                      />
+                      <div className="chat-sender-info">
+                        <span className="chat-sender-name">
+                          {msg.senderName || "NODO AI"}
+                        </span>
+                        {msg.time && (
+                          <span className="chat-time">{msg.time}</span>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="chat-sender-info">
+                        {msg.time && (
+                          <span className="chat-time">{msg.time}</span>
+                        )}
+                        <span className="chat-sender-name">
+                          {msg.senderName || loggedInUserName}
+                        </span>
+                      </div>
+                      <div className="chat-avatar chat-avatar--user">
+                        {userInitials}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="bubble">{msg.isTyping ? <TypingDots/> :msg.text}</div>
+                
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="chat-input">
-       
-        <div className="chat-input-row">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask a question about this document"
-          />
-          <button
-            type="button"
-            className="chat-send-btn"
-            onClick={handleSend}
-            disabled={!input.trim() || isSending}
-          >
-            <img src="/assets/uparrow.svg" alt="Send" />
-          </button>
-        </div>
-        <p className="chat-input-hint">AI can make mistakes. Verify important info.</p>
-      </div>
+          <div className="chat-input">
+            <div className="chat-input-row">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask a question about this document"
+                rows={1}
+              />
+              <button
+                type="button"
+                className="chat-send-btn"
+                onClick={handleSend}
+                disabled={!input.trim() || isSending}
+              >
+                <img src="/assets/uparrow.svg" alt="Send" />
+              </button>
+            </div>
+            <p className="chat-input-hint">
+              AI can make mistakes. Verify important info.
+            </p>
+          </div>
         </>
       )}
     </aside>
@@ -220,5 +262,3 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 };
 
 export default ChatSidebar;
-
-

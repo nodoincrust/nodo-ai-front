@@ -6,6 +6,17 @@ export const scrollLayoutToTop = () => {
   layoutMain?.scrollTo({ top: 0, behavior: "smooth" });
 };
 
+export const scrollLayoutToBottom = () => {
+  const chatMessages = document.querySelector<HTMLElement>(".chat-messages");
+
+  if (!chatMessages) return;
+
+  chatMessages.scrollTo({
+    top: chatMessages.scrollHeight,
+    behavior: "smooth",
+  });
+};
+
 // --- Password Validator ---
 // export const validatePassword = (value: string): string => {
 //   if (!value) return MESSAGES.ERRORS.PASSWORD_REQUIRED;

@@ -1,3 +1,5 @@
+@use '../../variables.scss' as *;
+
 .app-modal-overlay {
   position: fixed;
   top: 0;
@@ -49,7 +51,8 @@ max-height: 92vh;
   h3 {
     margin: 0;
     font-size: 24px;
-    font-family: "inter-semibold";
+    font-family:$font-family-main;
+    font-weight: 600;
   }
 
   .close-btn {

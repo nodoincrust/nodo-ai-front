@@ -1,4 +1,4 @@
-@use '../../variables.scss' as *;
+@use "../../variables.scss" as *;
 
 .chat-sidebar {
   width: 30%;
@@ -69,28 +69,30 @@
 
   .chat-title {
     margin: 0 0 4px 0;
-    font-family: "Inter-semibold";
+    font-family: $font-family-main;
     font-size: 24px;
     line-height: 140%;
-    color: #1B3249;
+    color: #1b3249;
+    font-weight: 600;
   }
 
   .chat-subtitle {
     margin: 0;
-    font-family: "Inter-semibold";
+    font-family: $font-family-main;
     font-size: 14px;
     line-height: 140%;
-    color:#A0AAB4;
+    color: #a0aab4;
+    font-weight: 600;
   }
 
   .chat-context-label {
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .chat-context-value {
- font-size: 14px;
+    font-size: 14px;
     line-height: 140%;
-    color:#A0AAB4;
+    color: #a0aab4;
   }
 
   .chat-messages {
@@ -136,9 +138,9 @@
       }
 
       &--user {
-        background-color: #8B5CF6;
+        background-color: #8b5cf6;
         color: #ffffff;
-        font-family: "Inter-semibold";
+        font-family: $font-family-main;
         font-size: 12px;
         font-weight: 600;
         text-transform: uppercase;
@@ -153,28 +155,35 @@
     }
 
     .chat-sender-name {
-      font-family: "Inter-semibold";
+      font-family: $font-family-main;
       font-size: 16px;
       line-height: 140%;
-      color: #1B3249;
+      color: #1b3249;
       white-space: nowrap;
     }
 
     .chat-time {
       font-family: $font-family-main;
+      font-weight: 500;
       font-size: 12px;
       line-height: 160%;
-      color: #0053A6A3;
+      color: #0053a6a3;
       white-space: nowrap;
     }
 
     .bubble {
+      max-width: 75%; 
+       width: fit-content;
       padding: 10px 12px;
       border-radius: 12px;
       font-family: $font-family-main;
       font-size: 13px;
       line-height: 20px;
       margin-top: 4px;
+       white-space: pre-wrap; 
+    word-wrap: break-word;   
+    overflow-wrap: break-word; 
+    word-break: break-word;
     }
 
     &.chat-message--assistant {
@@ -203,7 +212,7 @@
       }
 
       .bubble {
-        background-color: #4580F7;
+        background-color: #4580f7;
         color: #ffffff;
       }
     }
@@ -219,13 +228,14 @@
     display: block;
     margin-bottom: 8px;
     font-family: $font-family-main;
-    font-size: 12px;
+
     color: $color-gray-table;
   }
 
   .chat-input-row {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
     background-color: #f9fafb;
     border-radius: 12px;
@@ -237,13 +247,15 @@
       border: none;
       background: transparent;
       resize: none;
-      min-height: 40px;
-      max-height: 100px;
+      // min-height: 40px;
+      // max-height: 100px;
       font-family: $font-family-main;
       font-size: 13px;
-      line-height: 18px;
+      // line-height: 18px;
       color: $color-text;
-
+      font-size: 14px;
+      font-weight: 500;
+      vertical-align: middle;
       &:focus {
         outline: none;
       }
@@ -255,7 +267,7 @@
     height: 36px;
     border: none;
     border-radius: 8px;
-    background-color:#437EF7;
+    background-color: #437ef7;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -269,16 +281,17 @@
 
     &:disabled {
       opacity: 0.5;
-      cursor: default;
+      cursor: not-allowed;
       box-shadow: none;
     }
   }
 
   .chat-input-hint {
     margin: 6px 4px 0 4px;
-    font-family:"Inter-regular";
+     font-family: $font-family-main;
     font-size: 12px;
-    color: #1B3249;
+    font-weight: 400;
+    color: #1b3249;
     text-align: center;
   }
 
@@ -332,5 +345,3 @@
     }
   }
 }
-
-

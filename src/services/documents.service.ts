@@ -6,7 +6,8 @@ import type {
   ApiDocument,
   ApiDocumentDetailResponse,
   AssignableEmployee,
-  AssignableEmployeeResponse
+  AssignableEmployeeResponse,
+  AiChatResponse
 } from "../types/common";
 import { API_URL } from "../utils/API";
 import { config } from "../config";
@@ -93,11 +94,11 @@ export const searchDocuments = async (
     search: query,
   });
 };
-export const regenerateSummary = async (id: number | string) => {
-  const response = await axios.get(API_URL.regenarateSummary(id));
+// export const regenerateSummary = async (id: number | string) => {
+//   const response = await axios.get(API_URL.regenarateSummary(id),{timeout:30000});
 
-  return response.data;
-};
+//   return response.data;
+// };
 
 export const saveDocumentMetadata = async (
   id: number | string,
@@ -139,4 +140,56 @@ export const submitDocumentForReview = async (
 
   return response.data;
 };
+
+export const getAiChatResponse = async (
+  documentId: number | string,
+  query: string
+): Promise<AiChatResponse> => {
+  const response = await axios.get<AiChatResponse>(
+    API_URL.getaichat, // "/ai/chat"
+    {
+      params: {
+        document_id: documentId,
+        query,
+      },
+      timeout: 30000,
+    }
+  );
+
+  return response.data;
+};
+
+export async function startSummary(documentId: number | string) {
+  const res = await axios.post(API_URL.startSummary(documentId));
+  return res.data.job_id;
+}
+
+export function pollSummaryStatus(
+  jobId: number | string,
+  onSuccess: (result: any) => void,
+  onError: (err: any) => void
+) {
+  const interval = setInterval(async () => {
+    try {
+      const res = await axios.get(API_URL.sumarryStatus(jobId));
+      const data = res.data;
+
+      if (data.status === "done") {
+        clearInterval(interval);
+        onSuccess(data.result);
+      }
+
+      if (data.status === "error") {
+        clearInterval(interval);
+        onError(data.error);
+      }
+    } catch (err) {
+      clearInterval(interval);
+      onError(err);
+    }
+  }, 20000);
+
+  return () => clearInterval(interval); // optional cancel
+}
+
 
