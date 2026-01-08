@@ -123,7 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             </div>
           ) : (
             <img
-              src={isOpen ? "/assets/icon-collapse.svg" : "/assets/icon-expand.svg"}
+              src={isOpen ? "/assets/Icon-collapse.svg" : "/assets/icon-expand.svg"}
               alt={isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
               className={`desktop-toggle ${!isOpen ? "absolute-toggle" : ""}`}
               onClick={toggleSidebar}
