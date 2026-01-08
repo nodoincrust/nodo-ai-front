@@ -213,6 +213,14 @@
       }
     }
 
+    &.in-review {
+      background-color: #ffecc8;
+      color: #ff9500;
+
+      .badge-dot {
+        background-color: #ff9500;
+      }
+    }
     &.submitted {
       background-color: #ffecc8;
       color: #ff9500;
@@ -238,6 +246,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 8px 12px;
 
       border-radius: 10px;
       border: 1px solid #e5e7eb;

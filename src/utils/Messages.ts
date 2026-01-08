@@ -43,9 +43,9 @@ export const MESSAGES = {
         TOKEN_NOT_FOUND: "Token not found",
         INVALID_TOKEN: "Invalid token",
 
-//Profile
+        //Profile
         FAILED_TO_FETCH_PROFILE: "Failed to load information. Please login again.",
-        
+
 
         //Filters
         FILTERS_FETCH_FAILED: "Failed to fetch filter options.",
@@ -61,6 +61,7 @@ export const MESSAGES = {
         INVALID_CONTACT_NUMBER: "Enter a valid 10 digits phone number",
         INVALID_STORAGE: "Enter a valid storage value (greater than 0)",
         ONLY_NUMBERS_ALLOWED: "Only numbers allowed",
+        STORAGE_CAN_NOT_EXCEED_1024: "Storage cannot exceed 1024 GB",
         // Department
         FAILED_TO_FETCH_DEPARTMENTS: "Failed to fetch departments.",
         // Department

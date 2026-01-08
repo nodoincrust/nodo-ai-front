@@ -3,8 +3,7 @@
 .add-edit-department-modal {
     .ant-modal-content {
         padding: 0;
-        border-radius: 20px !important;
-        border: 1px solid $color-border;
+        border-radius: 10px !important;
         box-shadow: 0 2px 8px $color-shadow;
         overflow: hidden;
         transition: transform 300ms ease-out, opacity 300ms ease-out;
@@ -52,7 +51,8 @@
         align-items: center;
         border-bottom: 1px solid $modal-header-border-bottom;
         background: $bg-light;
-        padding: 6px 16px 10px;
+        padding: 10px 16px;
+        height: 60px;
 
         .left {
             h2 {
@@ -266,7 +266,7 @@
             .ant-select-selector {
                 display: flex !important;
                 align-items: center !important;
-                height: 40px !important;
+                // height: 40px !important;
                 padding: 0 12px !important;
                 cursor: text !important;
 
@@ -285,19 +285,18 @@
                     font-size: 14px;
                     line-height: 20px;
                     color: $color-placeholder !important;
-                    /* same as other inputs */
+                    // padding-top: 2px !important;
                 }
 
                 /* Search input inside Select */
                 .ant-select-selection-search-input {
-                    height: 40px !important;
+                    height: 34px !important;
                     padding: 0 !important;
                     margin: 0 !important;
                     font-family: $font-family-main;
                     font-weight: 500;
                     font-size: 14px;
                     line-height: 20px;
-                    cursor: text !important;
 
                     &::placeholder {
                         color: $color-placeholder !important;
@@ -334,10 +333,12 @@
         flex: 0 0 auto;
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         border-top: 1px solid $color-border;
-        padding: 10px 16px 6px;
+        padding: 10px 16px;
         background: $bg-light;
         gap: 10px;
+        height: 60px;
 
         .save-btn,
         .cancel-btn {
