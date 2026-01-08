@@ -73,8 +73,6 @@ export default function Documents() {
         return "rejected";
       case "SUBMITTED":
         return "submitted";
-      case "IN_REVIEW":
-        return "in-review";
       default:
         return "";
     }
