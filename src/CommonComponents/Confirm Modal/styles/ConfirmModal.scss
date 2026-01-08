@@ -1,9 +1,13 @@
+// ===============================
 // Confirm Modal Styles
+// ===============================
 @use '../../../variables.scss' as *;
 
 .confirm-modal-root {
 
+  // ===============================
   // Ant Modal
+  // ===============================
   .ant-modal {
     top: auto !important;
     transform-origin: center !important;
@@ -12,7 +16,7 @@
 
     &-content {
       border-radius: $border-radius-lg;
-      padding: 16px;
+      padding: 8px 16px;
       background-color: $color-white;
       text-align: center;
       overflow: hidden;
@@ -26,7 +30,9 @@
     padding: 0 16px;
   }
 
+  // ===============================
   // Modal Animations
+  // ===============================
   .ant-modal-zoom-enter,
   .ant-modal-zoom-appear,
   .ant-fade-enter,
@@ -53,7 +59,9 @@
     transition: opacity 300ms ease-out;
   }
 
+  // ===============================
   // Modal Content Layout
+  // ===============================
   .confirm-modal-content {
     display: flex;
     flex-direction: column;
@@ -101,8 +109,7 @@
         .confirm-btn {
           flex: 1;
           min-width: 156px;
-          min-height: 40px;
-          max-height: 40px;
+          min-height: 44px;
           padding: 10px 16px;
           border-radius: $border-radius-md;
           font-family: $font-family-main;
@@ -140,7 +147,9 @@
     }
   }
 
+  // ===============================
   // Icon
+  // ===============================
   .confirm-icon {
     padding: 12px;
     border-radius: 50%;
