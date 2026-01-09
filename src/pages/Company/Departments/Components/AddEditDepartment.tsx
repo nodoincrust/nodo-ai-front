@@ -25,6 +25,8 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
     const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
     const [employees, setEmployees] = useState<any[]>([]);
     const [deptOpen, setDeptOpen] = useState(false);
+    const [isChanged, setIsChanged] = useState(false);
+    const initialRef = useRef<any>(null);
 
     useEffect(() => {
         if (!open) {
@@ -38,6 +40,8 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
 
         form.resetFields();
 
+        let assignToValue = null;
+
         if (initialData?.head_user_id && initialData?.head_name) {
             const selectedEmployee = {
                 id: initialData.head_user_id,
@@ -47,14 +51,22 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
             // Ensure selected option exists
             setEmployees([selectedEmployee]);
 
-            // Set label + value for Select
+            assignToValue = {
+                value: selectedEmployee.id,
+                label: selectedEmployee.name,
+            };
+
             form.setFieldsValue({
-                assign_to: {
-                    value: selectedEmployee.id,
-                    label: selectedEmployee.name,
-                },
+                assign_to: assignToValue,
             });
         }
+
+        const initialValues = {
+            department_name: initialData?.name || "",
+            department_description: initialData?.description || "",
+            assign_to: assignToValue,
+            is_active: initialData?.is_active ?? true,
+        };
 
         form.setFieldsValue({
             department_name: initialData?.name || "",
@@ -62,7 +74,26 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
         });
 
         setStatus(initialData?.is_active ?? true);
+        initialRef.current = initialValues;
+        setIsChanged(false);
     }, [open, initialData]);
+
+    const handleFormChange = (_: any, allValues: any) => {
+        if (!isEdit) {
+            setIsChanged(true);
+            return;
+        }
+
+        const initial = initialRef.current;
+
+        const changed =
+            allValues.department_name?.trim() !== initial.department_name ||
+            allValues.department_description?.trim() !== initial.department_description ||
+            (allValues.assign_to?.value || null) !== (initial.assign_to?.value || null) ||
+            status !== initial.is_active;
+
+        setIsChanged(changed);
+    };
 
     useEffect(() => {
         if (showModal) {
@@ -201,7 +232,7 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
                 </div>
 
                 {/* FORM */}
-                <Form layout="vertical" form={form} autoComplete="off" className="department-form">
+                <Form layout="vertical" form={form} autoComplete="off" className="department-form" onValuesChange={handleFormChange}>
                     <Form.Item
                         label={<span>Department Name <span className="star">*</span></span>}
                         name="department_name"
@@ -269,8 +300,18 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
 
                             <Switch
                                 checked={status}
-                                onChange={setStatus}
                                 className="status-toggle"
+                                onChange={(checked) => {
+                                    setStatus(checked);
+                                    const initial = initialRef.current;
+                                    const allValues = form.getFieldsValue(true);
+                                    const changed =
+                                        allValues.department_name?.trim() !== initial.department_name ||
+                                        allValues.department_description?.trim() !== initial.department_description ||
+                                        (allValues.assign_to?.value || null) !== (initial.assign_to?.value || null) ||
+                                        checked !== initial.is_active;
+                                    setIsChanged(changed);
+                                }}
                             />
                         </div>
                     </div>
@@ -281,7 +322,7 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
                     <Button type="primary" className="cancel-btn" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button type="primary" className="save-btn" onClick={handleSubmit}>
+                    <Button type="primary" className="save-btn" onClick={handleSubmit} disabled={isEdit && !isChanged}>
                         {isEdit ? "Update Department" : "Add Department"}
                     </Button>
                 </div>
