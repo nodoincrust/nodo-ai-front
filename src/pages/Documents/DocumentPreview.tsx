@@ -5,9 +5,17 @@ import ImageViewer from "./Components/Document Preview Components/ImageViewer";
 import TextPreview from "./Components/Document Preview Components/TextPreview";
 
 const DocumentPreview = ({ fileName, fileUrl }: any) => {
-  const fileType = fileName.split(".").pop()?.toLowerCase();
+  const fileType = fileName?.split(".").pop()?.toLowerCase();
 
+  // Extra safety: for PDFs, ensure we only pass a non-empty string URL
   if (fileType === "pdf") {
+    if (!fileUrl || typeof fileUrl !== "string") {
+      return (
+        <div style={{ textAlign: "center", padding: "40px" }}>
+          PDF preview not available.
+        </div>
+      );
+    }
     return <PdfViewer fileUrl={fileUrl} />;
   }
 

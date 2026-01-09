@@ -35,6 +35,9 @@ const DocumentDetail: React.FC = () => {
     AssignableEmployee[]
   >([]);
   const [isEmployeeLoading, setIsEmployeeLoading] = useState(false);
+  const [isMetadataSaved, setIsMetadataSaved] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [activeTags, setActiveTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -50,6 +53,10 @@ const DocumentDetail: React.FC = () => {
     try {
       const doc = await getDocumentById(Number(id));
       setDocument(doc);
+      // Set suggested tags from API (AI-generated suggestions)
+      setSuggestedTags(doc.version?.tags || []);
+      // Active tags start empty - user must manually select them
+      setActiveTags([]);
       if (doc?.current_version) {
         setSelectedVersion(doc.current_version);
       }
@@ -137,6 +144,7 @@ const DocumentDetail: React.FC = () => {
   };
 
   const handleSummaryChange = (summary: string) => {
+    setIsMetadataSaved(false);
     setDocument((prev) => {
       if (!prev) return prev;
 
@@ -151,52 +159,26 @@ const DocumentDetail: React.FC = () => {
   };
 
   const handleAddTag = (tag: string) => {
-    setDocument((prev) => {
-      if (!prev) return prev;
-
-      const currentTags = prev.version.tags || [];
-      if (currentTags.includes(tag)) return prev;
-
-      return {
-        ...prev,
-        version: {
-          ...prev.version,
-          tags: [...currentTags, tag],
-        },
-      };
+    setIsMetadataSaved(false);
+    // Add to active tags if not already present
+    setActiveTags((prev) => {
+      if (prev.includes(tag)) return prev;
+      return [...prev, tag];
     });
   };
 
   const handleRemoveTag = (tag: string) => {
-    setDocument((prev) => {
-      if (!prev) return prev;
-
-      const currentTags = prev.version.tags || [];
-      return {
-        ...prev,
-        version: {
-          ...prev.version,
-          tags: currentTags.filter((t) => t !== tag),
-        },
-      };
-    });
+    setIsMetadataSaved(false);
+    // Remove from active tags
+    setActiveTags((prev) => prev.filter((t) => t !== tag));
   };
 
   const handleCreateTag = (tag: string) => {
-    // Update document tags as well when a new tag is created
-    setDocument((prev) => {
-      if (!prev) return prev;
-
-      const currentTags = prev.version.tags || [];
-      if (currentTags.includes(tag)) return prev;
-
-      return {
-        ...prev,
-        version: {
-          ...prev.version,
-          tags: [...currentTags, tag],
-        },
-      };
+    setIsMetadataSaved(false);
+    // Add newly created tag to active tags
+    setActiveTags((prev) => {
+      if (prev.includes(tag)) return prev;
+      return [...prev, tag];
     });
 
     notification.success({ message: `Tag "${tag}" created` });
@@ -207,7 +189,7 @@ const DocumentDetail: React.FC = () => {
 
     const payload = {
       summary: document.version?.summary ?? "",
-      tags: (document.version?.tags ?? []).filter(Boolean),
+      tags: activeTags.filter(Boolean),
     };
 
     try {
@@ -218,6 +200,7 @@ const DocumentDetail: React.FC = () => {
       notification.success({
         message: "Metadata saved successfully",
       });
+      setIsMetadataSaved(true);
     } catch (error: any) {
       notification.error({
         message: "Failed to save metadata",
@@ -246,6 +229,29 @@ const DocumentDetail: React.FC = () => {
       pollSummaryStatus(
         jobId,
         (result) => {
+          // Check if chunks are not ready yet
+          if (result?.status === "processing" || result?.message?.includes("Chunks not ready")) {
+            setIsSummaryGenerating(false);
+            notification.error({
+              message: "Summary generation failed",
+            
+              duration: 0,
+            });
+            return;
+          }
+
+          // Check if summary is actually available
+          if (!result?.summary) {
+            setIsSummaryGenerating(false);
+            notification.error({
+              message: "Summary generation failed",
+           
+              duration: 0,
+            });
+            return;
+          }
+
+          // Success case - update document with summary
           setDocument((prev) => {
             if (!prev) return prev;
             return {
@@ -253,15 +259,18 @@ const DocumentDetail: React.FC = () => {
               version: {
                 ...prev.version,
                 summary: result.summary,
-                tags: result.tags ?? prev.version.tags,
               },
             };
           });
+          // Update suggested tags from AI result, but don't auto-add to active tags
+          if (result.tags) {
+            setSuggestedTags(result.tags);
+          }
           setIsSummaryGenerating(false);
           notification.success({
             message: "Summary generated",
             description: "AI summary has been generated successfully.",
-            duration: 3,
+            duration: 0,
           });
         },
         (err) => {
@@ -269,6 +278,7 @@ const DocumentDetail: React.FC = () => {
           notification.error({
             message: "Summary failed",
             description: String(err),
+            duration: 0,
           });
         }
       );
@@ -357,6 +367,8 @@ const DocumentDetail: React.FC = () => {
     onVersionChange: (value: string) => handleVersionChange(Number(value)),
     // Only show submit button when status is DRAFT
     onSubmit: status === "DRAFT" ? handleSubmit : undefined,
+    // Disable submit until metadata has been saved at least once
+    submitDisabled: status === "DRAFT" && !isMetadataSaved,
   };
   console.log(
     "Document status:",
@@ -372,6 +384,8 @@ const DocumentDetail: React.FC = () => {
         showSummarySidebar={true}
         showChatSidebar={true}
         document={document}
+        suggestedTags={suggestedTags}
+        activeTags={activeTags}
         onSummaryChange={handleSummaryChange}
         onAddTag={handleAddTag}
         onRemoveTag={handleRemoveTag}

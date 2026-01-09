@@ -23,7 +23,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx"];
+  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx",".txt"];
   const acceptedMimeTypes = [
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -42,7 +42,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
       notification.error({
         message: "Invalid file type",
         description:
-          "Please upload a file with one of these formats: .pdf, .docx, .png, .xls, .xlsx",
+          "Please upload a file with one of these formats: .pdf, .docx, .png, .xls, .xlsx, .txt",
       });
       return false;
     }
@@ -229,7 +229,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
                 <span className="upload-or">or</span> click to browse files
               </button>
               <p className="supported-formats">
-                Supports .pdf, .docx, .png, .xls, .xlsx
+                Supports .pdf, .docx, .png, .jpeg, .xls, .xlsx, .txt
               </p>
             </>
           ) : (

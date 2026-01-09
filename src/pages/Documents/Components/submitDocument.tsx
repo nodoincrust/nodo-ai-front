@@ -4,6 +4,8 @@ import AppModal from "../../../components/common/AppModal";
 import AppButton from "../../../components/common/AppButton";
 import { getInitials } from "../../../utils/utilFunctions";
 import "./Styles/SubmitDocument.scss";
+import PrimaryButton from "../../../CommonComponents/Buttons/PrimaryButton";
+import SecondaryButton from "../../../CommonComponents/Buttons/SecondaryButton";
 
 interface Reviewer {
   id: number;
@@ -70,12 +72,14 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
       onClose={onClose}
       footer={
         <div className="submit-document-footer">
-          <AppButton variant="outline" label="Cancel" onClick={onClose} />
-          <AppButton
-            variant="primary"
-            label="Submit"
+          <SecondaryButton text="Cancel" onClick={onClose} />
+          <PrimaryButton
+            text="Submit"
+            imgPosition="after"
+            imgSrc="/assets/submit.svg"
             onClick={handleSubmit}
             disabled={selectedReviewers.length === 0}
+            className="submit-btn"
           />
         </div>
       }
@@ -133,6 +137,13 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
               })}
             </div>
           )}
+        </div>
+
+        <div>
+          <label className="submit-label">Submission Note <span className="optional">(optional)</span></label>
+          <input type="text" className="submission-input" placeholder="Add note for a reviewer" />
+
+
         </div>
       </div>
     </AppModal>

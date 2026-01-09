@@ -22,6 +22,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   selectedVersion,
   onVersionChange,
   onSubmit,
+  submitDisabled,
 }) => {
   const renderStatus = () => {
     if (!status) return null;
@@ -58,7 +59,21 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             </button>
           )}
 
-          <Breadcrumb separator="/" className="doc">
+          <Breadcrumb
+            className="doc"
+            separator={
+              <img
+                src="/assets/separtor.svg"
+                alt="separator"
+                style={{
+                  width: 16,
+                  height: 16,
+                  margin: "0 6px",
+                  verticalAlign: "middle",
+                }}
+              />
+            }
+          >
             <Breadcrumb.Item className="doc">Documents</Breadcrumb.Item>
             <Breadcrumb.Item className="filename">{fileName}</Breadcrumb.Item>
           </Breadcrumb>
@@ -86,6 +101,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             text="Submit"
             onClick={onSubmit}
             className="document-header-submit-btn"
+            disabled={submitDisabled}
           />
         )}
       </div>

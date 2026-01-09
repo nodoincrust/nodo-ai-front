@@ -339,7 +339,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
 
             <div className="summary-active-tags">
               <span className="summary-tag-label">
-                ACTIVE TAGS ({activeTags.length}/10)
+                ACTIVE TAGS ({activeTags.length})
               </span>
 
               <div className="summary-tags-list">

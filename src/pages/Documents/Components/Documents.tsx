@@ -40,6 +40,7 @@ export default function Documents() {
     if (type === "pptx" || type === "ppt") return "/assets/ppt_icon.svg";
     // For image files, we can use a default or add an image icon later
     if (type === "png" || type === "jpg" || type === "jpeg" || type === "gif") return "/assets/imag.svg";
+    if (type === "txt") return "/assets/doc icons.svg";
     // Default to doc icon for unknown types
     return "/assets/doc_icon.svg";
   };
@@ -167,7 +168,7 @@ export default function Documents() {
             { key: "DRAFT", label: "Draft" },
             { key: "REJECTED", label: "Rejected" },
             { key: "SUBMITTED", label: "Submitted" },
-            { key: "IN_REVIEW", label: "In Review" },
+       
           ],
           onClick: ({ key } :{key:string})=> {
             setStatus(key as typeof status);

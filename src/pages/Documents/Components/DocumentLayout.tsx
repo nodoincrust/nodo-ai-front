@@ -18,6 +18,8 @@ interface DocumentLayoutProps {
   children?: React.ReactNode;
   isSummaryGenerating?: boolean;
   document?: ApiDocument | null;
+  suggestedTags?: string[];
+  activeTags?: string[];
   onSummaryChange?: (summary: string) => void;
   onAddTag?: (tag: string) => void;
   onRemoveTag?: (tag: string) => void;
@@ -36,6 +38,8 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
   showChatSidebar = true,
   children,
   document,
+  suggestedTags = [],
+  activeTags = [],
   isSummaryGenerating,
   onSummaryChange,
   onAddTag,
@@ -114,8 +118,8 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
               isOpen={isSummaryOpen}
               onToggle={toggleSummarySidebar}
               summary={document?.version?.summary}
-              suggestedTags={document?.version?.tags || []}
-              activeTags={document?.version?.tags || []}
+              suggestedTags={suggestedTags || []}
+              activeTags={activeTags || []}
               onSummaryChange={onSummaryChange}
               onAddTag={onAddTag}
               onRemoveTag={onRemoveTag}

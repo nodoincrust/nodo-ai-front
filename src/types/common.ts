@@ -331,6 +331,7 @@ export interface DocumentHeaderProps {
   selectedVersion?: string;
   onVersionChange?: (value: string) => void;
   onSubmit?: () => void;
+  submitDisabled?: boolean;
 }
 
 // Normalized document interface for UI

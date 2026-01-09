@@ -15,7 +15,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const disabledLinks = ["/dashboard", "/settings"];
+  const disabledLinks = ["/dashboard", "/settings","/bouqet"];
   // READ AUTH DATA
   const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
   const sidebarItems: SidebarItem[] = authData.sidebar || [];

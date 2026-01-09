@@ -50,10 +50,7 @@ export const getDocumentById = async (id: number): Promise<ApiDocument> => {
   // Map API response to normalized ApiDocument format
   const apiData = response.data.data;
 
-  // Build file URL from file_path or file_url
-  // file_path is relative (e.g., "/storage/companies/8/documents/17/v1_DMS (1).pdf")
-  // file_url is full URL (if provided)
-  // Note: API requires /nodo prefix in the URL path
+  // Construct file URL
   let fileUrl = "";
   if (apiData.file.file_url) {
     fileUrl = apiData.file.file_url;
@@ -94,11 +91,6 @@ export const searchDocuments = async (
     search: query,
   });
 };
-// export const regenerateSummary = async (id: number | string) => {
-//   const response = await axios.get(API_URL.regenarateSummary(id),{timeout:30000});
-
-//   return response.data;
-// };
 
 export const saveDocumentMetadata = async (
   id: number | string,
