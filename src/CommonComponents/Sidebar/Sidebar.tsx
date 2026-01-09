@@ -5,6 +5,10 @@ import { AuthData, SidebarItem, SidebarProps } from "../../types/common";
 import Profile from "../../pages/Profile/Components/Profile";
 import ConfirmModal from "../Confirm Modal/ConfirmModal";
 import { getInitials } from "../../utils/utilFunctions";
+import { getRoleFromToken } from "../../utils/jwt";
+import { getLoaderControl } from "../Loader/loader";
+import { notification } from "antd";
+import { MESSAGES } from "../../utils/Messages";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -30,6 +34,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const totalStorage = Number(storageInfo.total_space ?? 0);
   const usedStorage = Number(storageInfo.used_space ?? 0);
   const storagePercent = Number(storageInfo.used_percentage ?? 0);
+
+  const navigateToRoleRoot = (navigate: any) => {
+    try {
+      // Show loader
+      getLoaderControl()?.showLoader();
+
+      const token = localStorage.getItem("accessToken");
+      const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
+      const sidebar = authData.sidebar || [];
+
+      let path = "/";
+
+      if (token) {
+        const role = getRoleFromToken(token);
+        if (role === "SYSTEM_ADMIN") path = "/companies";
+        else if (role === "COMPANY_ADMIN") path = "/departments";
+        else if (role === "EMPLOYEE" || role === "employee") path = "/documents";
+        else if (role === "USER") path = "/user";
+        else if (sidebar.length > 0) path = sidebar[0].path;
+      }
+
+      // Navigate
+      navigate(path, { replace: true });
+    } catch (err: any) {
+      notification.error({
+        message: err?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+      });
+    } finally {
+      // Hide loader
+      getLoaderControl()?.hideLoader();
+    }
+  };
 
   // TOGGLE SIDEBAR
   const toggleSidebar = () => {
@@ -77,24 +113,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     sessionStorage.removeItem("apiAppliedFilters");
   };
 
-  // LOGOUT
-  const handleLogout = () => {
-    // Clear all authentication data
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("authData");
-    localStorage.removeItem("token");
-    localStorage.removeItem("userDetails");
-    
-    // Clear session storage
-    sessionStorage.clear();
-    
-    // Close modal
-    setShowLogoutModal(false);
-    
-    // Navigate to login
-    navigate("/", { replace: true });
-  };
-
 
   return (
     <>
@@ -105,7 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             src={isMobile || isOpen ? "/assets/logo-full.svg" : "/assets/Main-Logo.svg"}
             alt="Logo"
             className={isMobile || isOpen ? "logo-full" : "logo-icon"}
-            onClick={() => navigate("/")}
+            onClick={() => navigateToRoleRoot(navigate)}
           />
 
           {isMobile ? (
