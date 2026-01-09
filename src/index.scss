@@ -683,7 +683,11 @@ p {
 }
 
 .ant-select-selector {
- border: none !important;
+  border: none !important;
+}
+
+.ant-select-show-search:where(.css-dev-only-do-not-override-mncuj7).ant-select:not(.ant-select-customize-input) .ant-select-selector input {
+  height: 100% !important;
 }
 
 .ant-input-affix-wrapper .ant-input-prefix {
@@ -944,8 +948,9 @@ input {
 .docx-wrapper {
   background: unset !important;
   padding: 0px !important;
-  section{
-   box-shadow: none !important;
+
+  section {
+    box-shadow: none !important;
   }
 }
 
