@@ -264,8 +264,8 @@
                 display: flex !important;
                 align-items: center !important;
                 // height: 40px !important;
-                padding: 0 12px !important;
-                cursor: text !important;
+                padding: 0 !important;
+                // cursor: text !important;
 
                 .ant-select-selection-item {
                     font-family: $font-family-main;
@@ -287,7 +287,7 @@
                 }
 
                 .ant-select-selection-search-input {
-                    height: 34px !important;
+                    // height: 34px !important;
                     padding: 0 !important;
                     margin: 0 !important;
                     font-family: $font-family-main;

@@ -87,6 +87,32 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </Dropdown>
         )}
+
+        {categoryMenu && !showDropdown && (
+          <Dropdown
+            menu={categoryMenu}
+            trigger={["click"]}
+            open={dropdownOpen}
+            onOpenChange={setDropdownOpen}
+          >
+            <div className={categoryButtonClassName || "status-dropdown"}>
+              <span className={categoryButtonTextClassName || "status-title"}>
+                {categoryButtonText}
+              </span>
+
+              <img
+                src="/assets/chevron-down.svg"
+                alt="arrow"
+                style={{
+                  width: 24,
+                  height: 24,
+                  transition: "transform 0.2s ease",
+                  transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </div>
+          </Dropdown>
+        )}
       </div>
     </div>
   );

@@ -56,6 +56,8 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
     ]);
     const [deptOpen, setDeptOpen] = useState(false);
     const [roleOpen, setRoleOpen] = useState(false);
+    const initialRef = useRef<any>(null);
+    const [isChanged, setIsChanged] = useState(false);
 
     // Reset form on open
     useEffect(() => {
@@ -69,22 +71,43 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
         setAnimateClose(false);
         form.resetFields();
 
-        form.setFieldsValue({
+        const departmentValue = initialData?.department_id && initialData?.department_name
+            ? { value: initialData.department_id, label: initialData.department_name }
+            : undefined;
+
+        const roleValue = initialData?.role
+            ? { value: initialData.role, label: initialData.role }
+            : undefined;
+
+        const initialValues = {
             employee_name: initialData?.name || "",
             employee_email: initialData?.email || "",
-            department: initialData?.department_id
-                ? {
-                    value: initialData.department_id,
-                    label: initialData.department_name,
-                }
-                : undefined,
-            role: initialData?.role
-                ? { value: initialData.role, label: initialData.role }
-                : undefined,
-        });
+            department: departmentValue,
+            role: roleValue,
+            is_active: initialData?.is_active ?? true,
+        };
 
-        setStatus(initialData?.is_active ?? true);
+        form.setFieldsValue(initialValues);
+
+        setStatus(initialValues.is_active);
+        initialRef.current = initialValues;
+        setIsChanged(false);
     }, [open, initialData]);
+
+    const handleFormChange = (_: any, allValues: any) => {
+        if (!isEdit) {
+            setIsChanged(true);
+            return;
+        }
+        const initial = initialRef.current;
+        const changed =
+            allValues.employee_name?.trim() !== initial.employee_name ||
+            allValues.employee_email?.trim() !== initial.employee_email ||
+            (allValues.department?.value || null) !== (initial.department?.value || null) ||
+            (allValues.role?.value || null) !== (initial.role?.value || null) ||
+            status !== initial.is_active;
+        setIsChanged(changed);
+    };
 
     // Lock scroll when modal open
     useEffect(() => {
@@ -224,7 +247,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                 </div>
 
                 {/* FORM */}
-                <Form layout="vertical" form={form} className="employee-form" autoComplete="off">
+                <Form layout="vertical" form={form} className="employee-form" autoComplete="off" onValuesChange={handleFormChange}>
                     <Form.Item
                         label={<span>Employee Name <span className="star">*</span></span>}
                         name="employee_name"
@@ -364,8 +387,19 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                             </span>
                             <Switch
                                 checked={status}
-                                onChange={setStatus}
                                 className="status-toggle"
+                                onChange={(checked) => {
+                                    setStatus(checked);
+                                    const initial = initialRef.current;
+                                    const allValues = form.getFieldsValue(true);
+                                    const changed =
+                                        allValues.employee_name?.trim() !== initial.employee_name ||
+                                        allValues.employee_email?.trim() !== initial.employee_email ||
+                                        (allValues.department?.value || null) !== (initial.department?.value || null) ||
+                                        (allValues.role?.value || null) !== (initial.role?.value || null) ||
+                                        checked !== initial.is_active;
+                                    setIsChanged(changed);
+                                }}
                             />
                         </div>
                     </div>
@@ -376,7 +410,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                     <Button className="cancel-btn" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button className="save-btn" onClick={handleSubmit}>
+                    <Button className="save-btn" onClick={handleSubmit} disabled={isEdit && !isChanged}>
                         {isEdit ? "Update Employee" : "Add Employee"}
                     </Button>
                 </div>
