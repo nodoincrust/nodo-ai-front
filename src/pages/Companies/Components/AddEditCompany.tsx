@@ -15,28 +15,52 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
     const isEdit = Boolean(initialData?.id);
     const [form] = Form.useForm();
     const modalRef = useRef<HTMLDivElement>(null);
-
     const [showModal, setShowModal] = useState(open);
     const [animateClose, setAnimateClose] = useState(false);
     const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
-
+    const [isChanged, setIsChanged] = useState(false);
+    const initialRef = useRef<any>(null);
     useEffect(() => {
         if (open) {
             setShowModal(true);
             setAnimateClose(false);
-            form.setFieldsValue({
+            const initialValues = {
                 company_name: initialData?.name || "",
                 contact_name: initialData?.contact_person || "",
                 contact_email: initialData?.contact_email || "",
                 contact_number: initialData?.contact_number || "",
                 storage: initialData?.total_space ?? "",
-            });
+                is_active: initialData?.is_active ?? true,
+            };
+
+            form.setFieldsValue(initialValues);
             setStatus(initialData?.is_active ?? true);
+            setIsChanged(false);
+            initialRef.current = initialValues;
         } else {
             setAnimateClose(true);
             setShowModal(false);
         }
     }, [open, initialData, form]);
+
+    const handleFormChange = (_: any, allValues: any) => {
+        if (!isEdit) {
+            setIsChanged(true);
+            return;
+        }
+
+        const initial = initialRef.current;
+
+        const changed =
+            allValues.company_name?.trim() !== initial.company_name ||
+            allValues.contact_name?.trim() !== initial.contact_name ||
+            allValues.contact_email?.trim() !== initial.contact_email ||
+            allValues.contact_number !== initial.contact_number ||
+            Number(allValues.storage) !== Number(initial.storage) ||
+            status !== initial.is_active;
+
+        setIsChanged(changed);
+    };
 
     useEffect(() => {
         if (showModal) {
@@ -144,7 +168,7 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                 </div>
 
                 {/* FORM */}
-                <Form layout="vertical" form={form} autoComplete="off" className="company-form">
+                <Form layout="vertical" form={form} autoComplete="off" className="company-form" onValuesChange={handleFormChange}>
                     {/* Company Name */}
                     <Form.Item
                         label={<span>Company Name <span className="star">*</span></span>}
@@ -379,8 +403,20 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
 
                             <Switch
                                 checked={status}
-                                onChange={setStatus}
                                 className="status-toggle"
+                                onChange={(checked) => {
+                                    setStatus(checked);
+                                    const initial = initialRef.current;
+                                    const allValues = form.getFieldsValue(true);
+                                    const changed =
+                                        allValues.company_name?.trim() !== initial.company_name ||
+                                        allValues.contact_name?.trim() !== initial.contact_name ||
+                                        allValues.contact_email?.trim() !== initial.contact_email ||
+                                        allValues.contact_number !== initial.contact_number ||
+                                        Number(allValues.storage) !== Number(initial.storage) ||
+                                        checked !== initial.is_active;
+                                    setIsChanged(changed);
+                                }}
                             />
                         </div>
                     </div>
@@ -391,7 +427,7 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                     <Button type="primary" className="cancel-btn" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button type="primary" className="save-btn" onClick={handleSubmit}>
+                    <Button type="primary" className="save-btn" onClick={handleSubmit} disabled={isEdit && !isChanged}>
                         {isEdit ? "Update Company" : "Add Company"}
                     </Button>
                 </div>
