@@ -261,7 +261,6 @@ export const statusItems: { key: StatusType; label: string }[] = [
   { key: "inactive", label: "Inactive" },
 ];
 
-
 // Document interface
 export interface ApiDocumentVersion {
   version_number: number;
@@ -279,6 +278,7 @@ export interface ApiDocumentDetailResponse {
     document: {
       id: number;
       status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+      display_status?: string;
       is_active: boolean;
       created_at: string;
       current_version: number;
@@ -310,12 +310,7 @@ export interface ApiDocumentDetailResponse {
     };
   };
 }
-export type DocumentStatus =
-  | "IN_REVIEW"
-  | "APPROVED"
-  | "REJECTED"
-  | "DRAFT"
-  | "SUBMITTED";
+export type DocumentStatus = "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
 
 export interface DocumentBreadcrumbItem {
   label: string;
@@ -326,18 +321,24 @@ export interface DocumentHeaderProps {
   breadcrumb: DocumentBreadcrumbItem[];
   fileName: string;
   status?: DocumentStatus;
+  displayStatus?: string;
   onBackClick?: () => void;
   versionOptions?: { label: string; value: string }[];
   selectedVersion?: string;
   onVersionChange?: (value: string) => void;
   onSubmit?: () => void;
   submitDisabled?: boolean;
+  userRole: "EMPLOYEE" | "DEPARTMENT_HEAD" | "COMPANY_HEAD";
+  onApprove?: () => void;
+  onReject?: () => void;
+  onReupload?: () => void;
 }
 
 // Normalized document interface for UI
 export interface ApiDocument {
   document_id: number;
   status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  display_status?: string;
   current_version: number;
   version: ApiDocumentVersion;
 }

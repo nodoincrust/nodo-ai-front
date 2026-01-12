@@ -10,28 +10,38 @@ const statusLabelMap: Record<DocumentStatus, string> = {
   REJECTED: "Rejected",
   DRAFT: "Draft",
   SUBMITTED: "Submitted",
-  IN_REVIEW: "In review",
 };
 
 const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   breadcrumb,
   fileName,
   status,
+  displayStatus,
   onBackClick,
   versionOptions,
   selectedVersion,
   onVersionChange,
   onSubmit,
   submitDisabled,
+  userRole,
+  onApprove,
+  onReject,
+  onReupload,
 }) => {
   const renderStatus = () => {
-    if (!status) return null;
+    // Use displayStatus if available, otherwise fall back to status
+    const statusToDisplay = displayStatus || status;
+    
+    if (!statusToDisplay) {
+      return null;
+    }
 
-    const label = statusLabelMap[status] ?? status;
+    // If displayStatus is provided, use it directly; otherwise use statusLabelMap
+    const label = displayStatus || (status ? statusLabelMap[status] ?? status : "");
 
     return (
       <Tag
-        className={`doc-header-status doc-header-status--${status.toLowerCase()}`}
+        className={`doc-header-status doc-header-status--${status?.toLowerCase() || "draft"}`}
       >
         <span className="dot" />
         {label}
@@ -95,13 +105,40 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             />
           </div>
         )}
+        
+        {/* Approve / Reject (Only Dept Head & Company Head when status is SUBMITTED) */}
+        {(userRole === "DEPARTMENT_HEAD" || userRole === "COMPANY_HEAD") &&
+          status === "SUBMITTED" && (
+            <>
+              <PrimaryButton
+                text="Approve"
+                onClick={onApprove}
+                className="approve-btn"
+              />
+              <PrimaryButton
+                text="Reject"
+                onClick={onReject}
+                className="reject-btn"
+              />
+            </>
+          )}
 
-        {onSubmit && (
+        {/* Submit (Employee only when status is DRAFT) */}
+        { status === "DRAFT" && onSubmit && (
           <PrimaryButton
             text="Submit"
             onClick={onSubmit}
-            className="document-header-submit-btn"
             disabled={submitDisabled}
+            className="document-header-submit-btn"
+          />
+        )}
+
+        {/* Re-Upload (Employee only after rejection) */}
+        {status === "REJECTED" && onReupload && (
+          <PrimaryButton
+            text="Re-Upload"
+            onClick={onReupload}
+            className="reupload-btn"
           />
         )}
       </div>

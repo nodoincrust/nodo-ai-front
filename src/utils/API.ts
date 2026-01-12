@@ -34,6 +34,7 @@ export const API_URL = {
   // regenarateSummary: (id: number | string) => `ai/summary/${id}`,
   saveMetaData: (id: number | string) => `newdocuments/${id}/save`,
   submitDocumentForReview: (id: number | string) => `/employee/${id}/assign`,
+
   getaichat: "/ai/chat",
 
   startSummary: (id: number | string) => `/ai/summary/start/${id}`,

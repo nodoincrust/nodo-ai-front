@@ -69,6 +69,7 @@ export const getDocumentById = async (id: number): Promise<ApiDocument> => {
   return {
     document_id: apiData.document.id,
     status: apiData.document.status,
+    display_status: apiData.document.display_status,
     current_version: apiData.document.current_version,
     version: {
       version_number: apiData.file.version_number,
@@ -184,4 +185,5 @@ export function pollSummaryStatus(
   return () => clearInterval(interval); // optional cancel
 }
 
+// Approve document
 

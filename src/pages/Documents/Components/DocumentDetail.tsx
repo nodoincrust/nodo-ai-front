@@ -14,6 +14,7 @@ import {
   getAiChatResponse,
 } from "../../../services/documents.service";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
+import { getRoleFromToken } from "../../../utils/jwt";
 import type {
   DocumentHeaderProps,
   ApiDocument,
@@ -311,6 +312,21 @@ const DocumentDetail: React.FC = () => {
     }
   };
 
+  // Handler for Re-Upload button
+  const handleReupload = () => {
+    if (!document) return;
+    
+    // TODO: Implement reupload functionality
+    // This could open a file upload modal or navigate to upload page
+    notification.info({
+      message: "Re-Upload Document",
+      description: "Re-upload functionality will be implemented here. You can upload a new version of this document.",
+    });
+    
+    // For now, you could navigate to documents list or open upload modal
+    // navigate("/documents");
+  };
+
   // Auto-trigger regenerate summary once if there is no summary yet
   // MUST be after all other hooks but before any conditional returns
   useEffect(() => {
@@ -339,7 +355,7 @@ const DocumentDetail: React.FC = () => {
   }
 
   const fileName = document.version?.file_name || "Unknown Document";
-  const status = document.status;
+  const documentStatus = document.status;
   const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
 
   // Get file URL from version (already processed in service to be full URL)
@@ -354,6 +370,60 @@ const DocumentDetail: React.FC = () => {
     })
   );
 
+  // Get user role from token and authData
+  const getUserRole = (): "EMPLOYEE" | "DEPARTMENT_HEAD" | "COMPANY_HEAD" => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return "EMPLOYEE";
+    
+    // Check authData for is_department_head flag
+    try {
+      const authDataStr = localStorage.getItem("authData");
+      if (authDataStr) {
+        const authData = JSON.parse(authDataStr);
+        if (authData.is_department_head) {
+          return "DEPARTMENT_HEAD";
+        }
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
+    
+    const role = getRoleFromToken(token);
+    // Normalize role to uppercase
+    const normalizedRole = role?.toUpperCase();
+    
+    if (normalizedRole === "DEPARTMENT_HEAD") {
+      return "DEPARTMENT_HEAD";
+    }
+    if (normalizedRole === "COMPANY_HEAD" || normalizedRole === "COMPANY_ADMIN") {
+      return "COMPANY_HEAD";
+    }
+    return "EMPLOYEE";
+  };
+
+  const userRole = getUserRole();
+
+  // Map document status to DocumentStatus type (IN_REVIEW -> SUBMITTED)
+  // Normalize status to handle case variations
+  const normalizedStatus = documentStatus?.toUpperCase();
+  let status: DocumentHeaderProps["status"];
+  
+  if (normalizedStatus === "IN_REVIEW") {
+    status = "SUBMITTED";
+  } else if (normalizedStatus === "APPROVED") {
+    status = "APPROVED";
+  } else if (normalizedStatus === "REJECTED") {
+    status = "REJECTED";
+  } else if (normalizedStatus === "DRAFT") {
+    status = "DRAFT";
+  } else if (normalizedStatus === "SUBMITTED") {
+    status = "SUBMITTED";
+  } else {
+    // Default to DRAFT if status is missing or invalid
+    status = "DRAFT";
+    console.warn("Unknown document status:", documentStatus, "- defaulting to DRAFT");
+  }
+
   const headerProps: DocumentHeaderProps = {
     breadcrumb: [
       { label: "Documents", path: "/documents" },
@@ -361,14 +431,21 @@ const DocumentDetail: React.FC = () => {
     ],
     fileName: documentTitle,
     status,
+    displayStatus: document.display_status,
     onBackClick: handleBackClick,
     versionOptions: versionOptions,
     selectedVersion: String(selectedVersion),
     onVersionChange: (value: string) => handleVersionChange(Number(value)),
-    // Only show submit button when status is DRAFT
-    onSubmit: status === "DRAFT" ? handleSubmit : undefined,
+    // Only show submit button when status is DRAFT and user is EMPLOYEE
+    onSubmit: status === "DRAFT" && userRole === "EMPLOYEE" ? handleSubmit : undefined,
     // Disable submit until metadata has been saved at least once
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
+    userRole,
+    // TODO: Implement approve/reject handlers
+    onApprove: undefined,
+    onReject: undefined,
+    // Show reupload button for employees when document is rejected
+    onReupload: status === "REJECTED" && userRole === "EMPLOYEE" ? handleReupload : undefined,
   };
   console.log(
     "Document status:",
