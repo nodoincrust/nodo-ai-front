@@ -308,6 +308,7 @@
 
     display: flex;
     align-items: center;
+    width: 90px;
 }
 
 .ant-select-dropdown {
@@ -330,12 +331,13 @@
     height: 32px !important;
     padding: 0 44px 0 14px !important;
     border-radius: 20px !important;
-    background: #F9FAFB !important;
+    background: transparent !important;
     border: none !important;
     box-shadow: none !important;
 
     display: flex !important;
     align-items: center !important;
+    z-index: 2000;
 }
 
 /* Selected value text */
@@ -344,6 +346,7 @@
     align-items: center !important;
 
     height: 100%;
+    width: 50px;
     line-height: 32px !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -356,11 +359,6 @@
 .rows-select .ant-select-selection-item>span {
     display: flex;
     align-items: center;
-}
-
-/* REMOVE default arrow */
-.rows-select .ant-select-arrow {
-    display: none !important;
 }
 
 

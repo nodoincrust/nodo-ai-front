@@ -59,7 +59,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           )}
 
           <Breadcrumb separator="/" className="doc">
-            <Breadcrumb.Item className="doc">Documents</Breadcrumb.Item>
+            <Breadcrumb.Item className="doc" onClick={onBackClick}>Documents</Breadcrumb.Item>
             <Breadcrumb.Item className="filename">{fileName}</Breadcrumb.Item>
           </Breadcrumb>
         </div>
