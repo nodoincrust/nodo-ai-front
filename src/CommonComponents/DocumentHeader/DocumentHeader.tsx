@@ -24,8 +24,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   selectedVersion,
   onVersionChange,
   onSubmit,
-  submitDisabled,
-  extraActions,
+  extraActions = [],
 }) => {
   const renderStatus = () => {
     // Use displayStatus if available, otherwise fall back to status
@@ -114,26 +113,22 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             className="document-header-submit-btn"
           />
         )}
+        {/* Approve + Reject buttons */}
+        <div className="language-header-top">
+          {/* Approve button */}
+          <PrimaryButton
+            text="Approve"
+            onClick={extraActions.find(a => a.label === "Approve")?.onClick}
+            className="document-header-action-btn approve-btn"
+          />
 
-        {/* Extra Actions (Approve, Reject, Re-Upload, etc.) */}
-        {extraActions && extraActions.length > 0 && (
-          <>
-            {extraActions.map((action, index) => (
-              <PrimaryButton
-                key={index}
-                text={action.label}
-                onClick={action.onClick}
-                className={
-                  action.type === "danger"
-                    ? "reject-btn"
-                    : action.type === "primary"
-                    ? "approve-btn"
-                    : "document-header-action-btn"
-                }
-              />
-            ))}
-          </>
-        )}
+          {/* Reject button */}
+          <PrimaryButton
+            text="Reject"
+            onClick={extraActions.find(a => a.label === "Reject")?.onClick}
+            className="document-header-action-btn reject-btn"
+          />
+        </div>
       </div>
     </div>
   );

@@ -13,6 +13,7 @@
     flex-direction: row;
     gap: 8px;
   }
+
   .document-header-brand {
     display: flex;
     align-items: center;
@@ -35,6 +36,7 @@
     color: #1b32493d;
     font-size: 28px;
   }
+
   .document-header-breadcrumb {
     display: flex;
     align-items: center;
@@ -71,6 +73,7 @@
           color: $color-primary;
         }
       }
+
       .filename {
         background-color: #ecf2fe;
         color: #457ce8;
@@ -80,6 +83,7 @@
         padding: 2px 6px;
         font-weight: 500;
       }
+
       .doc {
         font-family: $font-family-main;
         font-size: 16px;
@@ -175,14 +179,69 @@
     align-items: flex-end;
     gap: 4px;
     border: 1px solid #e2e4e9;
-    border-radius: 6px;
+    border-radius: 12px;
 
     .version-dropdown {
       min-width: 96px;
+      min-height: 40px;
     }
   }
 
   .document-header-submit-btn {
     min-width: 96px;
+  }
+
+  .language-header-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-start; // space between buttons
+
+    button,
+    button:focus,
+    button:hover,
+    button:active,
+    .approve-btn,
+    .reject-btn {
+      box-shadow: none !important;
+    }
+
+    button {
+      box-shadow: none;
+    }
+
+    .button-text {
+      font-family: $font-family-main;
+      font-weight: 600;
+      letter-spacing: -4%;
+      vertical-align: middle;
+      margin-bottom: 0;
+      font-size: 14px;
+    }
+
+    // Approve specific styling (can inherit button-text)
+    .approve-btn {
+      background-color: $color-status-bg-active !important;
+      color: $color-status-text-active !important;
+      border: none;
+
+      &:hover {
+        background-color: $color-status-bg-active;
+        color: $color-status-text-active;
+      }
+    }
+
+    // Reject specific styling
+    .reject-btn {
+      background-color: $status-rejected-bg !important;
+      color: $status-rejected-text !important;
+      border: none;
+
+      &:hover {
+        background-color: $status-rejected-bg;
+        color: $status-rejected-text;
+      }
+    }
   }
 }
