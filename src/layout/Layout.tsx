@@ -10,9 +10,12 @@ const Layout: React.FC = () => {
   const [isOpen, setIsOpen] = useState(window.innerWidth >= 992);
   const location = useLocation();
 
-  // Check if current route is a document detail page (e.g., /documents/123)
-  const isDocumentDetailPage = /^\/documents\/\d+$/.test(location.pathname);
-  const shouldShowSidebar = !isDocumentDetailPage;
+  // Hide sidebar for detail pages
+  const isDetailPage =
+    /^\/documents\/\d+$/.test(location.pathname) ||
+    /^\/awaitingApproval\/\d+$/.test(location.pathname);
+
+  const shouldShowSidebar = !isDetailPage;
 
   useEffect(() => {
     setLoading(false);

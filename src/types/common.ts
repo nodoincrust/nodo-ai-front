@@ -310,7 +310,14 @@ export interface ApiDocumentDetailResponse {
     };
   };
 }
-export type DocumentStatus = "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+export type DocumentStatus =
+  | "IN_REVIEW"
+  | "APPROVED"
+  | "REJECTED"
+  | "DRAFT"
+  | "SUBMITTED"
+  | "AWAITING_APPROVAL"
+  | "AWAITING_APPROVAL";
 
 export interface DocumentBreadcrumbItem {
   label: string;
@@ -327,11 +334,12 @@ export interface DocumentHeaderProps {
   selectedVersion?: string;
   onVersionChange?: (value: string) => void;
   onSubmit?: () => void;
-  submitDisabled?: boolean;
-  userRole: "EMPLOYEE" | "DEPARTMENT_HEAD" | "COMPANY_HEAD";
-  onApprove?: () => void;
-  onReject?: () => void;
-  onReupload?: () => void;
+  extraActions?: DocumentHeaderAction[];
+}
+
+// Awaiting header props
+export interface AwaitingDocumentHeaderProps extends DocumentHeaderProps {
+  extraActions?: DocumentHeaderAction[];
 }
 
 // Normalized document interface for UI
@@ -390,4 +398,11 @@ export interface AiChatResponse {
   session_id: string;
   answer: string;
   citations: any[];
+}
+
+// Awaiting Approval
+export interface DocumentHeaderAction {
+  label: string;
+  onClick: () => Promise<void> | void;
+  type?: "primary" | "default" | "danger";
 }

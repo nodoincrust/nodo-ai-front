@@ -6,6 +6,7 @@ import { companiesRoutes } from "../pages/Companies/companies.routes";
 import { departmentsRoutes } from "../pages/Company/Departments/departments.routes";
 import { documentsRoutes } from "../pages/Documents/documents.routes";
 import { employeesRoutes } from "../pages/Company/Employees/employees.routes";
+import { awaitingApprovalRoutes } from "../pages/Company/Awaiting_Approval/awaitingApproval.routes";
 const router = createBrowserRouter([
   ...authRoutes,
   {
@@ -19,7 +20,8 @@ const router = createBrowserRouter([
       ...companiesRoutes,
       ...departmentsRoutes,
       ...documentsRoutes,
-      ...employeesRoutes
+      ...employeesRoutes,
+      ...awaitingApprovalRoutes,
     ],
   },
 ]);
