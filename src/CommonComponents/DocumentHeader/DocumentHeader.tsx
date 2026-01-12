@@ -23,6 +23,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   selectedVersion,
   onVersionChange,
   onSubmit,
+  submitDisabled,
   extraActions = [],
 }) => {
   const renderStatus = () => {
