@@ -182,13 +182,10 @@ const AwaitingApprovalDetails = () => {
 
 
     /* ------------------------------ Header ------------------------------ */
-    const extraActions: DocumentHeaderAction[] =
-        document.status === "IN_REVIEW"
-            ? [
-                { label: "Reject", onClick: handleReject, type: "danger" }, // First
-                { label: "Approve", onClick: handleApprove, type: "primary" }, // Second
-            ]
-            : [];
+    const extraActions: DocumentHeaderAction[] = [
+        { label: "Reject", onClick: handleReject, type: "danger" },
+        { label: "Approve", onClick: handleApprove, type: "primary" },
+    ];
 
     const headerProps: any = {
         breadcrumb: [
