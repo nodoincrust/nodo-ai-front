@@ -10,7 +10,7 @@ import { scrollLayoutToTop } from "../../../../utils/utilFunctions";
 import { Document } from "../../../../types/common";
 import "./Styles/AwaitingApprovalDetails.scss";
 import { getApprovalList } from "../../../../services/awaitingApproval.services";
-
+import './Styles/AwaitingApproval.scss'
 export default function AwaitingApproval() {
     const [count, setCount] = useState(0);
     const [search, setSearch] = useState("");

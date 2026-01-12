@@ -8,10 +8,22 @@ export const getApprovalList = async (payload: ApiPayload = {}) => {
     return response.data;
 };
 
+export const getAwaitingApprovalDetails = (documentId: string | number) => {
+    return axios.get(`/newdocuments/${documentId}/details`);
+};
+
 
 // Approve a document by ID
 export const approveDocumentByID = async (documentId: number | string) => {
-    const response = await axios.post(`${API_URL.approveDocumentByID}/${documentId}/approve`, {
+    const response = await axios.post(`${API_URL.approveDocumentByID}/${documentId}`, {
+        document_id: documentId,
+    });
+    return response.data;
+};
+
+// Reject a document by ID
+export const rejectDocumentByID = async (documentId: number | string) => {
+    const response = await axios.post(`${API_URL.approveDocumentByID}/${documentId}/reject`, {
         document_id: documentId,
     });
     return response.data;

@@ -22,6 +22,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   selectedVersion,
   onVersionChange,
   onSubmit,
+  extraActions = [],
 }) => {
   const renderStatus = () => {
     if (!status) return null;
@@ -88,6 +89,22 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             className="document-header-submit-btn"
           />
         )}
+        {/* Approve + Reject buttons */}
+        <div className="language-header-top">
+          {/* Approve button */}
+          <PrimaryButton
+            text="Approve"
+            onClick={extraActions.find(a => a.label === "Approve")?.onClick}
+            className="document-header-action-btn approve-btn"
+          />
+
+          {/* Reject button */}
+          <PrimaryButton
+            text="Reject"
+            onClick={extraActions.find(a => a.label === "Reject")?.onClick}
+            className="document-header-action-btn reject-btn"
+          />
+        </div>
       </div>
     </div>
   );
