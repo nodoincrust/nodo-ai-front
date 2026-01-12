@@ -23,13 +23,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // Role-based access control
   const role = getRoleFromToken(token);
   
-  // Employee role can only access documents route
-  if (role === "EMPLOYEE" || role === "employee") {
-    const allowedPaths = ["/documents", "/document"];
-    if (!allowedPaths.some(allowedPath => path.startsWith(allowedPath))) {
-      return <Navigate to="/documents" replace />;
-    }
-  }
+  // // Employee role can only access documents route
+  // if (role === "EMPLOYEE" || role === "employee") {
+  //   const allowedPaths = ["/documents", "/document"];
+  //   if (!allowedPaths.some(allowedPath => path.startsWith(allowedPath))) {
+  //     return <Navigate to="/documents" replace />;
+  //   }
+  // }
 
   return <>{children}</>;
 };

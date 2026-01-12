@@ -3,13 +3,15 @@ import { Breadcrumb, Select, Tag } from "antd";
 import { LeftOutlined } from "@ant-design/icons";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import "./DocumentHeader.scss";
-import type { DocumentHeaderProps, DocumentStatus } from "../../types/common";
+import type { DocumentHeaderProps, DocumentStatus, DocumentHeaderAction } from "../../types/common";
 
 const statusLabelMap: Record<DocumentStatus, string> = {
+  IN_REVIEW: "In Review",
   APPROVED: "Approved",
   REJECTED: "Rejected",
   DRAFT: "Draft",
   SUBMITTED: "Submitted",
+  AWAITING_APPROVAL: "Awaiting Approval",
 };
 
 const DocumentHeader: React.FC<DocumentHeaderProps> = ({
@@ -23,10 +25,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   onVersionChange,
   onSubmit,
   submitDisabled,
-  userRole,
-  onApprove,
-  onReject,
-  onReupload,
+  extraActions,
 }) => {
   const renderStatus = () => {
     // Use displayStatus if available, otherwise fall back to status
@@ -106,25 +105,8 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           </div>
         )}
         
-        {/* Approve / Reject (Only Dept Head & Company Head when status is SUBMITTED) */}
-        {(userRole === "DEPARTMENT_HEAD" || userRole === "COMPANY_HEAD") &&
-          status === "SUBMITTED" && (
-            <>
-              <PrimaryButton
-                text="Approve"
-                onClick={onApprove}
-                className="approve-btn"
-              />
-              <PrimaryButton
-                text="Reject"
-                onClick={onReject}
-                className="reject-btn"
-              />
-            </>
-          )}
-
-        {/* Submit (Employee only when status is DRAFT) */}
-        { status === "DRAFT" && onSubmit && (
+        {/* Submit button (when onSubmit is provided) */}
+        {onSubmit && (
           <PrimaryButton
             text="Submit"
             onClick={onSubmit}
@@ -133,13 +115,24 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           />
         )}
 
-        {/* Re-Upload (Employee only after rejection) */}
-        {status === "REJECTED" && onReupload && (
-          <PrimaryButton
-            text="Re-Upload"
-            onClick={onReupload}
-            className="reupload-btn"
-          />
+        {/* Extra Actions (Approve, Reject, Re-Upload, etc.) */}
+        {extraActions && extraActions.length > 0 && (
+          <>
+            {extraActions.map((action, index) => (
+              <PrimaryButton
+                key={index}
+                text={action.label}
+                onClick={action.onClick}
+                className={
+                  action.type === "danger"
+                    ? "reject-btn"
+                    : action.type === "primary"
+                    ? "approve-btn"
+                    : "document-header-action-btn"
+                }
+              />
+            ))}
+          </>
         )}
       </div>
     </div>

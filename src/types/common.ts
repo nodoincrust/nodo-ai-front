@@ -334,6 +334,7 @@ export interface DocumentHeaderProps {
   selectedVersion?: string;
   onVersionChange?: (value: string) => void;
   onSubmit?: () => void;
+  submitDisabled?: boolean;
   extraActions?: DocumentHeaderAction[];
 }
 

@@ -27,6 +27,7 @@ export const API_URL = {
   //Awaiting Approval
   getApprovalList: "/newdocuments/approver/inbox",
   approveDocumentByID: "/newdocuments/approver/inbox",
+  
 
   // ========================================
   //   Documents

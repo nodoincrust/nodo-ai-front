@@ -19,6 +19,7 @@ import type {
   DocumentHeaderProps,
   ApiDocument,
   AssignableEmployee,
+  DocumentHeaderAction,
 } from "../../../types/common";
 import "./Styles/DocumentLayout.scss";
 
@@ -424,6 +425,49 @@ const DocumentDetail: React.FC = () => {
     console.warn("Unknown document status:", documentStatus, "- defaulting to DRAFT");
   }
 
+  // Build extra actions based on user role and document status
+  const extraActions: DocumentHeaderAction[] = [];
+
+  // Approve/Reject buttons for Department Head and Company Head when status is SUBMITTED
+  if (
+    (userRole === "DEPARTMENT_HEAD" || userRole === "COMPANY_HEAD") &&
+    status === "SUBMITTED"
+  ) {
+    extraActions.push(
+      {
+        label: "Approve",
+        onClick: async () => {
+          // TODO: Implement approve functionality
+          notification.info({
+            message: "Approve",
+            description: "Approve functionality will be implemented here.",
+          });
+        },
+        type: "primary",
+      },
+      {
+        label: "Reject",
+        onClick: async () => {
+          // TODO: Implement reject functionality
+          notification.info({
+            message: "Reject",
+            description: "Reject functionality will be implemented here.",
+          });
+        },
+        type: "danger",
+      }
+    );
+  }
+
+  // Re-Upload button for employees when document is rejected
+  if (status === "REJECTED" && userRole === "EMPLOYEE") {
+    extraActions.push({
+      label: "Re-Upload",
+      onClick: handleReupload,
+      type: "default",
+    });
+  }
+
   const headerProps: DocumentHeaderProps = {
     breadcrumb: [
       { label: "Documents", path: "/documents" },
@@ -440,12 +484,7 @@ const DocumentDetail: React.FC = () => {
     onSubmit: status === "DRAFT" && userRole === "EMPLOYEE" ? handleSubmit : undefined,
     // Disable submit until metadata has been saved at least once
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
-    userRole,
-    // TODO: Implement approve/reject handlers
-    onApprove: undefined,
-    onReject: undefined,
-    // Show reupload button for employees when document is rejected
-    onReupload: status === "REJECTED" && userRole === "EMPLOYEE" ? handleReupload : undefined,
+    extraActions: extraActions.length > 0 ? extraActions : undefined,
   };
   console.log(
     "Document status:",
