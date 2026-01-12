@@ -5,7 +5,7 @@ import PrimaryButton from "../Buttons/PrimaryButton";
 import "./DocumentHeader.scss";
 import type { DocumentHeaderProps, DocumentStatus } from "../../types/common";
 
-const statusLabelMap: Record<DocumentStatus, string> = {
+const statusLabelMap: any = {
   APPROVED: "Approved",
   REJECTED: "Rejected",
   DRAFT: "Draft",
