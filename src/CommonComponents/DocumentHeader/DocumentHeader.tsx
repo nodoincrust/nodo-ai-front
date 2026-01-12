@@ -90,21 +90,21 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           />
         )}
         {/* Approve + Reject buttons */}
-        <div className="language-header-top">
-          {/* Approve button */}
-          <PrimaryButton
-            text="Approve"
-            onClick={extraActions.find(a => a.label === "Approve")?.onClick}
-            className="document-header-action-btn approve-btn"
-          />
+        {extraActions?.length > 0 && (
+          <div className="language-header-top">
+            {extraActions
+              .filter(a => a.label === "Approve" || a.label === "Reject")
+              .map(a => (
+                <PrimaryButton
+                  key={a.label}
+                  text={a.label}
+                  onClick={a.onClick}
+                  className={`document-header-action-btn ${a.label.toLowerCase()}-btn`}
+                />
+              ))}
+          </div>
+        )}
 
-          {/* Reject button */}
-          <PrimaryButton
-            text="Reject"
-            onClick={extraActions.find(a => a.label === "Reject")?.onClick}
-            className="document-header-action-btn reject-btn"
-          />
-        </div>
       </div>
     </div>
   );
