@@ -504,6 +504,8 @@ const DocumentDetail: React.FC = () => {
     "isSubmitModalOpen:",
     isSubmitModalOpen
   );
+  console.log("Document remark:", document.remark);
+  console.log("Rejection remark passed to header:", document.remark);
   console.log(fileUrl);
   return (
     <>

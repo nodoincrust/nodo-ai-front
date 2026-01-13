@@ -51,7 +51,14 @@ const renderStatus = () => {
   );
 
   // ✅ Show popover ONLY when rejected & remark exists
-  if (status === "REJECTED" && rejectionRemark) {
+  // Check both uppercase and the actual status value
+  const isRejected = status?.toUpperCase() === "REJECTED" || status === "REJECTED";
+  const hasRemark = rejectionRemark && rejectionRemark.trim().length > 0;
+  
+  // Debug logging
+  console.log("DocumentHeader - Status:", status, "IsRejected:", isRejected, "HasRemark:", hasRemark, "Remark:", rejectionRemark);
+  
+  if (isRejected && hasRemark) {
     return (
       <Popover
         content={
@@ -62,8 +69,9 @@ const renderStatus = () => {
         }
         placement="bottom"
         trigger="hover"
+        overlayClassName="rejection-popover-wrapper"
       >
-        {statusTag}
+        <span >{statusTag}</span>
       </Popover>
     );
   }
