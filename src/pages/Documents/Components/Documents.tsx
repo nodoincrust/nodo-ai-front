@@ -255,7 +255,7 @@ export default function DocumentsCombined() {
   return (
     <div className="documents-container">
       <Header
-        title={documentFilter === "MY_DOCUMENTS" ? "My Documents" : "My Documents"}
+        title={documentFilter === "MY_DOCUMENTS" ? "Documents" : "Documents"}
         count={`${count} Documents`}
         searchValue={search}
         onSearchChange={(value) => {

@@ -506,6 +506,7 @@ const DocumentDetail: React.FC = () => {
   );
   console.log("Document remark:", document.remark);
   console.log("Rejection remark passed to header:", document.remark);
+  console.log("Extra actions:", extraActions);
   console.log(fileUrl);
   return (
     <>

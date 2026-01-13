@@ -139,16 +139,16 @@ const renderStatus = () => {
             />
           )}
           
-          {/* Approve + Reject buttons */}
+          {/* Approve + Reject + Re-Upload buttons */}
           {extraActions?.length > 0 && (
             <div className="language-header-top">
               {extraActions
-                .filter(a => a.label === "Approve" || a.label === "Reject")
+                .filter(a => a.label === "Approve" || a.label === "Reject" || a.label === "Re-Upload")
                 .map(a => (
                   <PrimaryButton
                     key={a.label}
                     text={a.label}
-                    className={`document-header-action-btn ${a.label.toLowerCase()}-btn`}
+                    className={`document-header-action-btn ${a.label.toLowerCase().replace(" ", "-")}-btn`}
                     onClick={() => {
                       if (a.label === "Reject") {
                         setShowRejectModal(true);
@@ -156,6 +156,7 @@ const renderStatus = () => {
                         a.onClick();
                       }
                     }}
+                    disabled={a.disabled}
                   />
                 ))}
             </div>

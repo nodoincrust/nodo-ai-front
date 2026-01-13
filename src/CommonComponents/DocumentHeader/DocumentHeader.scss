@@ -94,20 +94,19 @@
   }
 
   .approve-btn {
-  background-color: #16a34a;
-  color: #fff;
-}
+    background-color: #16a34a;
+    color: #fff;
+  }
 
-.reject-btn {
-  background-color: #dc2626;
-  color: #fff;
-}
+  .reject-btn {
+    background-color: #dc2626;
+    color: #fff;
+  }
 
-.reupload-btn {
-  background-color: #2563eb;
-  color: #fff;
-}
-
+  .reupload-btn {
+    background-color: #2563eb;
+    color: #fff;
+  }
 
   .document-header-title-row {
     display: flex;
@@ -209,7 +208,6 @@
     }
   }
 
-
   .ant-select {
     padding: 6px;
     height: 40px !important;
@@ -218,7 +216,7 @@
     border: 1px solid #e2e4e9 !important;
     font-family: "Outfit", sans-serif;
     font-size: 14px;
-    color: #292D32;
+    color: #292d32;
 
     .ant-select-selector {
       height: 40px !important;
@@ -247,14 +245,21 @@
     }
   }
 
-
   .version-select {
- min-width: 88px !important;
-
+    min-width: 88px !important;
   }
 
   .document-header-submit-btn {
     min-width: 96px;
+
+    .document-header-submit-btn:disabled,
+    .document-header-submit-btn.ant-btn-disabled {
+      background-color: #e5e7eb !important; // light grey
+      color: #9ca3af !important; // grey text
+      border: 1px solid #e5e7eb !important;
+      cursor: not-allowed !important;
+      box-shadow: none !important;
+    }
   }
 
   .language-header-top {
@@ -311,22 +316,21 @@
     }
   }
   .rejection-popover {
-  max-width: 260px;
-  font-size: 16px;
+    max-width: 260px;
+    font-size: 16px;
 
-  strong {
-    display: block;
-    margin-bottom: 4px;
-    color: #cf1322;
-    font-family: $font-family-main;
-  font-weight: 600;
+    strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #cf1322;
+      font-family: $font-family-main;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      color: #555;
+      line-height: 1.4;
+    }
   }
-
-  p {
-    margin: 0;
-    color: #555;
-    line-height: 1.4;
-  }
-}
-
 }
