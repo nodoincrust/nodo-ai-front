@@ -50,7 +50,7 @@ export default function AwaitingApproval() {
             // Build payload dynamically
             const payload = {
                 page: currentPage,
-                size: pageSize,
+                pagelimit: pageSize,
                 search: debouncedSearch || undefined,
                 status: status === "ALL" ? undefined : status,
             };

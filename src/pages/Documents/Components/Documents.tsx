@@ -124,7 +124,7 @@ export default function DocumentsCombined() {
     try {
       const res = await getApprovalList({
         page: currentPage,
-        size: pageSize,
+        pagelimit: pageSize,
         search: debouncedSearch || undefined,
         status: status === "All" ? undefined : status,
       });
