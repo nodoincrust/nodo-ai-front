@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({
   }));
 
   const documentFilterOptions: MenuProps["items"] = [
-    { key: "MY_DOCUMENTS", label: "Documents" },
+    { key: "MY_DOCUMENTS", label: "My Documents" },
     { key: "AWAITING", label: "Awaiting Approval" },
   ];
 
@@ -101,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({
                   }`}
               >
                 <span className="status-title">
-                  {documentFilterValue === "MY_DOCUMENTS" ? "Documents" : "Awaiting Approval"}
+                  {documentFilterValue === "MY_DOCUMENTS" ? "My Documents" : "Awaiting Approval"}
                 </span>
                 <img
                   src="/assets/chevron-down.svg"
