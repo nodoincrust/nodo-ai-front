@@ -131,6 +131,7 @@ export default function AwaitingApproval() {
                         { key: "Rejected", label: "Rejected" },
                         { key: "Submitted", label: "Submitted" },
                         { key: "In_Review", label: "In Review" },
+                         { key: "PENDING", label: "Pending" },
                     ],
                     selectable: true,
                     selectedKeys: [status],

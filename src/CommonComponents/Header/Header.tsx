@@ -5,6 +5,7 @@ import PrimaryButton from "../Buttons/PrimaryButton";
 import "./Styles/Header.scss";
 import { statusItems, StatusType, type HeaderProps } from "../../types/common";
 import { getRoleFromToken } from "../../utils/jwt";
+import { getIsDepartmentHeadFromToken } from "../../utils/utilFunctions";
 
 const Header: React.FC<HeaderProps> = ({
   title,
@@ -29,7 +30,10 @@ const Header: React.FC<HeaderProps> = ({
 
   const token = localStorage.getItem("token");
   const role = token ? getRoleFromToken(token) : null;
-  const isEmployee = role === "EMPLOYEE";
+  const isCOMPANYADMIN = role === "COMPANY_ADMIN";
+  const isDepartmentHead = token ? getIsDepartmentHeadFromToken(token) : false;
+
+  const shouldShowDocumentFilter = isCOMPANYADMIN || isDepartmentHead;
 
   const menu: MenuProps["items"] = statusItems.map((item) => ({
     key: item.key,
@@ -37,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({
   }));
 
   const documentFilterOptions: MenuProps["items"] = [
-    { key: "MY_DOCUMENTS", label: "My Documents" },
+    { key: "MY_DOCUMENTS", label: "Documents" },
     { key: "AWAITING", label: "Awaiting Approval" },
   ];
 
@@ -85,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({
         {/* DROPDOWNS on the RIGHT */}
         <div className="dropdowns-wrapper">
           {/* NEW DOCUMENT FILTER DROPDOWN */}
-          {onDocumentFilterChange && !isEmployee && (
+          {onDocumentFilterChange && shouldShowDocumentFilter && (
             <Dropdown
               menu={{ items: documentFilterOptions, selectable: true, onClick: handleDocumentFilterClick }}
               trigger={["click"]}
@@ -97,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({
                   }`}
               >
                 <span className="status-title">
-                  {documentFilterValue === "MY_DOCUMENTS" ? "My Documents" : "Awaiting Approval"}
+                  {documentFilterValue === "MY_DOCUMENTS" ? "Documents" : "Awaiting Approval"}
                 </span>
                 <img
                   src="/assets/chevron-down.svg"
