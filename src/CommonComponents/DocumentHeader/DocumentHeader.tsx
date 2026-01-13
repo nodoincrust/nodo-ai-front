@@ -1,13 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Breadcrumb, Select, Tag } from "antd";
-import { LeftOutlined } from "@ant-design/icons";
 import PrimaryButton from "../Buttons/PrimaryButton";
+import ConfirmModal from "../Confirm Modal/ConfirmModal";
 import "./DocumentHeader.scss";
-import type {
-  DocumentHeaderProps,
-  DocumentStatus,
-  DocumentHeaderAction,
-} from "../../types/common";
+import type { DocumentHeaderProps } from "../../types/common";
+import RejectConfirmModal from "../RejectConfirmModal/RejectConfirmModal";
 
 const statusLabelMap: any = {
   APPROVED: "Approved",
@@ -23,13 +20,16 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   status,
   displayStatus,
   onBackClick,
-  versionOptions,
+  versionOptions, 
   selectedVersion,
   onVersionChange,
   onSubmit,
   submitDisabled,
   extraActions = [],
 }) => {
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectAction, setRejectAction] = useState<(() => void) | null>(null);
+
   const renderStatus = () => {
     // Use displayStatus if available, otherwise fall back to status
     const statusToDisplay = displayStatus || status;
@@ -55,12 +55,30 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   };
 
   return (
-    <div className="document-header">
-      <div className="document-header-left">
-        {/* Logo + App Name */}
-        <div className="document-header-brand">
-          <img src="/assets/Main-Logo.svg" alt="Nodo AI" className="app-logo" />
-          <span className="app-name">Nodo AI</span>
+      <>
+      <div className="document-header">
+        <div className="document-header-left">
+          <div className="document-header-brand">
+            <img src="/assets/Main-Logo.svg" alt="Nodo AI" className="app-logo" />
+            <span className="app-name">Nodo AI</span>
+          </div>
+
+          <span className="header-separator">|</span>
+
+          <div className="document-header-breadcrumb">
+            {onBackClick && (
+              <button className="back-button" onClick={onBackClick}>
+                <img src="/assets/chevron-left.svg" alt="" />
+              </button>
+            )}
+
+            <Breadcrumb separator="/" className="doc">
+              <Breadcrumb.Item onClick={onBackClick}>Documents</Breadcrumb.Item>
+              <Breadcrumb.Item className="filename">{fileName}</Breadcrumb.Item>
+            </Breadcrumb>
+          </div>
+
+          {renderStatus()}
         </div>
 
         {/* Separator */}
@@ -105,11 +123,9 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
               value={selectedVersion}
               onChange={onVersionChange}
               options={versionOptions}
-              size="small"
               className="version-dropdown"
             />
-          </div>
-        )}
+          )}
 
         {/* Submit button (when onSubmit is provided) */}
         {onSubmit && (
@@ -137,7 +153,21 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           </div>
         )}
       </div>
-    </div>
+
+      {/* REJECT CONFIRM MODAL */}
+      <RejectConfirmModal
+        open={showRejectModal}
+        onCancel={() => setShowRejectModal(false)}
+        onConfirm={() => {
+          rejectAction?.();
+          setShowRejectModal(false);
+        }}
+        title="Reject this document?"
+        description="Are you sure you want to reject this document?"
+        confirmText="Reject"
+        icon="/assets/reject.svg"
+      />
+    </>
   );
 };
 

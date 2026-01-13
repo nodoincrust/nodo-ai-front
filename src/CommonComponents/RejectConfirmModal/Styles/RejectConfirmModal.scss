@@ -1,0 +1,222 @@
+// ===============================
+// Reject Confirm Modal Styles
+// ===============================
+@use '../../../variables.scss' as *;
+
+.reject-confirm-modal-root {
+
+    // ===============================
+    // Ant Modal
+    // ===============================
+    .ant-modal {
+        top: auto !important;
+        transform-origin: center !important;
+        border-radius: $border-radius-lg;
+        width: 353px !important;
+
+        &-content {
+            border-radius: $border-radius-lg;
+            padding: 8px 16px;
+            background-color: $color-white;
+            text-align: center;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+    }
+
+    .ant-modal-container {
+        padding: 0 16px;
+    }
+
+    // ===============================
+    // Modal Animations
+    // ===============================
+    .ant-modal-zoom-enter,
+    .ant-modal-zoom-appear,
+    .ant-fade-enter,
+    .ant-fade-appear {
+        opacity: 0;
+    }
+
+    .ant-modal-zoom-enter-active,
+    .ant-modal-zoom-appear-active,
+    .ant-fade-enter-active,
+    .ant-fade-appear-active {
+        opacity: 1;
+        transition: opacity 300ms ease-out;
+    }
+
+    .ant-modal-zoom-leave,
+    .ant-fade-leave {
+        opacity: 1;
+    }
+
+    .ant-modal-zoom-leave-active,
+    .ant-fade-leave-active {
+        opacity: 0;
+        transition: opacity 300ms ease-out;
+    }
+
+    // ===============================
+    // Modal Content Layout
+    // ===============================
+    .confirm-modal-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin: 16px 0;
+
+        .confirm-bottom {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            .confirm-text {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+
+                .confirm-title {
+                    font-family: $font-family-main;
+                    font-weight: 600;
+                    font-size: 18px;
+                    line-height: 28px;
+                    color: $label-color;
+                    margin-bottom: 0;
+                }
+
+                .confirm-description {
+                    font-family: $font-family-main;
+                    font-weight: 400;
+                    font-size: 14px;
+                    line-height: 20px;
+                    color: $profile-email-color;
+                    margin-bottom: 0;
+                    text-align: center;
+                    white-space: pre-line;
+                }
+            }
+
+            // ===============================
+            // Reject Form (ONLY ADDITION)
+            // ===============================
+            .confirm-form {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                width: 100%;
+
+                .confirm-label {
+                    font-family: $font-family-main;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: $label-color;
+                    text-align: left;
+
+                    .required {
+                        color: $logout-color;
+                        margin-left: 2px;
+                    }
+                }
+
+                .confirm-textarea {
+                    border-radius: 12px;
+                    border: 1px solid $input-border;
+                    font-family: $font-family-main;
+                    font-size: 14px;
+                    line-height: 20px;
+                    padding: 10px 12px;
+                    resize: none;
+                    min-height: 72px;
+                    transition: border-color 0.2s ease;
+                    box-sizing: border-box;
+
+                    &:focus {
+                        border-color: $color-primary;
+                        box-shadow: none;
+                    }
+
+                    &.error {
+                        border-color: $logout-border;
+                    }
+                }
+
+                .confirm-textarea::placeholder {
+                    line-height: 20px;
+                }
+
+                .confirm-error {
+                    font-family: $font-family-main;
+                    font-size: 12px;
+                    color: $logout-color;
+                    text-align: left;
+                    margin-top: 2px;
+                }
+            }
+
+            // ===============================
+            // Actions (EXACT SAME)
+            // ===============================
+            .confirm-actions {
+                display: flex;
+                gap: 8px;
+                justify-content: center;
+
+                .confirm-btn {
+                    flex: 1;
+                    min-width: 156px;
+                    min-height: 44px;
+                    padding: 10px 16px;
+                    border-radius: $border-radius-md;
+                    font-family: $font-family-main;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background-color 0.2s ease;
+                    border-radius: 12px;
+
+                    &.secondary {
+                        border: 1px solid $input-border;
+                        background-color: $color-white;
+                        color: $subheading-color;
+                        font-size: 16px;
+                        line-height: 20px;
+                    }
+
+                    &.primary {
+                        border: 1px solid $color-primary;
+                        background-color: $color-primary;
+                        box-shadow: 0px 1px 2px 0px $color-btn-primary-shadow;
+                        font-size: 14px;
+                        line-height: 20px;
+                        color: $color-white;
+                    }
+
+                    &.danger {
+                        border: 1px solid $logout-border;
+                        background-color: $logout-btn-bg;
+                        font-size: 16px;
+                        line-height: 20px;
+                        color: $logout-color;
+                    }
+                }
+            }
+        }
+    }
+
+    // ===============================
+    // Icon
+    // ===============================
+    .confirm-icon {
+        padding: 12px;
+        border-radius: 50%;
+        background-color: $color-modal-icon-bg;
+        border: 8px solid $color-modal-icon-border;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

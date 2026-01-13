@@ -115,7 +115,7 @@ export const getAssignableEmployees = async (): Promise<AssignableEmployee[]> =>
   );
 
   // Sort by hierarchy order (LOW → HIGH)
-  return response.data.data.sort((a, b) => a.order - b.order);
+  return response.data.data.sort((a: any, b: any) => a.order - b.order);
 };
 
 export const submitDocumentForReview = async (
