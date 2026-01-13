@@ -24,6 +24,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   onVersionChange,
   onSubmit,
   extraActions = [],
+  onReject,
 }) => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectAction, setRejectAction] = useState<(() => void) | null>(null);
@@ -97,7 +98,6 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
                     className={`document-header-action-btn ${a.label.toLowerCase()}-btn`}
                     onClick={() => {
                       if (a.label === "Reject") {
-                        setRejectAction(() => a.onClick);
                         setShowRejectModal(true);
                       } else {
                         a.onClick();
@@ -114,8 +114,8 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
       <RejectConfirmModal
         open={showRejectModal}
         onCancel={() => setShowRejectModal(false)}
-        onConfirm={() => {
-          rejectAction?.();
+        onConfirm={(reason: string) => {
+          onReject?.(reason);
           setShowRejectModal(false);
         }}
         title="Reject this document?"
