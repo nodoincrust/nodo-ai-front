@@ -20,29 +20,33 @@ const Login = () => {
   };
 
   const handleSendOtp = async () => {
-    // ALWAYS clear old session first
-    // localStorage.clear();
     localStorage.removeItem("authData");
     localStorage.removeItem("accessToken");
+
     const error = validateEmail(email);
     setEmailError(error);
-
-    if (error) return; // stop if invalid
+    if (error) return;
 
     try {
       getLoaderControl()?.showLoader();
       notification.destroy();
 
-      await authService.sendOtp(email);
+      const res = await authService.sendOtp(email);
+      const data = res.data; // <-- API payload is here
 
-      notification.success({
-        message: `OTP has been sent to ${email}`,
-      });
-
-      navigate("/verify-otp", { state: { email } });
+      if (data?.statusCode === 200) {
+        notification.success({
+          message: data.message || `OTP has been sent to ${email}`,
+        });
+        navigate("/verify-otp", { state: { email } });
+      } else {
+        notification.error({
+          message: data?.message || MESSAGES.ERRORS.FAILED_TO_SEND_OTP,
+        });
+      }
     } catch (err: any) {
       notification.destroy();
-      const msg = err.response?.data?.detail || "Failed to send OTP";
+      const msg = err.response?.data?.message || MESSAGES.ERRORS.FAILED_TO_SEND_OTP;
       notification.error({ message: msg });
     } finally {
       getLoaderControl()?.hideLoader();

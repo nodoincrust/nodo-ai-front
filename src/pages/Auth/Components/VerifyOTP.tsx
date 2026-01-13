@@ -91,6 +91,10 @@ const VerifyOtp = () => {
       // Also store token separately if needed
       setToken(token);
 
+      notification.success({
+        message: res.data.message || "Login Successful",
+      });
+
       // Decode token and check role
       const role = getRoleFromToken(token);
       if (!role) {
@@ -117,7 +121,7 @@ const VerifyOtp = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.message || "OTP verification failed");
+      setError(err.response?.data?.message || MESSAGES.ERRORS.OTP_VERIFICATION_FAILED);
     } finally {
       getLoaderControl()?.hideLoader();
     }
