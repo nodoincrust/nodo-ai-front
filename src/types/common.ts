@@ -279,6 +279,7 @@ export interface ApiDocumentDetailResponse {
       id: number;
       status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
       display_status?: string;
+      remark?: string;
       is_active: boolean;
       created_at: string;
       current_version: number;
@@ -328,6 +329,7 @@ export interface DocumentHeaderProps {
   breadcrumb: DocumentBreadcrumbItem[];
   fileName: string;
   status?: DocumentStatus;
+  rejectionRemark?: string;
   displayStatus?: string;
   onBackClick?: () => void;
   versionOptions?: { label: string; value: string }[];
@@ -350,6 +352,7 @@ export interface ApiDocument {
   display_status?: string;
   current_version: number;
   version: ApiDocumentVersion;
+  remark?: string;
 }
 
 export interface DocumentsListResponse {

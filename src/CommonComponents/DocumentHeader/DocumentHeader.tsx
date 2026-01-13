@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Breadcrumb, Select, Tag } from "antd";
+import { Breadcrumb, Select, Tag ,Popover } from "antd";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import ConfirmModal from "../Confirm Modal/ConfirmModal";
 import "./DocumentHeader.scss";
@@ -18,9 +18,10 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   breadcrumb,
   fileName,
   status,
+  rejectionRemark,
   displayStatus,
   onBackClick,
-  versionOptions, 
+  versionOptions,
   selectedVersion,
   onVersionChange,
   onSubmit,
@@ -30,36 +31,56 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectAction, setRejectAction] = useState<(() => void) | null>(null);
 
-  const renderStatus = () => {
-    // Use displayStatus if available, otherwise fall back to status
-    const statusToDisplay = displayStatus || status;
+const renderStatus = () => {
+  const statusToDisplay = displayStatus || status;
+  if (!statusToDisplay) return null;
 
-    if (!statusToDisplay) {
-      return null;
-    }
+  const label =
+    displayStatus || (status ? statusLabelMap[status] ?? status : "");
 
-    // If displayStatus is provided, use it directly; otherwise use statusLabelMap
-    const label =
-      displayStatus || (status ? statusLabelMap[status] ?? status : "");
+  const statusTag = (
+    <Tag
+      className={`doc-header-status doc-header-status--${
+        status?.toLowerCase() || "draft"
+      }`}
+    >
+      <span className="dot" />
+      {label}
+    </Tag>
+  );
 
+  // ✅ Show popover ONLY when rejected & remark exists
+  if (status === "REJECTED" && rejectionRemark) {
     return (
-      <Tag
-        className={`doc-header-status doc-header-status--${
-          status?.toLowerCase() || "draft"
-        }`}
+      <Popover
+        content={
+          <div className="rejection-popover">
+            <strong>Rejection Remark</strong>
+            <p>{rejectionRemark}</p>
+          </div>
+        }
+        placement="bottom"
+        trigger="hover"
       >
-        <span className="dot" />
-        {label}
-      </Tag>
+        {statusTag}
+      </Popover>
     );
-  };
+  }
+
+  return statusTag;
+};
+
 
   return (
-      <>
+    <>
       <div className="document-header">
         <div className="document-header-left">
           <div className="document-header-brand">
-            <img src="/assets/Main-Logo.svg" alt="Nodo AI" className="app-logo" />
+            <img
+              src="/assets/Main-Logo.svg"
+              alt="Nodo AI"
+              className="app-logo"
+            />
             <span className="app-name">Nodo AI</span>
           </div>
 
@@ -81,77 +102,51 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           {renderStatus()}
         </div>
 
-        {/* Separator */}
-        <span className="header-separator">|</span>
-
-        {/* Back + Breadcrumb */}
-        <div className="document-header-breadcrumb">
-          {onBackClick && (
-            <button className="back-button" onClick={onBackClick}>
-              <img src="/assets/chevron-left.svg" alt="" />
-            </button>
+        <div className="document-header-right">
+          {/* Version selector (when options are provided) */}
+          {versionOptions && versionOptions.length > 0 && (
+            <div className="document-header-version-select">
+              <Select
+                value={selectedVersion}
+                onChange={onVersionChange}
+                options={versionOptions}
+                className="version-select"
+              />
+            </div>
           )}
 
-          <Breadcrumb
-            className="doc"
-            separator={
-              <img
-                src="/assets/separtor.svg"
-                alt="separator"
-                style={{
-                  width: 16,
-                  height: 16,
-                  margin: "0 6px",
-                  verticalAlign: "middle",
-                }}
-              />
-            }
-          >
-            <Breadcrumb.Item className="doc">Documents</Breadcrumb.Item>
-            <Breadcrumb.Item className="filename">{fileName}</Breadcrumb.Item>
-          </Breadcrumb>
-        </div>
+          {/* Notification bell button */}
+          {/* <button className="notification-bell-btn" title="Notifications">
+            <img src="/assets/Notifications.svg" alt="Notifications" />
+          </button> */}
 
-        {/* Status */}
-        {renderStatus()}
-      </div>
-
-      <div className="document-header-right">
-        {versionOptions && versionOptions.length > 0 && (
-          <div className="version-select">
-            <Select
-              value={selectedVersion}
-              onChange={onVersionChange}
-              options={versionOptions}
-              className="version-dropdown"
+          {/* Submit button (when onSubmit is provided) */}
+          {onSubmit && (
+            <PrimaryButton
+              text="Submit"
+              onClick={onSubmit}
+              disabled={submitDisabled}
+              className="document-header-submit-btn"
             />
           )}
-
-        {/* Submit button (when onSubmit is provided) */}
-        {onSubmit && (
-          <PrimaryButton
-            text="Submit"
-            onClick={onSubmit}
-            disabled={submitDisabled}
-            className="document-header-submit-btn"
-          />
-        )}
-        {/* Approve + Reject buttons */}
-        {extraActions?.length > 0 && (
-          <div className="language-header-top">
-            {extraActions.map((action) => (
-              <PrimaryButton
-                key={action.label}
-                text={action.label}
-                onClick={action.onClick}
-                disabled={action.disabled}
-                className={`document-header-action-btn ${action.label
-                  .toLowerCase()
-                  .replace(" ", "-")}-btn`}
-              />
-            ))}
-          </div>
-        )}
+          
+          {/* Approve + Reject buttons */}
+          {extraActions?.length > 0 && (
+            <div className="language-header-top">
+              {extraActions.map((action) => (
+                <PrimaryButton
+                  key={action.label}
+                  text={action.label}
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                  className={`document-header-action-btn ${action.label
+                    .toLowerCase()
+                    .replace(" ", "-")}-btn`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* REJECT CONFIRM MODAL */}

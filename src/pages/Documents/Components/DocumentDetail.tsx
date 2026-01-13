@@ -232,11 +232,14 @@ const DocumentDetail: React.FC = () => {
         jobId,
         (result) => {
           // Check if chunks are not ready yet
-          if (result?.status === "processing" || result?.message?.includes("Chunks not ready")) {
+          if (
+            result?.status === "processing" ||
+            result?.message?.includes("Chunks not ready")
+          ) {
             setIsSummaryGenerating(false);
             notification.error({
               message: "Summary generation failed",
-            
+
               duration: 0,
             });
             return;
@@ -247,7 +250,7 @@ const DocumentDetail: React.FC = () => {
             setIsSummaryGenerating(false);
             notification.error({
               message: "Summary generation failed",
-           
+
               duration: 0,
             });
             return;
@@ -316,14 +319,15 @@ const DocumentDetail: React.FC = () => {
   // Handler for Re-Upload button
   const handleReupload = () => {
     if (!document) return;
-    
+
     // TODO: Implement reupload functionality
     // This could open a file upload modal or navigate to upload page
     notification.info({
       message: "Re-Upload Document",
-      description: "Re-upload functionality will be implemented here. You can upload a new version of this document.",
+      description:
+        "Re-upload functionality will be implemented here. You can upload a new version of this document.",
     });
-    
+
     // For now, you could navigate to documents list or open upload modal
     // navigate("/documents");
   };
@@ -375,7 +379,7 @@ const DocumentDetail: React.FC = () => {
   const getUserRole = (): "EMPLOYEE" | "DEPARTMENT_HEAD" | "COMPANY_HEAD" => {
     const token = localStorage.getItem("accessToken");
     if (!token) return "EMPLOYEE";
-    
+
     // Check authData for is_department_head flag
     try {
       const authDataStr = localStorage.getItem("authData");
@@ -388,15 +392,18 @@ const DocumentDetail: React.FC = () => {
     } catch (e) {
       // Ignore parsing errors
     }
-    
+
     const role = getRoleFromToken(token);
     // Normalize role to uppercase
     const normalizedRole = role?.toUpperCase();
-    
+
     if (normalizedRole === "DEPARTMENT_HEAD") {
       return "DEPARTMENT_HEAD";
     }
-    if (normalizedRole === "COMPANY_HEAD" || normalizedRole === "COMPANY_ADMIN") {
+    if (
+      normalizedRole === "COMPANY_HEAD" ||
+      normalizedRole === "COMPANY_ADMIN"
+    ) {
       return "COMPANY_HEAD";
     }
     return "EMPLOYEE";
@@ -408,7 +415,7 @@ const DocumentDetail: React.FC = () => {
   // Normalize status to handle case variations
   const normalizedStatus = documentStatus?.toUpperCase();
   let status: DocumentHeaderProps["status"];
-  
+
   if (normalizedStatus === "IN_REVIEW") {
     status = "SUBMITTED";
   } else if (normalizedStatus === "APPROVED") {
@@ -422,7 +429,11 @@ const DocumentDetail: React.FC = () => {
   } else {
     // Default to DRAFT if status is missing or invalid
     status = "DRAFT";
-    console.warn("Unknown document status:", documentStatus, "- defaulting to DRAFT");
+    console.warn(
+      "Unknown document status:",
+      documentStatus,
+      "- defaulting to DRAFT"
+    );
   }
 
   // Build extra actions based on user role and document status
@@ -460,7 +471,7 @@ const DocumentDetail: React.FC = () => {
   }
 
   // Re-Upload button for employees when document is rejected
-  if (status === "REJECTED" && userRole === "EMPLOYEE") {
+  if (status === "REJECTED") {
     extraActions.push({
       label: "Re-Upload",
       onClick: handleReupload,
@@ -476,12 +487,13 @@ const DocumentDetail: React.FC = () => {
     fileName: documentTitle,
     status,
     displayStatus: document.display_status,
+    rejectionRemark: document.remark,
     onBackClick: handleBackClick,
     versionOptions: versionOptions,
     selectedVersion: String(selectedVersion),
     onVersionChange: (value: string) => handleVersionChange(Number(value)),
-    // Only show submit button when status is DRAFT and user is EMPLOYEE
-    onSubmit: status === "DRAFT" && userRole === "EMPLOYEE" ? handleSubmit : undefined,
+    // Only show submit button when status is DRAFT (no role restriction)
+    onSubmit: status === "DRAFT" ? handleSubmit : undefined,
     // Disable submit until metadata has been saved at least once
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
@@ -533,7 +545,7 @@ const DocumentDetail: React.FC = () => {
           id: emp.user_id,
           name: emp.name,
           role: emp.role,
-          self:emp.self,
+          self: emp.self,
         }))}
         loading={isEmployeeLoading}
         onClose={() => setIsSubmitModalOpen(false)}

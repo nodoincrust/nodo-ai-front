@@ -874,7 +874,7 @@ input {
   &.rejected {
     background-color: $status-rejected-bg;
     color: $status-rejected-text;
-    min-width: 129px;
+
 
     .badge-div {
       background-color: $status-rejected-text;

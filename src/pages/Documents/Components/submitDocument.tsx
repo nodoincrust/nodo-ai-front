@@ -45,20 +45,24 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
   const handleToggleReviewer = (clickedIndex: number) => {
     const idsUpToIndex = reviewers.slice(0, clickedIndex + 1).map((r) => r.id);
 
-    const isSameSelection =
-      idsUpToIndex.length === selectedReviewers.length &&
-      idsUpToIndex.every((id) => selectedReviewers.includes(id));
+    const selfId = reviewers.find((r) => r.self)?.id;
 
-    setSelectedReviewers(isSameSelection ? [] : idsUpToIndex);
+    const finalSelection = selfId
+      ? Array.from(new Set([selfId, ...idsUpToIndex]))
+      : idsUpToIndex;
+
+    setSelectedReviewers(finalSelection);
   };
 
   const handleSubmit = () => {
-    const filteredReviewers = selectedReviewers.filter((id) => {
+    // Remove self from API payload
+    const reviewersToSend = selectedReviewers.filter((id) => {
       const reviewer = reviewers.find((r) => r.id === id);
-      return !reviewer?.self; // ❌ exclude self
+      return !reviewer?.self;
     });
 
-    if (filteredReviewers.length === 0) {
+    // ❌ Block ONLY when NOTHING is selected at all
+    if (selectedReviewers.length === 0) {
       notification.warning({
         message: "No reviewer selected",
         description: "Please select at least one reviewer.",
@@ -66,7 +70,9 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
       return;
     }
 
-    onSubmit?.(filteredReviewers); // ✅ no self id
+    // ✅ Allow submit even if reviewersToSend is empty
+    // ✅ Backend will treat this as self-submission
+    onSubmit?.(reviewersToSend); // may be []
     onClose();
   };
 
