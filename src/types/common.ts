@@ -336,6 +336,7 @@ export interface DocumentHeaderProps {
   onVersionChange?: (value: string) => void;
   onSubmit?: () => void;
   extraActions?: DocumentHeaderAction[];
+  onReject?: (reason: string) => void;
 }
 
 // Awaiting header props
@@ -350,6 +351,7 @@ export interface ApiDocument {
   display_status?: string;
   current_version: number;
   version: ApiDocumentVersion;
+  is_actionable?: boolean;
 }
 
 export interface DocumentsListResponse {
