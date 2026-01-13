@@ -27,6 +27,7 @@ const AwaitingApprovalDetails = () => {
 
     const [document, setDocument] = useState<ApiDocument | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [reloadKey, setReloadKey] = useState(0);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [pendingRejectReason, setPendingRejectReason] = useState<string | null>(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -34,7 +35,7 @@ const AwaitingApprovalDetails = () => {
     /* ------------------------------ Fetch Document ------------------------------ */
     useEffect(() => {
         if (id) fetchDocumentDetails();
-    }, [id]);
+    }, [id, reloadKey]);
 
     const fetchDocumentDetails = async () => {
         if (!id) return;
@@ -101,7 +102,7 @@ const AwaitingApprovalDetails = () => {
                     error?.response?.data?.message ||
                     "Could not load document details",
             });
-            navigate("/awaitingApproval");
+            navigate("/documents");
         } finally {
             setIsLoading(false);
             getLoaderControl()?.hideLoader();
@@ -109,7 +110,7 @@ const AwaitingApprovalDetails = () => {
     };
 
     /* ------------------------------ Handlers ------------------------------ */
-    const handleBackClick = () => navigate("/awaitingApproval");
+    const handleBackClick = () => navigate("/documents");
 
     const handleSummaryChange = (summary: string) => {
         setDocument((prev) =>
@@ -136,15 +137,16 @@ const AwaitingApprovalDetails = () => {
             await approveDocumentByID(document.document_id);
             notification.success({ message: "Document approved successfully" });
 
-            setDocument(prev =>
-                prev
-                    ? {
-                        ...prev,
-                        status: "APPROVED",
-                        display_status: "Approved & Public", // ✅ UPDATE THIS
-                    }
-                    : prev
-            );
+            // setDocument(prev =>
+            //     prev
+            //         ? {
+            //             ...prev,
+            //             status: "APPROVED",
+            //             display_status: "Approved & Public", // ✅ UPDATE THIS
+            //         }
+            //         : prev
+            // );
+            setReloadKey(prev => prev + 1);
         } catch (error: any) {
             notification.error({
                 message:
@@ -165,15 +167,16 @@ const AwaitingApprovalDetails = () => {
 
             notification.success({ message: "Document rejected successfully" });
 
-            setDocument(prev =>
-                prev
-                    ? {
-                        ...prev,
-                        status: "REJECTED",
-                        display_status: "Rejected",
-                    }
-                    : prev
-            );
+            // setDocument(prev =>
+            //     prev
+            //         ? {
+            //             ...prev,
+            //             status: "REJECTED",
+            //             display_status: "Rejected",
+            //         }
+            //         : prev
+            // );
+            setReloadKey(prev => prev + 1);
         } catch (error: any) {
             notification.error({
                 message:
@@ -217,7 +220,7 @@ const AwaitingApprovalDetails = () => {
 
     const headerProps: any = {
         breadcrumb: [
-            { label: "Awaiting Approval", path: "/awaitingApproval" },
+            { label: "Awaiting Approval", path: "/documents" },
             { label: document.version.file_name || "Document" },
         ],
         fileName: document.version.file_name || "",
@@ -241,7 +244,7 @@ const AwaitingApprovalDetails = () => {
     /* ------------------------------ Render ------------------------------ */
     return (
         <AwaitingApprovalDocumentLayout
-            headerProps={{...headerProps, onReject: handleReject}}
+            headerProps={{ ...headerProps, onReject: handleReject }}
             document={document}
             onSummaryChange={handleSummaryChange}
             onSaveMetadata={handleSaveMetadata}
