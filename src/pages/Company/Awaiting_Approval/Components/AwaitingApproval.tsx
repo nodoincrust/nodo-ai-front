@@ -18,7 +18,9 @@ export default function AwaitingApproval() {
     const [documentList, setDocumentList] = useState<Document[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [status, setStatus] = useState<"All" | "Approved" | "Rejected">("All");
+    const [status, setStatus] = useState<
+        "ALL" | "APPROVED" | "DRAFT" | "REJECTED" | "SUBMITTED" | "IN_REVIEW"
+    >("ALL");
     const [documentFilter, setDocumentFilter] = useState<"MY_DOCUMENTS" | "AWAITING">("MY_DOCUMENTS");
 
     const location = useLocation();
@@ -50,7 +52,7 @@ export default function AwaitingApproval() {
                 page: currentPage,
                 size: pageSize,
                 search: debouncedSearch || undefined,
-                status: status === "All" ? undefined : status, // Only filter if not "All"
+                status: status === "ALL" ? undefined : status,
             };
 
             const res = await getApprovalList(payload);
@@ -112,25 +114,34 @@ export default function AwaitingApproval() {
                     setCurrentPage(1);
                 }}
                 searchPlaceholder="Search by document name or tag"
-                categoryButtonText={`Status: ${status}`}
+
+                categoryButtonText={`Status: ${status === "ALL"
+                        ? "All"
+                        : status.replace("_", " ")
+                    }`}
+
                 categoryButtonClassName="status-dropdown"
                 categoryButtonTextClassName="status-title"
+
                 categoryMenu={{
                     items: [
-                        { key: "all", label: "All" },
-                        { key: "APPROVED", label: "Approved" },
-                        { key: "DRAFT", label: "Draft" },
-                        { key: "REJECTED", label: "Rejected" },
-                        { key: "SUBMITTED", label: "Submitted" },
-                        { key: "IN_REVIEW", label: "In Review" },
+                        { key: "All", label: "All" },
+                        { key: "Approved", label: "Approved" },
+                        { key: "Draft", label: "Draft" },
+                        { key: "Rejected", label: "Rejected" },
+                        { key: "Submitted", label: "Submitted" },
+                        { key: "In_Review", label: "In Review" },
                     ],
+                    selectable: true,
+                    selectedKeys: [status],
                     onClick: ({ key }) => {
-                        setStatus(key as "All" | "Approved" | "Rejected");
+                        setStatus(key as any);
                         setCurrentPage(1);
                     },
                 }}
+
                 documentFilterValue={documentFilter}
-                onDocumentFilterChange={(val:any) => setDocumentFilter(val)}
+                onDocumentFilterChange={(val: any) => setDocumentFilter(val)}
             />
 
             <Table
