@@ -1,4 +1,5 @@
 import SubmitDocument from "../pages/Documents/Components/submitDocument";
+import { rejectDocumentByID } from "../services/awaitingApproval.services";
 
 export const API_URL = {
   // Auth
@@ -27,6 +28,7 @@ export const API_URL = {
   //Awaiting Approval
   getApprovalList: "/newdocuments/approver/inbox",
   approveDocumentByID: "/newdocuments/approve",
+  rejectDocumentByID: "/newdocuments/reject",
 
   // ========================================
   //   Documents

@@ -9,31 +9,31 @@
   // ===============================
   // Status Dropdown
   // ===============================
-  .status-dropdown {
-    display: flex;
-    align-items: center;
-    height: 40px;
-    gap: 4px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    border: 1px solid #d5d7da;
-    background-color: #ffffff;
-    font-family: $font-family-main;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 20px;
-    color: #414651;
-    cursor: pointer;
-    transition: $transition;
+  // .status-dropdown {
+  //   display: flex;
+  //   align-items: center;
+  //   height: 40px;
+  //   gap: 4px;
+  //   padding: 10px 16px;
+  //   border-radius: 8px;
+  //   border: 1px solid #d5d7da;
+  //   background-color: #ffffff;
+  //   font-family: $font-family-main;
+  //   font-weight: 600;
+  //   font-size: 14px;
+  //   line-height: 20px;
+  //   color: #414651;
+  //   cursor: pointer;
+  //   transition: $transition;
 
-    &:hover {
-      border-color: $color-primary;
-    }
-  }
+  //   &:hover {
+  //     border-color: $color-primary;
+  //   }
+  // }
 
-  .status-dropdown-text {
-    color: #414651;
-  }
+  // .status-dropdown-text {
+  //   color: #414651;
+  // }
 
   // ===============================
   // Table

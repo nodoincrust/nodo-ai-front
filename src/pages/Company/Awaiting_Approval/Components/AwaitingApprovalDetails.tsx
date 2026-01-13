@@ -88,6 +88,7 @@ const AwaitingApprovalDetails = () => {
             setDocument({
                 document_id: data.document.id,
                 status: mappedStatus,
+                display_status: data.document.display_status,
                 current_version: data.document.current_version,
                 version,
             });
@@ -133,8 +134,14 @@ const AwaitingApprovalDetails = () => {
             await approveDocumentByID(document.document_id);
             notification.success({ message: "Document approved successfully" });
 
-            setDocument((prev) =>
-                prev ? { ...prev, status: "APPROVED" } : prev
+            setDocument(prev =>
+                prev
+                    ? {
+                        ...prev,
+                        status: "APPROVED",
+                        display_status: "Approved & Public", // ✅ UPDATE THIS
+                    }
+                    : prev
             );
         } catch (error: any) {
             notification.error({
@@ -151,12 +158,17 @@ const AwaitingApprovalDetails = () => {
 
         getLoaderControl()?.showLoader();
         try {
-            // Call your API to reject
             await rejectDocumentByID(document.document_id);
             notification.success({ message: "Document rejected successfully" });
 
-            setDocument((prev) =>
-                prev ? { ...prev, status: "REJECTED" } : prev
+            setDocument(prev =>
+                prev
+                    ? {
+                        ...prev,
+                        status: "REJECTED",
+                        display_status: "Rejected", // ✅ UPDATE THIS
+                    }
+                    : prev
             );
         } catch (error: any) {
             notification.error({
@@ -193,7 +205,7 @@ const AwaitingApprovalDetails = () => {
             { label: document.version.file_name || "Document" },
         ],
         fileName: document.version.file_name || "",
-        status: document.status,
+        status: document.display_status,
         onBackClick: handleBackClick,
         extraActions,
         versionOptions: [
