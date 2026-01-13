@@ -27,6 +27,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   onSubmit,
   submitDisabled,
   extraActions = [],
+  onReject,
 }) => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectAction, setRejectAction] = useState<(() => void) | null>(null);
@@ -133,17 +134,22 @@ const renderStatus = () => {
           {/* Approve + Reject buttons */}
           {extraActions?.length > 0 && (
             <div className="language-header-top">
-              {extraActions.map((action) => (
-                <PrimaryButton
-                  key={action.label}
-                  text={action.label}
-                  onClick={action.onClick}
-                  disabled={action.disabled}
-                  className={`document-header-action-btn ${action.label
-                    .toLowerCase()
-                    .replace(" ", "-")}-btn`}
-                />
-              ))}
+              {extraActions
+                .filter(a => a.label === "Approve" || a.label === "Reject")
+                .map(a => (
+                  <PrimaryButton
+                    key={a.label}
+                    text={a.label}
+                    className={`document-header-action-btn ${a.label.toLowerCase()}-btn`}
+                    onClick={() => {
+                      if (a.label === "Reject") {
+                        setShowRejectModal(true);
+                      } else {
+                        a.onClick();
+                      }
+                    }}
+                  />
+                ))}
             </div>
           )}
         </div>
@@ -153,8 +159,8 @@ const renderStatus = () => {
       <RejectConfirmModal
         open={showRejectModal}
         onCancel={() => setShowRejectModal(false)}
-        onConfirm={() => {
-          rejectAction?.();
+        onConfirm={(reason: string) => {
+          onReject?.(reason);
           setShowRejectModal(false);
         }}
         title="Reject this document?"

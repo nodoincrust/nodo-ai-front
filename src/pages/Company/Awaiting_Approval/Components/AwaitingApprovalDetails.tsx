@@ -27,13 +27,15 @@ const AwaitingApprovalDetails = () => {
 
     const [document, setDocument] = useState<ApiDocument | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-
+    const [reloadKey, setReloadKey] = useState(0);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [pendingRejectReason, setPendingRejectReason] = useState<string | null>(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     /* ------------------------------ Fetch Document ------------------------------ */
     useEffect(() => {
         if (id) fetchDocumentDetails();
-    }, [id]);
+    }, [id, reloadKey]);
 
     const fetchDocumentDetails = async () => {
         if (!id) return;
@@ -91,6 +93,7 @@ const AwaitingApprovalDetails = () => {
                 display_status: data.document.display_status,
                 current_version: data.document.current_version,
                 version,
+                is_actionable: data.document.is_actionable,
             });
         } catch (error: any) {
             notification.error({
@@ -99,7 +102,7 @@ const AwaitingApprovalDetails = () => {
                     error?.response?.data?.message ||
                     "Could not load document details",
             });
-            navigate("/awaitingApproval");
+            navigate("/documents");
         } finally {
             setIsLoading(false);
             getLoaderControl()?.hideLoader();
@@ -107,7 +110,7 @@ const AwaitingApprovalDetails = () => {
     };
 
     /* ------------------------------ Handlers ------------------------------ */
-    const handleBackClick = () => navigate("/awaitingApproval");
+    const handleBackClick = () => navigate("/documents");
 
     const handleSummaryChange = (summary: string) => {
         setDocument((prev) =>
@@ -134,15 +137,16 @@ const AwaitingApprovalDetails = () => {
             await approveDocumentByID(document.document_id);
             notification.success({ message: "Document approved successfully" });
 
-            setDocument(prev =>
-                prev
-                    ? {
-                        ...prev,
-                        status: "APPROVED",
-                        display_status: "Approved & Public", // ✅ UPDATE THIS
-                    }
-                    : prev
-            );
+            // setDocument(prev =>
+            //     prev
+            //         ? {
+            //             ...prev,
+            //             status: "APPROVED",
+            //             display_status: "Approved & Public", // ✅ UPDATE THIS
+            //         }
+            //         : prev
+            // );
+            setReloadKey(prev => prev + 1);
         } catch (error: any) {
             notification.error({
                 message:
@@ -153,23 +157,26 @@ const AwaitingApprovalDetails = () => {
         }
     };
 
-    const handleReject = async () => {
+    const handleReject = async (reason: string) => {
         if (!document) return;
 
         getLoaderControl()?.showLoader();
         try {
-            await rejectDocumentByID(document.document_id);
+            // Pass reason trimmed in payload
+            await rejectDocumentByID(document.document_id, reason.trim());
+
             notification.success({ message: "Document rejected successfully" });
 
-            setDocument(prev =>
-                prev
-                    ? {
-                        ...prev,
-                        status: "REJECTED",
-                        display_status: "Rejected", // ✅ UPDATE THIS
-                    }
-                    : prev
-            );
+            // setDocument(prev =>
+            //     prev
+            //         ? {
+            //             ...prev,
+            //             status: "REJECTED",
+            //             display_status: "Rejected",
+            //         }
+            //         : prev
+            // );
+            setReloadKey(prev => prev + 1);
         } catch (error: any) {
             notification.error({
                 message:
@@ -194,14 +201,26 @@ const AwaitingApprovalDetails = () => {
 
 
     /* ------------------------------ Header ------------------------------ */
-    const extraActions: DocumentHeaderAction[] = [
-        { label: "Reject", onClick: handleReject, type: "danger" },
-        { label: "Approve", onClick: handleApprove, type: "primary" },
-    ];
+    const extraActions: DocumentHeaderAction[] =
+        document.is_actionable
+            ? []
+            : [
+                {
+                    label: "Reject",
+                    type: "danger",
+                    // ✅ Wrap in zero-arg function
+                    onClick: () => setShowRejectModal(true),
+                },
+                {
+                    label: "Approve",
+                    type: "primary",
+                    onClick: handleApprove,
+                },
+            ];
 
     const headerProps: any = {
         breadcrumb: [
-            { label: "Awaiting Approval", path: "/awaitingApproval" },
+            { label: "Awaiting Approval", path: "/documents" },
             { label: document.version.file_name || "Document" },
         ],
         fileName: document.version.file_name || "",
@@ -219,12 +238,13 @@ const AwaitingApprovalDetails = () => {
             console.log("Selected version:", val);
             // optionally fetch version-specific data here
         },
+        ...(document.is_actionable && { extraActions }),
     };
 
     /* ------------------------------ Render ------------------------------ */
     return (
         <AwaitingApprovalDocumentLayout
-            headerProps={headerProps}
+            headerProps={{ ...headerProps, onReject: handleReject }}
             document={document}
             onSummaryChange={handleSummaryChange}
             onSaveMetadata={handleSaveMetadata}

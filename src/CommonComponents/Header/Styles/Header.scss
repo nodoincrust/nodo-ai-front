@@ -140,6 +140,7 @@
 
     &:hover {
         background: $link-active-bg !important;
+        color: $primary !important;
     }
 
     &.ant-dropdown-menu-item-selected {

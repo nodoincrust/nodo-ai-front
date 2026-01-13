@@ -82,12 +82,15 @@ const Header: React.FC<HeaderProps> = ({
           {/* NEW DOCUMENT FILTER DROPDOWN */}
           {onDocumentFilterChange && (
             <Dropdown
-              menu={{ items: documentFilterOptions, onClick: handleDocumentFilterClick }}
+              menu={{ items: documentFilterOptions, selectable: true, onClick: handleDocumentFilterClick }}
               trigger={["click"]}
               open={documentDropdownOpen}
               onOpenChange={setDocumentDropdownOpen}
             >
-              <div className="status-dropdown">
+              <div
+                className={`status-dropdown ${documentFilterValue ? "status-dropdown--selected" : ""
+                  }`}
+              >
                 <span className="status-title">
                   {documentFilterValue === "MY_DOCUMENTS" ? "My Documents" : "Awaiting Approval"}
                 </span>
@@ -108,12 +111,15 @@ const Header: React.FC<HeaderProps> = ({
           {/* EXISTING STATUS DROPDOWN */}
           {showDropdown && onStatusChange && (
             <Dropdown
-              menu={{ items: menu, selectedKeys: [status], onClick: handleMenuClick }}
+              menu={{ items: menu, selectable: true, selectedKeys: [status], onClick: handleMenuClick }}
               trigger={["click"]}
               open={dropdownOpen}
               onOpenChange={setDropdownOpen}
             >
-              <div className="status-dropdown">
+              <div
+                className={`status-dropdown ${status !== "all" ? "status-dropdown--selected" : ""
+                  }`}
+              >
                 <span className="status-title">
                   Status: {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
@@ -138,7 +144,13 @@ const Header: React.FC<HeaderProps> = ({
               open={dropdownOpen}
               onOpenChange={setDropdownOpen}
             >
-              <div className={categoryButtonClassName || "status-dropdown"}>
+              <div
+                className={`${categoryButtonClassName || "status-dropdown"} ${categoryMenu.selectedKeys &&
+                    categoryMenu.selectedKeys[0] !== "ALL"
+                    ? "status-dropdown--selected"
+                    : ""
+                  }`}
+              >
                 <span className={categoryButtonTextClassName || "status-title"}>
                   {categoryButtonText}
                 </span>
