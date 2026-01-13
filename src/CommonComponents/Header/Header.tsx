@@ -4,6 +4,7 @@ import { DownOutlined } from "@ant-design/icons";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import "./Styles/Header.scss";
 import { statusItems, StatusType, type HeaderProps } from "../../types/common";
+import { getRoleFromToken } from "../../utils/jwt";
 
 const Header: React.FC<HeaderProps> = ({
   title,
@@ -25,6 +26,10 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [documentDropdownOpen, setDocumentDropdownOpen] = useState(false);
+
+  const token = localStorage.getItem("token");
+  const role = token ? getRoleFromToken(token) : null;
+  const isEmployee = role === "EMPLOYEE";
 
   const menu: MenuProps["items"] = statusItems.map((item) => ({
     key: item.key,
@@ -80,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({
         {/* DROPDOWNS on the RIGHT */}
         <div className="dropdowns-wrapper">
           {/* NEW DOCUMENT FILTER DROPDOWN */}
-          {onDocumentFilterChange && (
+          {onDocumentFilterChange && !isEmployee && (
             <Dropdown
               menu={{ items: documentFilterOptions, selectable: true, onClick: handleDocumentFilterClick }}
               trigger={["click"]}
@@ -146,9 +151,9 @@ const Header: React.FC<HeaderProps> = ({
             >
               <div
                 className={`${categoryButtonClassName || "status-dropdown"} ${categoryMenu.selectedKeys &&
-                    categoryMenu.selectedKeys[0] !== "ALL"
-                    ? "status-dropdown--selected"
-                    : ""
+                  categoryMenu.selectedKeys[0] !== "ALL"
+                  ? "status-dropdown--selected"
+                  : ""
                   }`}
               >
                 <span className={categoryButtonTextClassName || "status-title"}>
