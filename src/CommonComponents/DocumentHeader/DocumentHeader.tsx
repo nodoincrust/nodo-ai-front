@@ -3,7 +3,11 @@ import { Breadcrumb, Select, Tag } from "antd";
 import { LeftOutlined } from "@ant-design/icons";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import "./DocumentHeader.scss";
-import type { DocumentHeaderProps, DocumentStatus, DocumentHeaderAction } from "../../types/common";
+import type {
+  DocumentHeaderProps,
+  DocumentStatus,
+  DocumentHeaderAction,
+} from "../../types/common";
 
 const statusLabelMap: any = {
   APPROVED: "Approved",
@@ -29,17 +33,20 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   const renderStatus = () => {
     // Use displayStatus if available, otherwise fall back to status
     const statusToDisplay = displayStatus || status;
-    
+
     if (!statusToDisplay) {
       return null;
     }
 
     // If displayStatus is provided, use it directly; otherwise use statusLabelMap
-    const label = displayStatus || (status ? statusLabelMap[status] ?? status : "");
+    const label =
+      displayStatus || (status ? statusLabelMap[status] ?? status : "");
 
     return (
       <Tag
-        className={`doc-header-status doc-header-status--${status?.toLowerCase() || "draft"}`}
+        className={`doc-header-status doc-header-status--${
+          status?.toLowerCase() || "draft"
+        }`}
       >
         <span className="dot" />
         {label}
@@ -103,7 +110,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             />
           </div>
         )}
-        
+
         {/* Submit button (when onSubmit is provided) */}
         {onSubmit && (
           <PrimaryButton
@@ -116,19 +123,19 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         {/* Approve + Reject buttons */}
         {extraActions?.length > 0 && (
           <div className="language-header-top">
-            {extraActions
-              .filter(a => a.label === "Approve" || a.label === "Reject")
-              .map(a => (
-                <PrimaryButton
-                  key={a.label}
-                  text={a.label}
-                  onClick={a.onClick}
-                  className={`document-header-action-btn ${a.label.toLowerCase()}-btn`}
-                />
-              ))}
+            {extraActions.map((action) => (
+              <PrimaryButton
+                key={action.label}
+                text={action.label}
+                onClick={action.onClick}
+                disabled={action.disabled}
+                className={`document-header-action-btn ${action.label
+                  .toLowerCase()
+                  .replace(" ", "-")}-btn`}
+              />
+            ))}
           </div>
         )}
-
       </div>
     </div>
   );

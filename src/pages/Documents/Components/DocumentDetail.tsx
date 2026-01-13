@@ -533,6 +533,7 @@ const DocumentDetail: React.FC = () => {
           id: emp.user_id,
           name: emp.name,
           role: emp.role,
+          self:emp.self,
         }))}
         loading={isEmployeeLoading}
         onClose={() => setIsSubmitModalOpen(false)}

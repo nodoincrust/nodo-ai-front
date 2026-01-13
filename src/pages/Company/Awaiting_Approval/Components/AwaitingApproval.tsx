@@ -156,7 +156,7 @@ export default function AwaitingApproval() {
                         title: "SUBMITTED AT",
                         render: (row) => <span>{new Date(row.submitted_at).toLocaleString()}</span>,
                     },
-                    {
+                   {
                         title: "STATUS",
                         render: (row: any) => (
                             <span className={`status-badge ${row.is_approved ? "approved" : "rejected"}`}>

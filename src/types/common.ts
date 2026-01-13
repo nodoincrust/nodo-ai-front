@@ -387,6 +387,7 @@ export interface AssignableEmployee {
   role: string;
   is_department_head: boolean;
   order: number;
+  self?:boolean;
 }
 
 export interface AssignableEmployeeResponse {
@@ -406,4 +407,5 @@ export interface DocumentHeaderAction {
   label: string;
   onClick: () => Promise<void> | void;
   type?: "primary" | "default" | "danger";
+    disabled?: boolean;
 }

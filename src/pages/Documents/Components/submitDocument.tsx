@@ -11,6 +11,7 @@ interface Reviewer {
   id: number;
   name: string;
   role: string;
+  self?: boolean;
 }
 
 interface SubmitDocumentProps {
@@ -31,10 +32,15 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
   const [selectedReviewers, setSelectedReviewers] = useState<number[]>([]);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      const selfReviewer = reviewers.find((r) => r.self);
+      if (selfReviewer) {
+        setSelectedReviewers([selfReviewer.id]);
+      }
+    } else {
       setSelectedReviewers([]);
     }
-  }, [open]);
+  }, [open, reviewers]);
 
   const handleToggleReviewer = (clickedIndex: number) => {
     const idsUpToIndex = reviewers.slice(0, clickedIndex + 1).map((r) => r.id);
@@ -47,7 +53,12 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
   };
 
   const handleSubmit = () => {
-    if (selectedReviewers.length === 0) {
+    const filteredReviewers = selectedReviewers.filter((id) => {
+      const reviewer = reviewers.find((r) => r.id === id);
+      return !reviewer?.self; // ❌ exclude self
+    });
+
+    if (filteredReviewers.length === 0) {
       notification.warning({
         message: "No reviewer selected",
         description: "Please select at least one reviewer.",
@@ -55,7 +66,7 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
       return;
     }
 
-    onSubmit?.(selectedReviewers);
+    onSubmit?.(filteredReviewers); // ✅ no self id
     onClose();
   };
 
@@ -109,11 +120,16 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
                   <div
                     key={reviewer.id}
                     className={`reviewer-card ${isSelected ? "selected" : ""}`}
-                    onClick={() => handleToggleReviewer(index)}
+                    onClick={() => {
+                      if (!reviewer.self) {
+                        handleToggleReviewer(index);
+                      }
+                    }}
                   >
                     <input
                       type="checkbox"
                       checked={isSelected}
+                      disabled={reviewer.self}
                       readOnly
                       className="reviewer-checkbox"
                     />
@@ -140,10 +156,14 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
         </div>
 
         <div>
-          <label className="submit-label">Submission Note <span className="optional">(optional)</span></label>
-          <input type="text" className="submission-input" placeholder="Add note for a reviewer" />
-
-
+          <label className="submit-label">
+            Submission Note <span className="optional">(optional)</span>
+          </label>
+          <input
+            type="text"
+            className="submission-input"
+            placeholder="Add note for a reviewer"
+          />
         </div>
       </div>
     </AppModal>
