@@ -64,6 +64,8 @@
 
 .button-text {
     margin-bottom: 1px;
+        font-family: $font-family-main;
+      font-weight: 600;
 }
 
 .btn-primary-custom {
@@ -72,3 +74,21 @@
     align-items: center;
     gap: 4px;
 }
+
+/* ===============================
+   Disabled Primary Button
+================================ */
+
+.btn-primary-custom:disabled,
+.btn-primary-custom.ant-btn-disabled {
+  cursor: not-allowed !important;
+  box-shadow: none !important;opacity: 0.5 !important;
+}
+
+/* Disable hover / active effects */
+// .btn-primary-custom:disabled:hover,
+// .btn-primary-custom:disabled:active {
+//   background-color: #e5e7eb !important;
+//   border-color: #e5e7eb !important;
+//   color: #9ca3af !important;
+// }
