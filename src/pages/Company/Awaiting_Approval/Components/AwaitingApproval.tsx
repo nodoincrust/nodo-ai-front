@@ -19,6 +19,7 @@ export default function AwaitingApproval() {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [status, setStatus] = useState<"All" | "Approved" | "Rejected">("All");
+    const [documentFilter, setDocumentFilter] = useState<"MY_DOCUMENTS" | "AWAITING">("MY_DOCUMENTS");
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -59,10 +60,11 @@ export default function AwaitingApproval() {
                     document_id: doc.document_id,
                     name: doc.file_name,
                     current_version: doc.version_number,
-                    size: 0, // API doesn't provide file_size in your example
-                    tags: [], // Optional: add if API provides tags
+                    size: 0,
+                    tags: [],
                     file_type: doc.file_name.split(".").pop()?.toLowerCase() || "doc",
                     is_approved: doc.status === "Approved",
+                    status: doc.status || "-",
                     submitted_by: doc.uploaded_by?.name || "Unknown",
                     submitted_at: doc.submitted_at,
                 }));
@@ -103,6 +105,7 @@ export default function AwaitingApproval() {
         <div className="documents-container">
             <Header
                 title="Awaiting Approval"
+                count={`${count} Documents`}
                 searchValue={search}
                 onSearchChange={(value) => {
                     setSearch(value);
@@ -114,15 +117,20 @@ export default function AwaitingApproval() {
                 categoryButtonTextClassName="status-title"
                 categoryMenu={{
                     items: [
-                        { key: "All", label: "All" },
-                        { key: "Approved", label: "Approved" },
-                        { key: "Rejected", label: "Rejected" },
+                        { key: "all", label: "All" },
+                        { key: "APPROVED", label: "Approved" },
+                        { key: "DRAFT", label: "Draft" },
+                        { key: "REJECTED", label: "Rejected" },
+                        { key: "SUBMITTED", label: "Submitted" },
+                        { key: "IN_REVIEW", label: "In Review" },
                     ],
                     onClick: ({ key }) => {
                         setStatus(key as "All" | "Approved" | "Rejected");
                         setCurrentPage(1);
                     },
                 }}
+                documentFilterValue={documentFilter}
+                onDocumentFilterChange={(val:any) => setDocumentFilter(val)}
             />
 
             <Table
@@ -158,13 +166,18 @@ export default function AwaitingApproval() {
                     },
                     {
                         title: "STATUS",
-                        render: (row: any) => (
-                            <span className={`status-badge ${row.is_approved ? "approved" : "rejected"}`}>
-                                <span className="badge-dot" />
-                                <span>{row.is_approved ? "Approved" : "Pending Approval"}</span>
-                            </span>
-                        ),
-                    },
+                        render: (row: any) => {
+                            const statusText = row.status;
+                            const statusClass = statusText.toLowerCase().replace(/\s/g, "-");
+
+                            return (
+                                <span className={`status-badge ${statusClass}`}>
+                                    <span className="badge-dot" />
+                                    <span>{statusText}</span>
+                                </span>
+                            );
+                        },
+                    }
                 ]}
                 actions={(row) => (
                     <div className="documents-actions" onClick={() => handleViewDocument(row)}>

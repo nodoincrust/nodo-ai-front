@@ -23,7 +23,7 @@ export const approveDocumentByID = async (documentId: number | string) => {
 
 // Reject a document by ID
 export const rejectDocumentByID = async (documentId: number | string) => {
-    const response = await axios.post(`${API_URL.approveDocumentByID}/${documentId}/reject`, {
+    const response = await axios.post(`${API_URL.rejectDocumentByID}/${documentId}`, {
         document_id: documentId,
     });
     return response.data;

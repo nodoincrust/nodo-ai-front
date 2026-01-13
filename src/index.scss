@@ -844,19 +844,93 @@ input {
   margin: 0 auto;
   flex-shrink: 0;
 
-  .badge-div {
-    width: 5px;
-    height: 5px;
+  .badge-div,
+  .badge-dot {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
+    display: inline-block;
   }
 
-  &.active,
+  // Approved
   &.approved {
-    background-color: $color-status-bg-active;
-    color: $color-status-text-active;
+    background-color: #d9fde8;
+    color: #027a48;
     max-width: 100px;
 
-    .badge-div {
+    .badge-div,
+    .badge-dot {
+      background-color: #027a48;
+    }
+  }
+
+  // Pending
+  &.pending {
+    background-color: #ffecc8;
+    color: #ff9500;
+    max-width: 100px;
+
+    .badge-div,
+    .badge-dot {
+      background-color: #ff9500;
+    }
+  }
+
+  // Draft
+  &.draft {
+    background-color: #f3f4f6;
+    color: #00132e;
+    max-width: 100px;
+
+    .badge-div,
+    .badge-dot {
+      background-color: #00132e;
+    }
+  }
+
+  // In Review
+  &.in-review {
+    background-color: #ffecc8;
+    color: #ff9500;
+    max-width: 100px;
+
+    .badge-div,
+    .badge-dot {
+      background-color: #ff9500;
+    }
+  }
+
+  // Submitted
+  &.submitted {
+    background-color: #ffecc8;
+    color: #ff9500;
+    max-width: 100px;
+
+    .badge-div,
+    .badge-dot {
+      background-color: #ff9500;
+    }
+  }
+
+  // Rejected
+  &.rejected {
+    background-color: #fdeaea;
+    color: #d92d20;
+    max-width: 129px;
+
+    .badge-div,
+    .badge-dot {
+      background-color: #d92d20;
+    }
+  }
+
+  // Optional generic active/inactive mapping if used elsewhere
+  &.active {
+    background-color: $color-status-bg-active;
+    color: $color-status-text-active;
+
+    .badge-div,
+    .badge-dot {
       background-color: $color-status-badge-div-active;
     }
   }
@@ -864,20 +938,10 @@ input {
   &.inactive {
     background-color: $color-status-bg-inactive;
     color: $color-status-text-inactive;
-    max-width: 100px;
 
-    .badge-div {
+    .badge-div,
+    .badge-dot {
       background-color: $color-status-badge-div-inactive;
-    }
-  }
-
-  &.rejected {
-    background-color: $status-rejected-bg;
-    color: $status-rejected-text;
-    min-width: 129px;
-
-    .badge-div {
-      background-color: $status-rejected-text;
     }
   }
 }

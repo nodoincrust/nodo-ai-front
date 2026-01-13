@@ -20,15 +20,28 @@ const Header: React.FC<HeaderProps> = ({
   showDropdown = false,
   status = "all",
   onStatusChange,
+  documentFilterValue,
+  onDocumentFilterChange,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [documentDropdownOpen, setDocumentDropdownOpen] = useState(false);
 
   const menu: MenuProps["items"] = statusItems.map((item) => ({
     key: item.key,
     label: item.label,
   }));
+
+  const documentFilterOptions: MenuProps["items"] = [
+    { key: "MY_DOCUMENTS", label: "My Documents" },
+    { key: "AWAITING", label: "Awaiting Approval" },
+  ];
+
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
     onStatusChange && onStatusChange(key as StatusType);
+  };
+
+  const handleDocumentFilterClick: MenuProps["onClick"] = ({ key }) => {
+    onDocumentFilterChange && onDocumentFilterChange(key as "MY_DOCUMENTS" | "AWAITING");
   };
   return (
     <div className="language-header">
@@ -53,6 +66,7 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* ACTION ROW */}
       <div className="language-header-actions">
+        {/* SEARCH on the LEFT */}
         {onSearchChange && (
           <Input
             value={searchValue}
@@ -63,56 +77,86 @@ const Header: React.FC<HeaderProps> = ({
           />
         )}
 
-        {showDropdown && onStatusChange && (
-          <Dropdown
-            menu={{ items: menu, selectedKeys: [status], onClick: handleMenuClick }}
-            trigger={["click"]}
-            open={dropdownOpen}
-            onOpenChange={setDropdownOpen}
-          >
-            <div className="status-dropdown">
-              <span className="status-title">
-                Status: {status.charAt(0).toUpperCase() + status.slice(1)}
-              </span>
-              <img
-                src="/assets/chevron-down.svg"
-                alt="arrow"
-                style={{
-                  width: 24,
-                  height: 24,
-                  transition: "transform 0.2s ease",
-                  transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-              />
-            </div>
-          </Dropdown>
-        )}
+        {/* DROPDOWNS on the RIGHT */}
+        <div className="dropdowns-wrapper">
+          {/* NEW DOCUMENT FILTER DROPDOWN */}
+          {onDocumentFilterChange && (
+            <Dropdown
+              menu={{ items: documentFilterOptions, onClick: handleDocumentFilterClick }}
+              trigger={["click"]}
+              open={documentDropdownOpen}
+              onOpenChange={setDocumentDropdownOpen}
+            >
+              <div className="status-dropdown">
+                <span className="status-title">
+                  {documentFilterValue === "MY_DOCUMENTS" ? "My Documents" : "Awaiting Approval"}
+                </span>
+                <img
+                  src="/assets/chevron-down.svg"
+                  alt="arrow"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    transition: "transform 0.2s ease",
+                    transform: documentDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                />
+              </div>
+            </Dropdown>
+          )}
 
-        {categoryMenu && !showDropdown && (
-          <Dropdown
-            menu={categoryMenu}
-            trigger={["click"]}
-            open={dropdownOpen}
-            onOpenChange={setDropdownOpen}
-          >
-            <div className={categoryButtonClassName || "status-dropdown"}>
-              <span className={categoryButtonTextClassName || "status-title"}>
-                {categoryButtonText}
-              </span>
+          {/* EXISTING STATUS DROPDOWN */}
+          {showDropdown && onStatusChange && (
+            <Dropdown
+              menu={{ items: menu, selectedKeys: [status], onClick: handleMenuClick }}
+              trigger={["click"]}
+              open={dropdownOpen}
+              onOpenChange={setDropdownOpen}
+            >
+              <div className="status-dropdown">
+                <span className="status-title">
+                  Status: {status.charAt(0).toUpperCase() + status.slice(1)}
+                </span>
+                <img
+                  src="/assets/chevron-down.svg"
+                  alt="arrow"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    transition: "transform 0.2s ease",
+                    transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                />
+              </div>
+            </Dropdown>
+          )}
 
-              <img
-                src="/assets/chevron-down.svg"
-                alt="arrow"
-                style={{
-                  width: 24,
-                  height: 24,
-                  transition: "transform 0.2s ease",
-                  transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-              />
-            </div>
-          </Dropdown>
-        )}
+          {categoryMenu && !showDropdown && (
+            <Dropdown
+              menu={categoryMenu}
+              trigger={["click"]}
+              open={dropdownOpen}
+              onOpenChange={setDropdownOpen}
+            >
+              <div className={categoryButtonClassName || "status-dropdown"}>
+                <span className={categoryButtonTextClassName || "status-title"}>
+                  {categoryButtonText}
+                </span>
+
+                <img
+                  src="/assets/chevron-down.svg"
+                  alt="arrow"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    transition: "transform 0.2s ease",
+                    transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                />
+              </div>
+            </Dropdown>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -340,7 +340,7 @@ const DocumentDetail: React.FC = () => {
     })
   );
 
-  const headerProps: DocumentHeaderProps = {
+  const headerProps: any = {
     breadcrumb: [
       { label: "Documents", path: "/documents" },
       { label: fileName },

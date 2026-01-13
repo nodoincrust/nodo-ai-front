@@ -109,6 +109,8 @@ export interface HeaderProps {
   showDropdown?: boolean;
   status?: StatusType;
   onStatusChange?: (status: StatusType) => void;
+  documentFilterValue?: "MY_DOCUMENTS" | "AWAITING";
+  onDocumentFilterChange?: (value: "MY_DOCUMENTS" | "AWAITING") => void;
 }
 
 export type StatusType = "all" | "active" | "inactive";
@@ -344,7 +346,8 @@ export interface AwaitingDocumentHeaderProps extends DocumentHeaderProps {
 // Normalized document interface for UI
 export interface ApiDocument {
   document_id: number;
-  status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+  status: string;
+  display_status?: string;
   current_version: number;
   version: ApiDocumentVersion;
 }

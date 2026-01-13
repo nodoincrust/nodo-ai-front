@@ -30,7 +30,8 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
 
   const renderStatus = () => {
     if (!status) return null;
-    const label = statusLabelMap[status] ?? status;
+
+    const label = status.includes(" ") ? status : statusLabelMap[status] ?? status;
 
     return (
       <Tag className={`doc-header-status doc-header-status--${status.toLowerCase()}`}>
