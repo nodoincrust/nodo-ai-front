@@ -86,7 +86,7 @@ export default function DocumentsCombined() {
         page: currentPage,
         size: pageSize,
         search: debouncedSearch || undefined,
-        status: status === "all" ? undefined : status,
+        ...(status && status !== "all" ? { status } : {}),
       });
 
       if (res?.data) {
@@ -126,7 +126,7 @@ export default function DocumentsCombined() {
         page: currentPage,
         pagelimit: pageSize,
         search: debouncedSearch || undefined,
-        status: status === "All" ? undefined : status,
+        ...(status && status !== "all" ? { status } : {}),
       });
 
       if (res?.data) {
@@ -280,14 +280,14 @@ export default function DocumentsCombined() {
           items: [
             { key: "all", label: "All" },
             { key: "APPROVED", label: "Approved" },
-            { key: "DRAFT", label: "Draft" },
+            // { key: "DRAFT", label: "Draft" },
             { key: "REJECTED", label: "Rejected" },
-            { key: "SUBMITTED", label: "Submitted" },
-             { key: "PENDING", label: "Pending" },
+            // { key: "SUBMITTED", label: "Submitted" },
+            { key: "PENDING", label: "Pending" },
 
           ],
           onClick: ({ key }: { key: string }) => {
-            setStatus(key as typeof status);
+            setStatus(key === "all" ? "" : key);
             setCurrentPage(1);
           },
         }}

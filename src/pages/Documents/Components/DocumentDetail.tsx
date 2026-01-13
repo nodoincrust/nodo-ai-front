@@ -132,6 +132,7 @@ const DocumentDetail: React.FC = () => {
       });
 
       setIsSubmitModalOpen(false);
+      fetchDocument();
     } catch (error: any) {
       notification.error({
         message: "Failed to submit document",
