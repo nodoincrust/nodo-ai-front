@@ -78,3 +78,12 @@ export const getAvatarColorIndex = (seed: string | number) => {
 
   return (Math.abs(hash) % 4) + 1;
 };
+
+export const getIsDepartmentHeadFromToken = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return Boolean(payload?.is_department_head);
+  } catch {
+    return false;
+  }
+};

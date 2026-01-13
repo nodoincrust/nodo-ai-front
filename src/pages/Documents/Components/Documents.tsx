@@ -58,6 +58,9 @@ export default function DocumentsCombined() {
       case "REJECTED": return "Rejected";
       case "SUBMITTED": return "Submitted";
       case "IN_REVIEW": return "In Review";
+      case "PENDING":
+      case "AWAITING_APPROVAL":
+        return "Pending";
       default: return status;
     }
   };
@@ -68,6 +71,9 @@ export default function DocumentsCombined() {
       case "DRAFT": return "draft";
       case "REJECTED": return "rejected";
       case "SUBMITTED": return "submitted";
+      case "PENDING":
+      case "AWAITING_APPROVAL":
+        return "pending";
       default: return "";
     }
   };
@@ -179,7 +185,7 @@ export default function DocumentsCombined() {
   const commonColumns = [
     {
       title: "SR.NO",
-      render: (_row:any, index = 0) =>
+      render: (_row: any, index = 0) =>
         String((currentPage - 1) * pageSize + index + 1).padStart(2, "0"),
     },
     {
@@ -277,9 +283,10 @@ export default function DocumentsCombined() {
             { key: "DRAFT", label: "Draft" },
             { key: "REJECTED", label: "Rejected" },
             { key: "SUBMITTED", label: "Submitted" },
-       
+             { key: "PENDING", label: "Pending" },
+
           ],
-          onClick: ({ key } :{key:string})=> {
+          onClick: ({ key }: { key: string }) => {
             setStatus(key as typeof status);
             setCurrentPage(1);
           },
