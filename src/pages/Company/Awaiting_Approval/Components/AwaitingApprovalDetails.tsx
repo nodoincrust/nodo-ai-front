@@ -27,7 +27,8 @@ const AwaitingApprovalDetails = () => {
 
     const [document, setDocument] = useState<ApiDocument | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [pendingRejectReason, setPendingRejectReason] = useState<string | null>(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     /* ------------------------------ Fetch Document ------------------------------ */
@@ -91,6 +92,7 @@ const AwaitingApprovalDetails = () => {
                 display_status: data.document.display_status,
                 current_version: data.document.current_version,
                 version,
+                is_actionable: data.document.is_actionable,
             });
         } catch (error: any) {
             notification.error({
@@ -153,12 +155,14 @@ const AwaitingApprovalDetails = () => {
         }
     };
 
-    const handleReject = async () => {
+    const handleReject = async (reason: string) => {
         if (!document) return;
 
         getLoaderControl()?.showLoader();
         try {
-            await rejectDocumentByID(document.document_id);
+            // Pass reason trimmed in payload
+            await rejectDocumentByID(document.document_id, reason.trim());
+
             notification.success({ message: "Document rejected successfully" });
 
             setDocument(prev =>
@@ -166,7 +170,7 @@ const AwaitingApprovalDetails = () => {
                     ? {
                         ...prev,
                         status: "REJECTED",
-                        display_status: "Rejected", // ✅ UPDATE THIS
+                        display_status: "Rejected",
                     }
                     : prev
             );
@@ -194,10 +198,22 @@ const AwaitingApprovalDetails = () => {
 
 
     /* ------------------------------ Header ------------------------------ */
-    const extraActions: DocumentHeaderAction[] = [
-        { label: "Reject", onClick: handleReject, type: "danger" },
-        { label: "Approve", onClick: handleApprove, type: "primary" },
-    ];
+    const extraActions: DocumentHeaderAction[] =
+        document.is_actionable
+            ? []
+            : [
+                {
+                    label: "Reject",
+                    type: "danger",
+                    // ✅ Wrap in zero-arg function
+                    onClick: () => setShowRejectModal(true),
+                },
+                {
+                    label: "Approve",
+                    type: "primary",
+                    onClick: handleApprove,
+                },
+            ];
 
     const headerProps: any = {
         breadcrumb: [
@@ -219,12 +235,13 @@ const AwaitingApprovalDetails = () => {
             console.log("Selected version:", val);
             // optionally fetch version-specific data here
         },
+        ...(document.is_actionable && { extraActions }),
     };
 
     /* ------------------------------ Render ------------------------------ */
     return (
         <AwaitingApprovalDocumentLayout
-            headerProps={headerProps}
+            headerProps={{...headerProps, onReject: handleReject}}
             document={document}
             onSummaryChange={handleSummaryChange}
             onSaveMetadata={handleSaveMetadata}
