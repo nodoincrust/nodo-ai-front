@@ -382,8 +382,8 @@ export interface AssignableEmployee {
   user_id: number;
   name: string;
   role: string;
-  is_department_head: boolean;
-  order: number;
+  is_department_head?: boolean;
+  order?: number;
 }
 
 export interface AssignableEmployeeResponse {

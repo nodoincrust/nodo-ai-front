@@ -157,19 +157,69 @@
     gap: 16px;
   }
 
-  .version-select {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-    border: 1px solid #e2e4e9;
-    border-radius: 12px;
+  // .version-dropdown {
+  //   padding: 0px;
+  //   width: 100%;
+  //   height: 36px !important;
+  //   border-radius: 12px !important;
+  //   background: $color-white;
+  //   border: 1px solid $color-border !important;
+  //   font-family: "Outfit", sans-serif;
+  //   font-size: 14px;
+  //   color: #292D32;
+  // }
 
-    .version-dropdown {
-      min-width: 96px;
-      min-height: 40px;
+  .ant-select {
+    padding: 0px;
+    // width: 100%;
+    height: 40px !important;
+    border-radius: 12px !important;
+    background: $color-white;
+    border: 1px solid $color-border !important;
+    font-family: "Outfit", sans-serif;
+    font-size: 14px;
+    color: #292D32;
+  }
+
+  /* Remove focus / hover / active styles from Ant Select */
+  .ant-select {
+    .ant-select-selector {
+      height: 26px !important;
+      box-shadow: none !important;
+      border-color: #d9d9d9 !important;
+    }
+
+    &:hover .ant-select-selector {
+      border-color: #d9d9d9 !important;
+      box-shadow: none !important;
+    }
+
+    &.ant-select-focused .ant-select-selector {
+      border-color: #d9d9d9 !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    &:active .ant-select-selector {
+      box-shadow: none !important;
+      border-color: #d9d9d9 !important;
     }
   }
+
+
+  // .version-select {
+  //   display: flex;
+  //   flex-direction: column;
+  //   align-items: flex-end;
+  //   gap: 4px;
+  //   border: 1px solid #e2e4e9;
+  //   border-radius: 12px;
+
+  //   .version-dropdown {
+  //     min-width: 96px;
+  //     min-height: 40px;
+  //   }
+  // }
 
   .document-header-submit-btn {
     min-width: 96px;
