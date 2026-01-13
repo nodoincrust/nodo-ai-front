@@ -258,6 +258,34 @@ export default function DocumentsCombined() {
     },
   ];
 
+  const awaitingStatusMenu = {
+    items: [
+      { key: "all", label: "All" },
+      { key: "APPROVED", label: "Approved" },
+      { key: "REJECTED", label: "Rejected" },
+      { key: "PENDING", label: "Pending" },
+    ],
+    onClick: ({ key }: { key: string }) => {
+      setStatus(key === "all" ? "all" : key);
+      setCurrentPage(1);
+    },
+  };
+
+  const myDocumentsStatusMenu = {
+    items: [
+      { key: "all", label: "All" },
+      { key: "APPROVED", label: "Approved" },
+      { key: "DRAFT", label: "Draft" },
+      { key: "REJECTED", label: "Rejected" },
+      { key: "SUBMITTED", label: "Submitted" },
+      { key: "PENDING", label: "Pending" },
+    ],
+    onClick: ({ key }: { key: string }) => {
+      setStatus(key === "all" ? "all" : key);
+      setCurrentPage(1);
+    },
+  };
+
   return (
     <div className="documents-container">
       <Header
@@ -276,21 +304,11 @@ export default function DocumentsCombined() {
         categoryButtonText={`Status: ${status === "all" ? "All" : getDisplayStatus(status)}`}
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-dropdown-text"
-        categoryMenu={{
-          items: [
-            { key: "all", label: "All" },
-            { key: "APPROVED", label: "Approved" },
-            // { key: "DRAFT", label: "Draft" },
-            { key: "REJECTED", label: "Rejected" },
-            // { key: "SUBMITTED", label: "Submitted" },
-            { key: "PENDING", label: "Pending" },
-
-          ],
-          onClick: ({ key }: { key: string }) => {
-            setStatus(key === "all" ? "" : key);
-            setCurrentPage(1);
-          },
-        }}
+        categoryMenu={
+          documentFilter === "AWAITING"
+            ? awaitingStatusMenu
+            : myDocumentsStatusMenu
+        }
       />
 
       <Table
