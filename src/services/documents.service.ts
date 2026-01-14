@@ -41,13 +41,33 @@ export const addDocument = async (payload: FormData) => {
   return response.data;
 };
 
-// Get document by ID
-export const getDocumentById = async (id: number): Promise<ApiDocument> => {
-  const response = await axios.get<ApiDocumentDetailResponse>(
-    API_URL.getDocumentById(id)
+// Reupload document (new version)
+export const reuploadDocument = async (
+  documentId: number,
+  payload: FormData
+) => {
+  const response = await axios.post(
+    API_URL.reuploadDocument(documentId),
+    payload,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
 
-  // Map API response to normalized ApiDocument format
+  return response.data;
+};
+
+// Get document by ID
+export const getDocumentById = async (id: number, version?: number): Promise<ApiDocument> => {
+  const response = await axios.get<ApiDocumentDetailResponse>(
+    API_URL.getDocumentById(id),
+    {
+      params: version ? { version } : undefined,
+    }
+  );
+
   const apiData = response.data.data;
 
   // Construct file URL
@@ -55,15 +75,11 @@ export const getDocumentById = async (id: number): Promise<ApiDocument> => {
   if (apiData.file.file_url) {
     fileUrl = apiData.file.file_url;
   } else if (apiData.file.file_path) {
-    // Construct full URL from relative path using API base URL
-    // Add /nodo prefix as required by the API
-    const baseUrl = config.docBaseUrl.replace(/\/$/, ""); // Remove trailing slash
+    const baseUrl = config.docBaseUrl.replace(/\/$/, "");
     const path = apiData.file.file_path.startsWith("/")
       ? apiData.file.file_path
       : `/${apiData.file.file_path}`;
-    // Prepend /nodo to the path: /storage/... -> /nodo/storage/...
-    const pathWithNodo = `${path}`;
-    fileUrl = `${baseUrl}${pathWithNodo}`;
+    fileUrl = `${baseUrl}${path}`;
   }
 
   return {
@@ -72,13 +88,19 @@ export const getDocumentById = async (id: number): Promise<ApiDocument> => {
     display_status: apiData.document.display_status,
     remark: apiData.document.remark,
     current_version: apiData.document.current_version,
+
+    summary: {
+      text: apiData.summary?.text || "",
+      tags: apiData.summary?.tags || [],
+      citations: apiData.summary?.citations || [],
+    },
+
     version: {
       version_number: apiData.file.version_number,
       file_name: apiData.file.file_name,
       file_size_bytes: apiData.file.file_size_bytes,
       file_url: fileUrl,
-      tags: apiData.summary.tags || [],
-      summary: apiData.summary.text || undefined,
+      tags: apiData.summary?.tags || [],  // ✅ required by ApiDocumentVersion
     },
   };
 };
@@ -153,8 +175,18 @@ export const getAiChatResponse = async (
   return response.data;
 };
 
-export async function startSummary(documentId: number | string) {
-  const res = await axios.post(API_URL.startSummary(documentId));
+export async function startSummary(
+  documentId: number | string,
+  version: number
+) {
+  const res = await axios.post(
+    API_URL.startSummary(documentId),
+    null,
+    {
+      params: { version }, // ✅ REQUIRED
+    }
+  );
+
   return res.data.job_id;
 }
 

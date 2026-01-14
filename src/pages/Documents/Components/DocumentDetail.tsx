@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
 import DocumentPreview from "../DocumentPreview";
@@ -22,10 +22,13 @@ import type {
   DocumentHeaderAction,
 } from "../../../types/common";
 import "./Styles/DocumentLayout.scss";
+import AddDocument from "./AddDocument";
+import { config } from "../../../config";
 
 const DocumentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSummaryGenerating, setIsSummaryGenerating] = useState(false);
 
   const [document, setDocument] = useState<ApiDocument | null>(null);
@@ -40,28 +43,29 @@ const DocumentDetail: React.FC = () => {
   const [isMetadataSaved, setIsMetadataSaved] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [activeTags, setActiveTags] = useState<string[]>([]);
-
+  const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   useEffect(() => {
     if (id) {
       fetchDocument();
     }
   }, [id]);
 
-  const fetchDocument = async () => {
+  const fetchDocument = async (version?: number) => {
     if (!id) return;
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+
     try {
-      const doc = await getDocumentById(Number(id));
+      const doc = await getDocumentById(Number(id), version);
       setDocument(doc);
-      // Set suggested tags from API (AI-generated suggestions)
-      setSuggestedTags(doc.version?.tags || []);
-      // Active tags start empty - user must manually select them
-      setActiveTags([]);
-      if (doc?.current_version) {
-        setSelectedVersion(doc.current_version);
-      }
+
+      setSuggestedTags(doc.summary?.tags ?? []);
+      setActiveTags(doc.summary?.tags ?? []);
+      console.log("API summary tags:", doc.summary?.tags);
+
+      setSelectedVersion(version ?? doc.version?.version_number ?? doc.current_version);
+
     } catch (error: any) {
       notification.error({
         message:
@@ -69,7 +73,6 @@ const DocumentDetail: React.FC = () => {
           error?.response?.data?.detail ||
           "Failed to load document details.",
       });
-      navigate("/documents");
     } finally {
       setIsLoading(false);
       getLoaderControl()?.hideLoader();
@@ -77,12 +80,14 @@ const DocumentDetail: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    navigate("/documents");
+    navigate("/documents", {
+      state: location.state ?? undefined,
+    });
   };
 
   const handleVersionChange = (version: number) => {
     setSelectedVersion(version);
-    // Optionally fetch version-specific data here
+    fetchDocument(version);
   };
 
   const handleSubmit = async () => {
@@ -217,18 +222,22 @@ const DocumentDetail: React.FC = () => {
     const docId = documentId || document?.document_id;
     if (!docId) return;
 
+    // ✅ version from dropdown
+    const version = selectedVersion;
+
     notification.info({
-      // message: "Generating summary",
-      message: "AI is analyzing the document...",
+      message: "Generating summary",
+      description: `AI is analyzing version ${version} of the document...`,
     });
 
     try {
-      const jobId = await startSummary(docId);
+      const jobId = await startSummary(docId, version);
+
       setIsSummaryGenerating(true);
+
       pollSummaryStatus(
         jobId,
         (result) => {
-          // Check if chunks are not ready yet
           if (
             result?.status === "processing" ||
             result?.message?.includes("Chunks not ready")
@@ -236,24 +245,21 @@ const DocumentDetail: React.FC = () => {
             setIsSummaryGenerating(false);
             notification.error({
               message: "Summary generation failed",
-
               duration: 0,
             });
             return;
           }
 
-          // Check if summary is actually available
           if (!result?.summary) {
             setIsSummaryGenerating(false);
             notification.error({
               message: "Summary generation failed",
-
               duration: 0,
             });
             return;
           }
 
-          // Success case - update document with summary
+          // ✅ Update summary for SAME version
           setDocument((prev) => {
             if (!prev) return prev;
             return {
@@ -264,21 +270,24 @@ const DocumentDetail: React.FC = () => {
               },
             };
           });
-          // Update suggested tags from AI result, but don't auto-add to active tags
+
           if (result.tags) {
             setSuggestedTags(result.tags);
           }
+
           setIsSummaryGenerating(false);
+
           notification.success({
-            message: "AI summary has been generated successfully.",
+            message: "Summary generated",
+            description: `Summary generated for version ${version}`,
             duration: 0,
           });
         },
         (err) => {
           setIsSummaryGenerating(false);
           notification.error({
-            message: "AI Summary generation failed",
-            // description: String(err),
+            message: "Summary failed",
+            description: String(err),
             duration: 0,
           });
         }
@@ -286,10 +295,11 @@ const DocumentDetail: React.FC = () => {
     } catch (err) {
       setIsSummaryGenerating(false);
       notification.error({
-        message: "Failed to generate summary",
+        message: "Failed to start summary",
       });
     }
   };
+
 
   // Handler for ChatSidebar
   const handleSendMessage = async (message: string, documentId: number) => {
@@ -313,21 +323,9 @@ const DocumentDetail: React.FC = () => {
 
   // Handler for Re-Upload button
   const handleReupload = () => {
-    if (!document) return;
-
-    // TODO: Implement reupload functionality
-    // This could open a file upload modal or navigate to upload page
-    notification.info({
-      message: "Re-Upload Document",
-      description:
-        "Re-upload functionality will be implemented here. You can upload a new version of this document.",
-    });
-
-    // For now, you could navigate to documents list or open upload modal
-    // navigate("/documents");
+    setIsReuploadOpen(true);
   };
 
-  // Auto-trigger regenerate summary once if there is no summary yet
   // MUST be after all other hooks but before any conditional returns
   useEffect(() => {
     if (autoSummaryTriggeredRef.current) return;
@@ -356,7 +354,6 @@ const DocumentDetail: React.FC = () => {
       </div>
     );
   }
-
   const fileName = document.version?.file_name || "Unknown Document";
   const documentStatus = document.status;
   const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
@@ -424,8 +421,9 @@ const DocumentDetail: React.FC = () => {
     status = "DRAFT";
   } else if (normalizedStatus === "SUBMITTED") {
     status = "SUBMITTED";
+  } else if (normalizedStatus === "REUPLOADED") {
+    status = "REUPLOADED" as any;
   } else {
-    // Default to DRAFT if status is missing or invalid
     status = "DRAFT";
     console.warn(
       "Unknown document status:",
@@ -446,6 +444,8 @@ const DocumentDetail: React.FC = () => {
     });
   }
 
+  const hideSubmit = status === "REUPLOADED";
+
   const headerProps: DocumentHeaderProps = {
     breadcrumb: [
       { label: "Documents", path: "/documents" },
@@ -460,7 +460,7 @@ const DocumentDetail: React.FC = () => {
     selectedVersion: String(selectedVersion),
     onVersionChange: (value: string) => handleVersionChange(Number(value)),
     // Only show submit button when status is DRAFT (no role restriction)
-    onSubmit: status === "DRAFT" ? handleSubmit : undefined,
+    onSubmit: !hideSubmit && status === "DRAFT" ? handleSubmit : undefined,
     // Disable submit until metadata has been saved at least once
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
@@ -496,8 +496,8 @@ const DocumentDetail: React.FC = () => {
         <div className="document-viewer">
           {fileUrl && document.version?.file_name ? (
             <DocumentPreview
-              fileName={document.version.file_name}
-              fileUrl={fileUrl}
+              fileName={document.version?.file_name || "Unknown Document"}
+              fileUrl={document.version?.file_url || ""}
             />
           ) : (
             <div className="document-placeholder">
@@ -520,6 +520,16 @@ const DocumentDetail: React.FC = () => {
         loading={isEmployeeLoading}
         onClose={() => setIsSubmitModalOpen(false)}
         onSubmit={handleDocumentSubmission}
+      />
+
+      <AddDocument
+        open={isReuploadOpen}
+        documentId={document.document_id}
+        onClose={() => setIsReuploadOpen(false)}
+        onSuccess={() => {
+          setIsReuploadOpen(false);
+          fetchDocument(); // refresh document + version
+        }}
       />
     </>
   );

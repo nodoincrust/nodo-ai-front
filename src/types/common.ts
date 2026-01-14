@@ -269,7 +269,7 @@ export interface ApiDocumentVersion {
   version_number: number;
   file_name: string;
   file_size_bytes: number;
-  tags: string[];
+  tags?: string[];
   summary?: string;
   file_url?: string;
 }
@@ -321,7 +321,7 @@ export type DocumentStatus =
   | "DRAFT"
   | "SUBMITTED"
   | "AWAITING_APPROVAL"
-  | "AWAITING_APPROVAL";
+  | "AWAITING_APPROVAL" | "REUPLOADED";
 
 export interface DocumentBreadcrumbItem {
   label: string;
@@ -358,6 +358,11 @@ export interface ApiDocument {
   version: ApiDocumentVersion;
   remark?: string;
   is_actionable?: boolean;
+  summary?: {
+    text?: string;
+    tags?: string[];
+    citations?: any[];
+  };
 }
 
 export interface DocumentsListResponse {

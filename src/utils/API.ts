@@ -35,6 +35,7 @@ export const API_URL = {
   // ===========================================
   getDocumentList: "/employee/documents",
   uploadDocument: "/newdocuments/upload",
+  reuploadDocument: (id: number) => `/newdocuments/reupload/${id}`,
   getEmployeeList: "/employee/assignable-hierarchy",
   getDocumentById: (id: number | string) => `/newdocuments/${id}/details`,
   // regenarateSummary: (id: number | string) => `ai/summary/${id}`,

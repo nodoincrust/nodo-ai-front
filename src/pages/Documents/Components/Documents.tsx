@@ -33,16 +33,17 @@ export default function DocumentsCombined() {
   // Restore filter/status/page from location.state or sessionStorage
   useEffect(() => {
     if (location.state) {
-      // When navigating via React Router, restore the previous filter/status/page
-      const { documentFilter: savedFilter, status: savedStatus, page: savedPage } = location.state as any;
-      if (savedFilter) setDocumentFilter(savedFilter);
-      if (savedStatus) setStatus(savedStatus);
-      if (savedPage) setCurrentPage(savedPage);
-    } else {
-      // On full page refresh, always reset to defaults
-      setDocumentFilter("MY_DOCUMENTS");
-      setStatus("all");
-      setCurrentPage(1);
+      const { documentFilter, status, page } = location.state as any;
+
+      setDocumentFilter(documentFilter || "MY_DOCUMENTS");
+      setStatus(status || "all");
+      setCurrentPage(page || 1);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (location.state) {
+      navigate(location.pathname, { replace: true });
     }
   }, []);
 
@@ -308,6 +309,7 @@ export default function DocumentsCombined() {
       { key: "REJECTED", label: "Rejected" },
       { key: "SUBMITTED", label: "Submitted" },
       { key: "PENDING", label: "Pending" },
+      { key: "REUPLOADED", label: "Reuploaded" },
     ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
