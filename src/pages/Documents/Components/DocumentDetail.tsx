@@ -437,37 +437,6 @@ const DocumentDetail: React.FC = () => {
   // Build extra actions based on user role and document status
   const extraActions: DocumentHeaderAction[] = [];
 
-  // Approve/Reject buttons for Department Head and Company Head when status is SUBMITTED
-  if (
-    (userRole === "DEPARTMENT_HEAD" || userRole === "COMPANY_HEAD") &&
-    status === "SUBMITTED"
-  ) {
-    extraActions.push(
-      {
-        label: "Approve",
-        onClick: async () => {
-          // TODO: Implement approve functionality
-          notification.info({
-            message: "Approve",
-            description: "Approve functionality will be implemented here.",
-          });
-        },
-        type: "primary",
-      },
-      {
-        label: "Reject",
-        onClick: async () => {
-          // TODO: Implement reject functionality
-          notification.info({
-            message: "Reject",
-            description: "Reject functionality will be implemented here.",
-          });
-        },
-        type: "danger",
-      }
-    );
-  }
-
   // Re-Upload button for employees when document is rejected
   if (status === "REJECTED") {
     extraActions.push({
