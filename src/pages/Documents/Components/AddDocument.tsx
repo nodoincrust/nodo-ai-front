@@ -3,19 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { notification, Spin } from "antd";
 import AppModal from "../../../components/common/AppModal";
 import AppButton from "../../../components/common/AppButton";
-import { addDocument, startSummary } from "../../../services/documents.service";
+import { addDocument, reuploadDocument, startSummary } from "../../../services/documents.service";
 import "./Styles/AddDocument.scss";
 
 interface AddDocumentProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  documentId?: number;
 }
 
 const AddDocument: React.FC<AddDocumentProps> = ({
   open,
   onClose,
   onSuccess,
+  documentId,
 }) => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -23,7 +25,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx",".txt"];
+  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx", ".txt"];
   const acceptedMimeTypes = [
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -91,10 +93,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      notification.warning({
-        message: "No file selected",
-        description: "Please select a file to upload",
-      });
+      notification.warning({ message: "Please select a file to upload" });
       return;
     }
 
@@ -103,47 +102,52 @@ const AddDocument: React.FC<AddDocumentProps> = ({
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await addDocument(formData);
+      let response: any;
+
+      // SWITCH BASED ON MODE
+      if (documentId) {
+        //REUPLOAD → query param
+        response = await reuploadDocument(documentId, formData);
+      } else {
+        //NEW DOCUMENT
+        response = await addDocument(formData);
+      }
 
       notification.success({
-        message: "Document uploaded successfully",
+        message: documentId
+          ? "Document reuploaded successfully"
+          : "Document uploaded successfully",
       });
 
-      // Reset state
       setSelectedFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
 
       onSuccess?.();
       onClose();
 
-      // Navigate to document detail page
-      // Upload API response example:
-      // {
-      //   status: "success",
-      //   documentId: 32,
-      //   filepath: "storage\\companies\\8\\documents\\32\\v1_file.xlsx",
-      //   ...
-      // }
-      const documentId = (response as any)?.documentId;
+      const finalDocumentId =
+        documentId || response?.documentId;
 
-      if (documentId) {
-        navigate(`/documents/${documentId}`);
-        startSummary(documentId,1);
+      if (finalDocumentId) {
+        // Navigate only for new upload
+        if (!documentId) {
+          navigate(`/documents/${finalDocumentId}`);
+        }
+
+        // Always trigger AI summary
+        startSummary(finalDocumentId, 1);
 
         notification.info({
           message: "Generating AI Summary",
           description: "AI is analyzing the document in background...",
         });
-      } else {
-        console.warn("upload: no documentId in response", response);
       }
     } catch (error: any) {
       notification.error({
-        message: "Upload failed",
-        description:
-          error?.response?.data?.message || error?.response?.data?.detail,
+        message:
+          error?.response?.data?.message ||
+          error?.response?.data?.detail ||
+          "Upload failed",
       });
     } finally {
       setIsUploading(false);
@@ -162,7 +166,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
     <AppModal
       open={open}
       width="750px"
-      title="Add Document"
+      title={documentId ? "Reupload Document" : "Add Document"}
       onClose={handleClose}
       footer={
         <div className="add-document-footer">
@@ -197,9 +201,8 @@ const AddDocument: React.FC<AddDocumentProps> = ({
           </div>
         )}
         <div
-          className={`file-upload-area ${isDragging ? "dragging" : ""} ${
-            selectedFile ? "has-file" : ""
-          }`}
+          className={`file-upload-area ${isDragging ? "dragging" : ""} ${selectedFile ? "has-file" : ""
+            }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}

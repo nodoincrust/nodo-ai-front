@@ -43,8 +43,7 @@ axiosInstance.interceptors.response.use(
       await new Promise((res) => setTimeout(res, 300));
       // Show notification
       notification.error({
-        message: "Session Expired",
-        description: "Your session has expired. Please login again.",
+        message: "Your session has expired. Please login again.",
         duration: 2,
       });
       setTimeout(() => {

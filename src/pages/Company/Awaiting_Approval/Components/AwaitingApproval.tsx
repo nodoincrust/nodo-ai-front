@@ -23,8 +23,19 @@ export default function AwaitingApproval() {
     >("ALL");
     const [documentFilter, setDocumentFilter] = useState<"MY_DOCUMENTS" | "AWAITING">("MY_DOCUMENTS");
 
-    const location = useLocation();
     const navigate = useNavigate();
+    const location = useLocation();
+    const previousState = location.state as any;
+
+    useEffect(() => {
+        if (!location.state) return;
+
+        const { documentFilter, status, page } = location.state as any;
+
+        if (documentFilter) setDocumentFilter(documentFilter);
+        if (status) setStatus(status);
+        if (page) setCurrentPage(page);
+    }, [location.state]);
 
     const formatFileSize = (bytes: number) => {
         if (bytes < 1024) return bytes + "B";
@@ -100,7 +111,16 @@ export default function AwaitingApproval() {
     }, [currentPage, location.pathname]);
 
     const handleViewDocument = (document: Document) => {
-        navigate(`/awaitingApproval/${document.document_id}`);
+        if (documentFilter === "MY_DOCUMENTS")
+            navigate(`/documents/${document.document_id}`);
+        else
+            navigate(`/awaitingApproval/${document.document_id}`, {
+                state: {
+                    documentFilter,
+                    status,
+                    page: currentPage,
+                },
+            });
     };
 
     return (
@@ -116,8 +136,8 @@ export default function AwaitingApproval() {
                 searchPlaceholder="Search by document name or tag"
 
                 categoryButtonText={`Status: ${status === "ALL"
-                        ? "All"
-                        : status.replace("_", " ")
+                    ? "All"
+                    : status.replace("_", " ")
                     }`}
 
                 categoryButtonClassName="status-dropdown"
@@ -125,18 +145,17 @@ export default function AwaitingApproval() {
 
                 categoryMenu={{
                     items: [
-                        { key: "All", label: "All" },
-                        { key: "Approved", label: "Approved" },
-                        { key: "Draft", label: "Draft" },
-                        { key: "Rejected", label: "Rejected" },
-                        { key: "Submitted", label: "Submitted" },
-                        { key: "In_Review", label: "In Review" },
-                         { key: "PENDING", label: "Pending" },
+                        { key: "ALL", label: "All" },
+                        { key: "APPROVED", label: "Approved" },
+                        { key: "DRAFT", label: "Draft" },
+                        { key: "REJECTED", label: "Rejected" },
+                        { key: "SUBMITTED", label: "Submitted" },
+                        { key: "IN_REVIEW", label: "In Review" },
                     ],
                     selectable: true,
                     selectedKeys: [status],
                     onClick: ({ key }) => {
-                        setStatus(key as any);
+                        setStatus(key as typeof status);
                         setCurrentPage(1);
                     },
                 }}
@@ -176,7 +195,7 @@ export default function AwaitingApproval() {
                         title: "SUBMITTED AT",
                         render: (row) => <span>{new Date(row.submitted_at).toLocaleString()}</span>,
                     },
-                   {
+                    {
                         title: "STATUS",
                         render: (row: any) => {
                             const statusText = row.status;
@@ -207,7 +226,7 @@ export default function AwaitingApproval() {
                     setPageSize(size);
                     setCurrentPage(1);
                 }}
-                emptyText="No documents awaiting approval"
+                emptyText="No documents found"
             />
         </div>
     );

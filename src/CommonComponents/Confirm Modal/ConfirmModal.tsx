@@ -12,7 +12,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     confirmText,
     cancelText = "Cancel",
     icon,
-    confirmType = "danger"
+    confirmType = "danger",
+    confirmBtnClassName,
 }) => {
     return (
         <Modal
@@ -45,7 +46,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                             {cancelText}
                         </button>
                         <button
-                            className={`confirm-btn ${confirmType}`}
+                            className={`confirm-btn ${confirmType} ${confirmBtnClassName || ""}`}
                             onClick={onConfirm}
                         >
                             {confirmText}

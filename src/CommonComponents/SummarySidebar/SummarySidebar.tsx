@@ -45,7 +45,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
 }) => {
   const [summary, setSummary] = useState(propSummary);
   const [suggestedTags] = useState<string[]>(propSuggestedTags);
-  const [activeTags, setActiveTags] = useState<string[]>(propActiveTags);
+  const activeTags = propActiveTags ?? [];
   const [newTag, setNewTag] = useState("");
   const [isEditingSummary, setIsEditingSummary] = useState(false);
 
@@ -53,10 +53,6 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   useEffect(() => {
     setSummary(propSummary);
   }, [propSummary]);
-
-  useEffect(() => {
-    setActiveTags(propActiveTags);
-  }, [propActiveTags]);
 
   const handleCopySummary = () => {
     navigator.clipboard.writeText(summary);
@@ -91,42 +87,19 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
 
   const handleAddTag = (tag: string) => {
     if (!activeTags.includes(tag)) {
-      const updatedTags = [...activeTags, tag];
-      setActiveTags(updatedTags);
-      if (onAddTag) {
-        onAddTag(tag);
-      }
+      onAddTag?.(tag);
     }
   };
 
   const handleRemoveTag = (tag: string) => {
-    const updatedTags = activeTags.filter((t) => t !== tag);
-    setActiveTags(updatedTags);
-    if (onRemoveTag) {
-      onRemoveTag(tag);
-    }
+    onRemoveTag?.(tag);
   };
 
   const handleCreateTag = () => {
     const value = newTag.trim();
     if (!value) return;
 
-    // Update local active tags immediately
-    if (!activeTags.includes(value)) {
-      const updated = [...activeTags, value];
-      setActiveTags(updated);
-      if (onAddTag) {
-        onAddTag(value);
-      }
-    }
-
-    // Notify parent about new tag creation
-    if (onCreateTag) {
-      onCreateTag(value);
-    } else {
-      notification.success({ message: `Tag "${value}" created` });
-    }
-
+    onCreateTag?.(value);
     setNewTag("");
   };
 
@@ -303,7 +276,8 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                     className="summary-tag-btn"
                     onClick={() => handleAddTag(tag)}
                   >
-                    {tag}
+                    {/* {tag} */}
+                    v10
                     <span className="tag-plus">+</span>
                   </button>
                 ))}

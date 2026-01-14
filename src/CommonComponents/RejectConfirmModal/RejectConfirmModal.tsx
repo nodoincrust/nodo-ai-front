@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Modal, Input } from "antd";
 import "./Styles/RejectConfirmModal.scss";
 import { ConfirmModalProps } from "../../types/common";
@@ -12,14 +12,31 @@ const RejectConfirmModal: React.FC<RejectConfirmModalProps> = ({
     onCancel,
     onConfirm,
     title,
-    description,
     confirmText = "Reject",
     cancelText = "Cancel",
-    icon,
     confirmType = "danger",
 }) => {
     const [reason, setReason] = useState("");
     const [error, setError] = useState("");
+    const [showModal, setShowModal] = useState(open);
+    const [animateClose, setAnimateClose] = useState(false);
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    /* SAME open / close handling */
+    useEffect(() => {
+        if (open) {
+            setShowModal(true);
+            setAnimateClose(false);
+        } else {
+            setAnimateClose(true);
+            setTimeout(() => setShowModal(false), 300);
+        }
+    }, [open]);
+
+    const handleClose = () => {
+        setAnimateClose(true);
+        setTimeout(() => onCancel(), 300);
+    };
 
     const handleConfirm = () => {
         if (!reason.trim()) {
@@ -31,36 +48,34 @@ const RejectConfirmModal: React.FC<RejectConfirmModalProps> = ({
         setReason("");
     };
 
+    if (!showModal) return null;
+
     return (
         <Modal
-            open={open}
-            onCancel={onCancel}
+            open={showModal}
             footer={null}
             centered
             closable={false}
-            rootClassName="reject-confirm-modal-root"
-            width={353}
+            width={412}
             zIndex={2000}
             getContainer={false}
+            transitionName=""
+            className={`reject-confirm-modal ${animateClose ? "modal-exit" : "modal-enter"}`}
         >
-            <div className="confirm-modal-content">
-                {/* Icon */}
-                {/* {icon && (
-                    <div className="confirm-icon">
-                        <img src={icon} alt={`${title} Icon`} className="confirm-icon-img" />
+            <div className="reject-wrapper" ref={modalRef}>
+                {/* HEADER */}
+                <div className="reject-header">
+                    <h2>{title}</h2>
+                    <div className="close-icon" onClick={handleClose}>
+                        <img src="/assets/x-02.svg" alt="close" />
                     </div>
-                )} */}
+                </div>
 
-                <div className="confirm-bottom">
-                    <div className="confirm-text">
-                        <h2 className="confirm-title">{title}</h2>
-                        {/* <p className="confirm-description">{description}</p> */}
-                    </div>
-
-                    {/* Reason Field */}
+                {/* BODY */}
+                <div className="reject-body">
                     <div className="confirm-form">
                         <label className="confirm-label">
-                            Rejection Reason <span className="required">*</span>
+                            Rejection Reason<span className="required">*</span>
                         </label>
 
                         <Input.TextArea
@@ -76,18 +91,19 @@ const RejectConfirmModal: React.FC<RejectConfirmModalProps> = ({
 
                         {error && <span className="confirm-error">{error}</span>}
                     </div>
+                </div>
 
-                    <div className="confirm-actions">
-                        <button className="confirm-btn secondary" onClick={onCancel}>
-                            {cancelText}
-                        </button>
-                        <button
-                            className={`confirm-btn ${confirmType}`}
-                            onClick={handleConfirm}
-                        >
-                            {confirmText}
-                        </button>
-                    </div>
+                {/* FOOTER */}
+                <div className="reject-footer">
+                    <button className="confirm-btn secondary" onClick={handleClose}>
+                        {cancelText}
+                    </button>
+                    <button
+                        className={`confirm-btn ${confirmType}`}
+                        onClick={handleConfirm}
+                    >
+                        {confirmText}
+                    </button>
                 </div>
             </div>
         </Modal>

@@ -142,6 +142,22 @@
             line-height: 20px;
             color: $logout-color;
           }
+
+          &.approve {
+            background-color: #D9FDE8;
+            // border: 1px solid $color-status-text-active;
+            border: none;
+            color: $color-status-text-active;
+
+            &:hover,
+            &:focus,
+            &:active {
+              background-color: #D9FDE8;
+              // border: 1px solid $color-status-text-active;
+              border: none;
+              color: $color-status-text-active;
+            }
+          }
         }
       }
     }

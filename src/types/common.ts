@@ -74,7 +74,8 @@ export interface ConfirmModalProps {
   confirmText: string;
   cancelText?: string;
   icon?: string;
-  confirmType?: "danger" | "primary";
+  confirmType?: "danger" | "primary" | "approve";
+  confirmBtnClassName?: string;
 }
 
 // DropdownOptionsModal.tsx
@@ -268,7 +269,7 @@ export interface ApiDocumentVersion {
   version_number: number;
   file_name: string;
   file_size_bytes: number;
-  tags: string[];
+  tags?: string[];
   summary?: string;
   file_url?: string;
 }
@@ -320,7 +321,7 @@ export type DocumentStatus =
   | "DRAFT"
   | "SUBMITTED"
   | "AWAITING_APPROVAL"
-  | "AWAITING_APPROVAL";
+  | "AWAITING_APPROVAL" | "REUPLOADED";
 
 export interface DocumentBreadcrumbItem {
   label: string;
@@ -357,6 +358,11 @@ export interface ApiDocument {
   version: ApiDocumentVersion;
   remark?: string;
   is_actionable?: boolean;
+  summary?: {
+    text?: string;
+    tags?: string[];
+    citations?: any[];
+  };
 }
 
 export interface DocumentsListResponse {
@@ -394,7 +400,7 @@ export interface AssignableEmployee {
   role: string;
   is_department_head: boolean;
   order: number;
-  self?:boolean;
+  self?: boolean;
 }
 
 export interface AssignableEmployeeResponse {
@@ -414,5 +420,5 @@ export interface DocumentHeaderAction {
   label: string;
   onClick: () => Promise<void> | void;
   type?: "primary" | "default" | "danger";
-    disabled?: boolean;
+  disabled?: boolean;
 }

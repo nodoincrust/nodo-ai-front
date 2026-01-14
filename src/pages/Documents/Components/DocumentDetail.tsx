@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
 import DocumentPreview from "../DocumentPreview";
@@ -23,10 +23,13 @@ import type {
   DocumentHeaderAction,
 } from "../../../types/common";
 import "./Styles/DocumentLayout.scss";
+import AddDocument from "./AddDocument";
+import { config } from "../../../config";
 
 const DocumentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSummaryGenerating, setIsSummaryGenerating] = useState(false);
 
   const [document, setDocument] = useState<ApiDocument | null>(null);
@@ -46,36 +49,36 @@ const DocumentDetail: React.FC = () => {
   const [textContent, setTextContent] = useState("");
   const [isTextLoading, setIsTextLoading] = useState(false);
 
+  const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   useEffect(() => {
     if (id) {
       fetchDocument();
     }
   }, [id]);
 
-  const fetchDocument = async () => {
+  const fetchDocument = async (version?: number) => {
     if (!id) return;
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+
     try {
-      const doc = await getDocumentById(Number(id));
+      const doc = await getDocumentById(Number(id), version);
       setDocument(doc);
-      // Set suggested tags from API (AI-generated suggestions)
-      setSuggestedTags(doc.version?.tags || []);
-      // Active tags start empty - user must manually select them
-      setActiveTags([]);
-      if (doc?.current_version) {
-        setSelectedVersion(doc.current_version);
-      }
+
+      setSuggestedTags(doc.summary?.tags ?? []);
+      setActiveTags(doc.summary?.tags ?? []);
+      console.log("API summary tags:", doc.summary?.tags);
+
+      setSelectedVersion(version ?? doc.version?.version_number ?? doc.current_version);
+
     } catch (error: any) {
       notification.error({
-        message: "Failed to load document",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Could not load document details.",
+          "Failed to load document details.",
       });
-      navigate("/documents");
     } finally {
       setIsLoading(false);
       getLoaderControl()?.hideLoader();
@@ -83,7 +86,9 @@ const DocumentDetail: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    navigate("/documents");
+    navigate("/documents", {
+      state: location.state ?? undefined,
+    });
   };
 
   const handleEdit = () => {
@@ -97,31 +102,34 @@ const DocumentDetail: React.FC = () => {
     // 2. Open editor modal
     // 3. Navigate to edit screen
     // navigate(`/documents/${document?.document_id}/edit`);
+  const handleVersionChange = (version: number) => {
+    setSelectedVersion(version);
+    fetchDocument(version);
   };
 
-const handleVersionChange = async (version: number) => {
-  if (!id) return;
+// const handleVersionChange = async (version: number) => {
+//   if (!id) return;
 
-  setSelectedVersion(version);
-  setIsMetadataSaved(false); // metadata already saved for old versions
+//   setSelectedVersion(version);
+//   setIsMetadataSaved(false); // metadata already saved for old versions
 
-  try {
-    getLoaderControl()?.showLoader();
-    const data = await getDocumentById(Number(id), version);
-    setDocument(data);
+//   try {
+//     getLoaderControl()?.showLoader();
+//     const data = await getDocumentById(Number(id), version);
+//     setDocument(data);
 
-    // Reset tags for selected version
-    setSuggestedTags(data.version?.tags || []);
-    setActiveTags([]);
-  } catch (error) {
-    notification.error({
-      message: "Failed to load version",
-      description: "Unable to load selected document version",
-    });
-  } finally {
-    getLoaderControl()?.hideLoader();
-  }
-};
+//     // Reset tags for selected version
+//     setSuggestedTags(data.version?.tags || []);
+//     setActiveTags([]);
+//   } catch (error) {
+//     notification.error({
+//       message: "Failed to load version",
+//       description: "Unable to load selected document version",
+//     });
+//   } finally {
+//     getLoaderControl()?.hideLoader();
+//   }
+// };
 
 
 
@@ -133,11 +141,10 @@ const handleVersionChange = async (version: number) => {
       setIsSubmitModalOpen(true);
     } catch (error: any) {
       notification.error({
-        message: "Failed to fetch employees",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Could not load employees list.",
+          "Failed to fetch employees",
       });
     } finally {
       setIsEmployeeLoading(false);
@@ -167,18 +174,17 @@ const handleVersionChange = async (version: number) => {
 
       notification.success({
         message: "Document submitted successfully",
-        description: `Document has been submitted to ${selectedReviewers.length} reviewer(s).`,
+        // description: `Document has been submitted to ${selectedReviewers.length} reviewer(s).`,
       });
 
       setIsSubmitModalOpen(false);
       fetchDocument();
     } catch (error: any) {
       notification.error({
-        message: "Failed to submit document",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Something went wrong",
+          "Failed to submit document",
       });
     } finally {
       getLoaderControl()?.hideLoader();
@@ -287,11 +293,10 @@ const handleVersionChange = async (version: number) => {
       setIsMetadataSaved(true);
     } catch (error: any) {
       notification.error({
-        message: "Failed to save metadata",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Something went wrong",
+          "Failed to save metadata",
       });
     } finally {
       getLoaderControl()?.hideLoader();
@@ -380,6 +385,7 @@ const handleVersionChange = async (version: number) => {
   }
 };
 
+
   // Handler for ChatSidebar
   const handleSendMessage = async (message: string, documentId: number) => {
     try {
@@ -392,8 +398,7 @@ const handleVersionChange = async (version: number) => {
       };
     } catch (error: any) {
       notification.error({
-        message: "AI Chat failed",
-        description:
+        message:
           error?.response?.data?.message || "Unable to get response from AI",
       });
 
@@ -403,21 +408,9 @@ const handleVersionChange = async (version: number) => {
 
   // Handler for Re-Upload button
   const handleReupload = () => {
-    if (!document) return;
-
-    // TODO: Implement reupload functionality
-    // This could open a file upload modal or navigate to upload page
-    notification.info({
-      message: "Re-Upload Document",
-      description:
-        "Re-upload functionality will be implemented here. You can upload a new version of this document.",
-    });
-
-    // For now, you could navigate to documents list or open upload modal
-    // navigate("/documents");
+    setIsReuploadOpen(true);
   };
 
-  // Auto-trigger regenerate summary once if there is no summary yet
   // MUST be after all other hooks but before any conditional returns
   useEffect(() => {
   if (autoSummaryTriggeredRef.current) return;
@@ -460,12 +453,14 @@ const handleVersionChange = async (version: number) => {
   // Early return AFTER all hooks
   if (isLoading || !document) {
     return (
-      <div style={{ padding: "24px", textAlign: "center" }}>
-        <p>Loading document...</p>
+      <div className="empty-state-wrapper">
+        <div className="empty-state">
+          <img src="/assets/table-fallback.svg" alt="No document" />
+          <p>{isLoading ? "Document not found" : "Document not found"}</p>
+        </div>
       </div>
     );
   }
-
   const fileName = document.version?.file_name || "Unknown Document";
   const documentStatus = document.status;
   const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
@@ -530,8 +525,9 @@ const handleVersionChange = async (version: number) => {
     status = "DRAFT";
   } else if (normalizedStatus === "SUBMITTED") {
     status = "SUBMITTED";
+  } else if (normalizedStatus === "REUPLOADED") {
+    status = "REUPLOADED" as any;
   } else {
-    // Default to DRAFT if status is missing or invalid
     status = "DRAFT";
     console.warn(
       "Unknown document status:",
@@ -546,7 +542,7 @@ const handleVersionChange = async (version: number) => {
   // Re-Upload button for employees when document is rejected
   if (status === "REJECTED") {
     extraActions.push({
-      label: "Re-Upload",
+      label: "Reupload",
       onClick: handleReupload,
       type: "default",
     });
@@ -568,6 +564,7 @@ const handleVersionChange = async (version: number) => {
       type: "default",
     });
   }
+  const hideSubmit = status === "REUPLOADED";
 
   const headerProps: DocumentHeaderProps = {
     breadcrumb: [
@@ -583,7 +580,7 @@ const handleVersionChange = async (version: number) => {
     selectedVersion: String(selectedVersion),
     onVersionChange: (value: string) => handleVersionChange(Number(value)),
     // Only show submit button when status is DRAFT (no role restriction)
-    onSubmit: status === "DRAFT" ? handleSubmit : undefined,
+    onSubmit: !hideSubmit && status === "DRAFT" ? handleSubmit : undefined,
     // Disable submit until metadata has been saved at least once
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
@@ -635,8 +632,8 @@ const handleVersionChange = async (version: number) => {
             )
           ) : (
             <DocumentPreview
-              fileName={document.version.file_name}
-              fileUrl={fileUrl}
+              fileName={document.version?.file_name || "Unknown Document"}
+              fileUrl={document.version?.file_url || ""}
             />
           )}
         </div>
@@ -653,6 +650,16 @@ const handleVersionChange = async (version: number) => {
         loading={isEmployeeLoading}
         onClose={() => setIsSubmitModalOpen(false)}
         onSubmit={handleDocumentSubmission}
+      />
+
+      <AddDocument
+        open={isReuploadOpen}
+        documentId={document.document_id}
+        onClose={() => setIsReuploadOpen(false)}
+        onSuccess={() => {
+          setIsReuploadOpen(false);
+          fetchDocument(); // refresh document + version
+        }}
       />
     </>
   );

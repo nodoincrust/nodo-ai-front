@@ -30,7 +30,8 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   onReject,
 }) => {
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectAction, setRejectAction] = useState<(() => void) | null>(null);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [approveAction, setApproveAction] = useState<(() => void) | null>(null);
 
   const renderStatus = () => {
     const statusToDisplay = displayStatus || status;
@@ -41,9 +42,8 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
 
     const statusTag = (
       <Tag
-        className={`doc-header-status doc-header-status--${
-          status?.toLowerCase() || "draft"
-        }`}
+        className={`doc-header-status doc-header-status--${status?.toLowerCase() || "draft"
+          }`}
       >
         <span className="dot" />
         {label}
@@ -52,21 +52,11 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
 
     // ✅ Show popover ONLY when rejected & remark exists
     // Check both uppercase and the actual status value
-    const isRejected =
-      status?.toUpperCase() === "REJECTED" || status === "REJECTED";
+    const isRejected = status?.toUpperCase() === "REJECTED" || status === "REJECTED";
     const hasRemark = rejectionRemark && rejectionRemark.trim().length > 0;
 
     // Debug logging
-    console.log(
-      "DocumentHeader - Status:",
-      status,
-      "IsRejected:",
-      isRejected,
-      "HasRemark:",
-      hasRemark,
-      "Remark:",
-      rejectionRemark
-    );
+    console.log("DocumentHeader - Status:", status, "IsRejected:", isRejected, "HasRemark:", hasRemark, "Remark:", rejectionRemark);
 
     if (isRejected && hasRemark) {
       return (
@@ -81,13 +71,15 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           trigger="hover"
           overlayClassName="rejection-popover-wrapper"
         >
-          <span>{statusTag}</span>
+          <span >{statusTag}</span>
         </Popover>
       );
     }
 
     return statusTag;
   };
+
+    
 
   return (
     <>
@@ -170,6 +162,9 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
                     onClick={() => {
                       if (a.label === "Reject") {
                         setShowRejectModal(true);
+                      } else if (a.label === "Approve") {
+                        setApproveAction(() => a.onClick);
+                        setShowApproveModal(true);
                       } else {
                         a.onClick();
                       }
@@ -182,6 +177,26 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         </div>
       </div>
 
+      {/* APPROVE CONFIRM MODAL */}
+      <ConfirmModal
+        open={showApproveModal}
+        onCancel={() => {
+          setShowApproveModal(false);
+          setApproveAction(null);
+        }}
+        onConfirm={() => {
+          approveAction?.();
+          setShowApproveModal(false);
+          setApproveAction(null);
+        }}
+        title="Approve Document"
+        description="Are you sure you want to approve this document?"
+        confirmText="Approve"
+        // icon="/assets/approve.svg"
+        confirmType="approve"
+        confirmBtnClassName="approve-confirm-btn"
+      />
+
       {/* REJECT CONFIRM MODAL */}
       <RejectConfirmModal
         open={showRejectModal}
@@ -190,7 +205,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           onReject?.(reason);
           setShowRejectModal(false);
         }}
-        title="Reject this document?"
+        title="Reject Document"
         description="Are you sure you want to reject this document?"
         confirmText="Reject"
         icon="/assets/reject.svg"
