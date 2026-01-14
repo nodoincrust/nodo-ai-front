@@ -12,6 +12,7 @@ import {
   submitDocumentForReview,
   getAssignableEmployees,
   getAiChatResponse,
+
 } from "../../../services/documents.service";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { getRoleFromToken } from "../../../utils/jwt";
@@ -40,6 +41,10 @@ const DocumentDetail: React.FC = () => {
   const [isMetadataSaved, setIsMetadataSaved] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  //edit document propose
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [textContent, setTextContent] = useState("");
+  const [isTextLoading, setIsTextLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -81,10 +86,44 @@ const DocumentDetail: React.FC = () => {
     navigate("/documents");
   };
 
-  const handleVersionChange = (version: number) => {
-    setSelectedVersion(version);
-    // Optionally fetch version-specific data here
+  const handleEdit = () => {
+    notification.info({
+      message: "Edit Mode Enabled",
+      description: "You can now edit this document.",
+    });
+
+    // Example options:
+    // 1. Enable editable preview
+    // 2. Open editor modal
+    // 3. Navigate to edit screen
+    // navigate(`/documents/${document?.document_id}/edit`);
   };
+
+const handleVersionChange = async (version: number) => {
+  if (!id) return;
+
+  setSelectedVersion(version);
+  setIsMetadataSaved(false); // metadata already saved for old versions
+
+  try {
+    getLoaderControl()?.showLoader();
+    const data = await getDocumentById(Number(id), version);
+    setDocument(data);
+
+    // Reset tags for selected version
+    setSuggestedTags(data.version?.tags || []);
+    setActiveTags([]);
+  } catch (error) {
+    notification.error({
+      message: "Failed to load version",
+      description: "Unable to load selected document version",
+    });
+  } finally {
+    getLoaderControl()?.hideLoader();
+  }
+};
+
+
 
   const handleSubmit = async () => {
     setIsEmployeeLoading(true);
@@ -161,6 +200,48 @@ const DocumentDetail: React.FC = () => {
     });
   };
 
+
+// const handleSave = async () => {
+//   if (!document) return;
+
+//   try {
+//     getLoaderControl()?.showLoader();
+
+//     // ✅ Convert edited text into a File
+//     const blob = new Blob([textContent], { type: "text/plain" });
+//     const fileName = document.version.file_name || "document.txt";
+//     const file = new File([blob], fileName, { type: "text/plain" });
+
+//     const formData = new FormData();
+//     formData.append("file", file);
+
+//     // ✅ Call REUPLOAD API (creates new version)
+//     await reuploadDocument(document.document_id, formData);
+
+//     notification.success({
+//       message: "Document saved",
+//       description: "A new version has been created successfully.",
+//     });
+
+//     setIsEditMode(false);
+//     setTextContent("");
+
+//     // ✅ Reload latest version
+//     await fetchDocument();
+//   } catch (error: any) {
+//     notification.error({
+//       message: "Save failed",
+//       description:
+//         error?.response?.data?.message ||
+//         error?.response?.data?.detail ||
+//         "Unable to save document",
+//     });
+//   } finally {
+//     getLoaderControl()?.hideLoader();
+//   }
+// };
+
+
   const handleAddTag = (tag: string) => {
     setIsMetadataSaved(false);
     // Add to active tags if not already present
@@ -217,84 +298,87 @@ const DocumentDetail: React.FC = () => {
     }
   };
 
-  const handleRegenerate = async (documentId?: number) => {
-    const docId = documentId || document?.document_id;
-    if (!docId) return;
+ const handleRegenerate = async (documentId?: number) => {
+  const docId = documentId || document?.document_id;
+  if (!docId) return;
 
-    notification.info({
-      message: "Generating summary",
-      description: "AI is analyzing the document...",
-    });
+  // ✅ version from dropdown
+  const version = selectedVersion;
 
-    try {
-      const jobId = await startSummary(docId);
-      setIsSummaryGenerating(true);
-      pollSummaryStatus(
-        jobId,
-        (result) => {
-          // Check if chunks are not ready yet
-          if (
-            result?.status === "processing" ||
-            result?.message?.includes("Chunks not ready")
-          ) {
-            setIsSummaryGenerating(false);
-            notification.error({
-              message: "Summary generation failed",
+  notification.info({
+    message: "Generating summary",
+    description: `AI is analyzing version ${version} of the document...`,
+  });
 
-              duration: 0,
-            });
-            return;
-          }
+  try {
+    const jobId = await startSummary(docId, version);
 
-          // Check if summary is actually available
-          if (!result?.summary) {
-            setIsSummaryGenerating(false);
-            notification.error({
-              message: "Summary generation failed",
+    setIsSummaryGenerating(true);
 
-              duration: 0,
-            });
-            return;
-          }
-
-          // Success case - update document with summary
-          setDocument((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              version: {
-                ...prev.version,
-                summary: result.summary,
-              },
-            };
-          });
-          // Update suggested tags from AI result, but don't auto-add to active tags
-          if (result.tags) {
-            setSuggestedTags(result.tags);
-          }
-          setIsSummaryGenerating(false);
-          notification.success({
-            message: "Summary generated",
-            description: "AI summary has been generated successfully.",
-            duration: 0,
-          });
-        },
-        (err) => {
+    pollSummaryStatus(
+      jobId,
+      (result) => {
+        if (
+          result?.status === "processing" ||
+          result?.message?.includes("Chunks not ready")
+        ) {
           setIsSummaryGenerating(false);
           notification.error({
-            message: "Summary failed",
-            description: String(err),
+            message: "Summary generation failed",
             duration: 0,
           });
+          return;
         }
-      );
-    } catch (err) {
-      setIsSummaryGenerating(false);
-      notification.error({
-        message: "Failed to start summary",
-      });
-    }
-  };
+
+        if (!result?.summary) {
+          setIsSummaryGenerating(false);
+          notification.error({
+            message: "Summary generation failed",
+            duration: 0,
+          });
+          return;
+        }
+
+        // ✅ Update summary for SAME version
+        setDocument((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            version: {
+              ...prev.version,
+              summary: result.summary,
+            },
+          };
+        });
+
+        if (result.tags) {
+          setSuggestedTags(result.tags);
+        }
+
+        setIsSummaryGenerating(false);
+
+        notification.success({
+          message: "Summary generated",
+          description: `Summary generated for version ${version}`,
+          duration: 0,
+        });
+      },
+      (err) => {
+        setIsSummaryGenerating(false);
+        notification.error({
+          message: "Summary failed",
+          description: String(err),
+          duration: 0,
+        });
+      }
+    );
+  } catch (err) {
+    setIsSummaryGenerating(false);
+    notification.error({
+      message: "Failed to start summary",
+    });
+  }
+};
 
   // Handler for ChatSidebar
   const handleSendMessage = async (message: string, documentId: number) => {
@@ -336,20 +420,42 @@ const DocumentDetail: React.FC = () => {
   // Auto-trigger regenerate summary once if there is no summary yet
   // MUST be after all other hooks but before any conditional returns
   useEffect(() => {
-    if (autoSummaryTriggeredRef.current) return;
-    if (!document) return;
-    if (isLoading) return;
+  if (autoSummaryTriggeredRef.current) return;
+  if (!document || isLoading) return;
 
-    // Check if summary is missing or empty
-    const hasNoSummary =
-      !document.version?.summary || document.version.summary.trim() === "";
+  // 🚫 Only for latest version
+  if (selectedVersion !== document.current_version) return;
 
-    if (hasNoSummary && document.document_id) {
-      autoSummaryTriggeredRef.current = true;
-      // Automatically trigger summary regeneration
-      void handleRegenerate(document.document_id);
-    }
-  }, [document, isLoading]);
+  const hasNoSummary =
+    !document.version?.summary || document.version.summary.trim() === "";
+
+  if (hasNoSummary) {
+    autoSummaryTriggeredRef.current = true;
+    void handleRegenerate(document.document_id);
+  }
+}, [document, isLoading, selectedVersion]);
+
+
+  const fileUrl = document?.version?.file_url || "";
+  const isTextFile = document?.version?.file_name?.endsWith(".txt");
+  useEffect(() => {
+    const loadTextFile = async () => {
+      if (!fileUrl || !isTextFile || !isEditMode) return;
+
+      try {
+        setIsTextLoading(true);
+        const response = await fetch(fileUrl);
+        const text = await response.text();
+        setTextContent(text);
+      } catch {
+        notification.error({ message: "Failed to load text file" });
+      } finally {
+        setIsTextLoading(false);
+      }
+    };
+
+    loadTextFile();
+  }, [fileUrl, isTextFile, isEditMode]);
 
   // Early return AFTER all hooks
   if (isLoading || !document) {
@@ -363,9 +469,6 @@ const DocumentDetail: React.FC = () => {
   const fileName = document.version?.file_name || "Unknown Document";
   const documentStatus = document.status;
   const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
-
-  // Get file URL from version (already processed in service to be full URL)
-  const fileUrl = document.version?.file_url || "";
 
   // Create version options (assuming we might have multiple versions)
   const versionOptions = Array.from(
@@ -449,6 +552,23 @@ const DocumentDetail: React.FC = () => {
     });
   }
 
+  if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
+    extraActions.push({
+      label: "Edit",
+      onClick: () => setIsEditMode(true),
+      type: "default",
+    });
+  }
+
+  
+  if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
+    extraActions.push({
+      label: "Save",
+      onClick: () => setIsEditMode(true),
+      type: "default",
+    });
+  }
+
   const headerProps: DocumentHeaderProps = {
     breadcrumb: [
       { label: "Documents", path: "/documents" },
@@ -497,17 +617,27 @@ const DocumentDetail: React.FC = () => {
         isSummaryGenerating={isSummaryGenerating}
       >
         <div className="document-viewer">
-          {fileUrl && document.version?.file_name ? (
+          {isEditMode && isTextFile ? (
+            isTextLoading ? (
+              <p>Loading text...</p>
+            ) : (
+              <textarea
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                rows={25}
+                style={{
+                  width: "100%",
+                  fontFamily: "monospace",
+                  padding: "12px",
+                  fontSize: "14px",
+                }}
+              />
+            )
+          ) : (
             <DocumentPreview
               fileName={document.version.file_name}
               fileUrl={fileUrl}
             />
-          ) : (
-            <div className="document-placeholder">
-              <span className="document-placeholder-label">
-                Document preview not available
-              </span>
-            </div>
           )}
         </div>
       </DocumentLayout>

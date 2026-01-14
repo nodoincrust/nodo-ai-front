@@ -130,7 +130,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
 
       if (documentId) {
         navigate(`/documents/${documentId}`);
-        startSummary(documentId);
+        startSummary(documentId,1);
 
         notification.info({
           message: "Generating AI Summary",

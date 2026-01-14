@@ -8,10 +8,16 @@ export const getApprovalList = async (payload: ApiPayload = {}) => {
     return response.data;
 };
 
-export const getAwaitingApprovalDetails = (documentId: string | number) => {
-    return axios.get(`/newdocuments/${documentId}/details`);
-};
+// Fetch awaiting-approval document details (optionally for a specific version)
+export const getAwaitingApprovalDetails = (
+    documentId: string | number,
+    version?: number
+) => {
+    const versionQuery =
+        typeof version === "number" ? `?version=${encodeURIComponent(version)}` : "";
 
+    return axios.get(`/newdocuments/${documentId}/details${versionQuery}`);
+};
 
 // Approve a document by ID
 export const approveDocumentByID = async (documentId: number | string) => {

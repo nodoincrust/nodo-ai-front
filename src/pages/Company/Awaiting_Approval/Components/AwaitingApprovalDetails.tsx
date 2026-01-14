@@ -30,6 +30,7 @@ const AwaitingApprovalDetails = () => {
     const [reloadKey, setReloadKey] = useState(0);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [pendingRejectReason, setPendingRejectReason] = useState<string | null>(null);
+    const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     /* ------------------------------ Fetch Document ------------------------------ */
@@ -37,14 +38,14 @@ const AwaitingApprovalDetails = () => {
         if (id) fetchDocumentDetails();
     }, [id, reloadKey]);
 
-    const fetchDocumentDetails = async () => {
+    const fetchDocumentDetails = async (version?: number) => {
         if (!id) return;
 
         setIsLoading(true);
         getLoaderControl()?.showLoader();
 
         try {
-            const res = await getAwaitingApprovalDetails(id);
+            const res = await getAwaitingApprovalDetails(id, version);
             const data = res.data?.data;
 
             if (!data) throw new Error("Document not found");
@@ -65,8 +66,9 @@ const AwaitingApprovalDetails = () => {
             }
 
             /* ---------------- Version ---------------- */
-            const version: ApiDocumentVersion = {
-                version_number: data.file?.version_number || 1,
+            const versionNumber = data.file?.version_number || data.document?.current_version || 1;
+            const versionData: ApiDocumentVersion = {
+                version_number: versionNumber,
                 file_size_bytes: data.file?.file_size_bytes || 0,
                 file_name: data.file?.file_name || "",
                 file_url: fileUrl,
@@ -86,15 +88,22 @@ const AwaitingApprovalDetails = () => {
                                 ? "SUBMITTED"
                                 : "IN_REVIEW";
 
+            const currentVersion = data.document.current_version;
+
             /* ---------------- Set Document ---------------- */
             setDocument({
                 document_id: data.document.id,
                 status: mappedStatus,
                 display_status: data.document.display_status,
-                current_version: data.document.current_version,
-                version,
+                current_version: currentVersion,
+                version: versionData,
                 is_actionable: data.document.is_actionable,
             });
+
+            // Ensure selectedVersion is kept in sync (default to current_version on first load)
+            setSelectedVersion(prev =>
+                prev !== null ? prev : String(versionNumber || currentVersion || 1)
+            );
         } catch (error: any) {
             notification.error({
                 message: "Failed to load document",
@@ -218,6 +227,15 @@ const AwaitingApprovalDetails = () => {
                 },
             ];
 
+    // Build version options for all available versions
+    const versionOptions: DocumentHeaderProps["versionOptions"] = Array.from(
+        { length: document.current_version || 1 },
+        (_, i) => ({
+            value: String(i + 1),
+            label: `V${i + 1}`,
+        })
+    );
+
     const headerProps: any = {
         breadcrumb: [
             { label: "Awaiting Approval", path: "/documents" },
@@ -227,16 +245,14 @@ const AwaitingApprovalDetails = () => {
         status: document.display_status,
         onBackClick: handleBackClick,
         extraActions,
-        versionOptions: [
-            {
-                label: `v${document.current_version}`,
-                value: document.current_version,
-            },
-        ],
-        selectedVersion: document.current_version,
-        onVersionChange: (val: number) => {
-            console.log("Selected version:", val);
-            // optionally fetch version-specific data here
+        versionOptions,
+        selectedVersion: selectedVersion ?? String(document.current_version),
+        onVersionChange: async (val: string) => {
+            const versionNumber = Number(val);
+            if (!Number.isNaN(versionNumber)) {
+                setSelectedVersion(val);
+                await fetchDocumentDetails(versionNumber);
+            }
         },
         ...(document.is_actionable && { extraActions }),
     };

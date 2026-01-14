@@ -42,9 +42,12 @@ export const addDocument = async (payload: FormData) => {
 };
 
 // Get document by ID
-export const getDocumentById = async (id: number): Promise<ApiDocument> => {
+export const getDocumentById = async (id: number,  version?: number): Promise<ApiDocument> => {
   const response = await axios.get<ApiDocumentDetailResponse>(
-    API_URL.getDocumentById(id)
+    API_URL.getDocumentById(id),
+    {
+      params:version?{version}:undefined,
+    }
   );
 
   // Map API response to normalized ApiDocument format
@@ -153,10 +156,21 @@ export const getAiChatResponse = async (
   return response.data;
 };
 
-export async function startSummary(documentId: number | string) {
-  const res = await axios.post(API_URL.startSummary(documentId));
+export async function startSummary(
+  documentId: number | string,
+  version: number
+) {
+  const res = await axios.post(
+    API_URL.startSummary(documentId),
+    null,
+    {
+      params: { version }, // ✅ REQUIRED
+    }
+  );
+
   return res.data.job_id;
 }
+
 
 export function pollSummaryStatus(
   jobId: number | string,
@@ -186,5 +200,7 @@ export function pollSummaryStatus(
   return () => clearInterval(interval); // optional cancel
 }
 
-// Approve document
+
+
+
 
