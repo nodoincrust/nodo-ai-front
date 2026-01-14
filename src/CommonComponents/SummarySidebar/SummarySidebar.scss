@@ -418,8 +418,8 @@
     padding: 10px 16px;
     border-radius: 32px;
     border: none;
-    background-color: #4580f7;
-    color: #ffffff;
+    background-color: #4580F7;
+    color: $color-white;
     font-family: $font-family-main;
     font-size: 16px;
     font-weight: 600;
@@ -428,8 +428,8 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: $color-primary;
-      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.2);
+      background-color: #4580F7;
+      color: $color-white;
     }
 
     .anticon {

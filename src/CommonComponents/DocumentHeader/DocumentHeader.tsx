@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Breadcrumb, Select, Tag ,Popover } from "antd";
+import { Breadcrumb, Select, Tag, Popover } from "antd";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import ConfirmModal from "../Confirm Modal/ConfirmModal";
 import "./DocumentHeader.scss";
@@ -30,54 +30,54 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   onReject,
 }) => {
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectAction, setRejectAction] = useState<(() => void) | null>(null);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [approveAction, setApproveAction] = useState<(() => void) | null>(null);
 
-const renderStatus = () => {
-  const statusToDisplay = displayStatus || status;
-  if (!statusToDisplay) return null;
+  const renderStatus = () => {
+    const statusToDisplay = displayStatus || status;
+    if (!statusToDisplay) return null;
 
-  const label =
-    displayStatus || (status ? statusLabelMap[status] ?? status : "");
+    const label =
+      displayStatus || (status ? statusLabelMap[status] ?? status : "");
 
-  const statusTag = (
-    <Tag
-      className={`doc-header-status doc-header-status--${
-        status?.toLowerCase() || "draft"
-      }`}
-    >
-      <span className="dot" />
-      {label}
-    </Tag>
-  );
-
-  // ✅ Show popover ONLY when rejected & remark exists
-  // Check both uppercase and the actual status value
-  const isRejected = status?.toUpperCase() === "REJECTED" || status === "REJECTED";
-  const hasRemark = rejectionRemark && rejectionRemark.trim().length > 0;
-  
-  // Debug logging
-  console.log("DocumentHeader - Status:", status, "IsRejected:", isRejected, "HasRemark:", hasRemark, "Remark:", rejectionRemark);
-  
-  if (isRejected && hasRemark) {
-    return (
-      <Popover
-        content={
-          <div className="rejection-popover">
-            <strong>Rejection Remark</strong>
-            <p>{rejectionRemark}</p>
-          </div>
-        }
-        placement="bottom"
-        trigger="hover"
-        overlayClassName="rejection-popover-wrapper"
+    const statusTag = (
+      <Tag
+        className={`doc-header-status doc-header-status--${status?.toLowerCase() || "draft"
+          }`}
       >
-        <span >{statusTag}</span>
-      </Popover>
+        <span className="dot" />
+        {label}
+      </Tag>
     );
-  }
 
-  return statusTag;
-};
+    // ✅ Show popover ONLY when rejected & remark exists
+    // Check both uppercase and the actual status value
+    const isRejected = status?.toUpperCase() === "REJECTED" || status === "REJECTED";
+    const hasRemark = rejectionRemark && rejectionRemark.trim().length > 0;
+
+    // Debug logging
+    console.log("DocumentHeader - Status:", status, "IsRejected:", isRejected, "HasRemark:", hasRemark, "Remark:", rejectionRemark);
+
+    if (isRejected && hasRemark) {
+      return (
+        <Popover
+          content={
+            <div className="rejection-popover">
+              <strong>Rejection Remark</strong>
+              <p>{rejectionRemark}</p>
+            </div>
+          }
+          placement="bottom"
+          trigger="hover"
+          overlayClassName="rejection-popover-wrapper"
+        >
+          <span >{statusTag}</span>
+        </Popover>
+      );
+    }
+
+    return statusTag;
+  };
 
 
   return (
@@ -138,12 +138,12 @@ const renderStatus = () => {
               className="document-header-submit-btn"
             />
           )}
-          
+
           {/* Approve + Reject + Re-Upload buttons */}
           {extraActions?.length > 0 && (
             <div className="language-header-top">
               {extraActions
-                .filter(a => a.label === "Approve" || a.label === "Reject" || a.label === "Re-Upload")
+                .filter(a => a.label === "Approve" || a.label === "Reject" || a.label === "Reupload")
                 .map(a => (
                   <PrimaryButton
                     key={a.label}
@@ -152,6 +152,9 @@ const renderStatus = () => {
                     onClick={() => {
                       if (a.label === "Reject") {
                         setShowRejectModal(true);
+                      } else if (a.label === "Approve") {
+                        setApproveAction(() => a.onClick);
+                        setShowApproveModal(true);
                       } else {
                         a.onClick();
                       }
@@ -164,6 +167,26 @@ const renderStatus = () => {
         </div>
       </div>
 
+      {/* APPROVE CONFIRM MODAL */}
+      <ConfirmModal
+        open={showApproveModal}
+        onCancel={() => {
+          setShowApproveModal(false);
+          setApproveAction(null);
+        }}
+        onConfirm={() => {
+          approveAction?.();
+          setShowApproveModal(false);
+          setApproveAction(null);
+        }}
+        title="Approve Document"
+        description="Are you sure you want to approve this document?"
+        confirmText="Approve"
+        // icon="/assets/approve.svg"
+        confirmType="approve"
+        confirmBtnClassName="approve-confirm-btn"
+      />
+
       {/* REJECT CONFIRM MODAL */}
       <RejectConfirmModal
         open={showRejectModal}
@@ -172,7 +195,7 @@ const renderStatus = () => {
           onReject?.(reason);
           setShowRejectModal(false);
         }}
-        title="Reject this document?"
+        title="Reject Document"
         description="Are you sure you want to reject this document?"
         confirmText="Reject"
         icon="/assets/reject.svg"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 
 import AwaitingApprovalDocumentLayout from "./AwaitingApprovalDocumentLayout";
@@ -31,7 +31,8 @@ const AwaitingApprovalDetails = () => {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [pendingRejectReason, setPendingRejectReason] = useState<string | null>(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+    const location = useLocation();
+    const previousState = location.state as any;
     /* ------------------------------ Fetch Document ------------------------------ */
     useEffect(() => {
         if (id) fetchDocumentDetails();
@@ -97,8 +98,7 @@ const AwaitingApprovalDetails = () => {
             });
         } catch (error: any) {
             notification.error({
-                message: "Failed to load document",
-                description:
+                message:
                     error?.response?.data?.message ||
                     "Could not load document details",
             });
@@ -110,7 +110,15 @@ const AwaitingApprovalDetails = () => {
     };
 
     /* ------------------------------ Handlers ------------------------------ */
-    const handleBackClick = () => navigate("/documents");
+    const handleBackClick = () => {
+        navigate("/documents", {
+            state: {
+                documentFilter: previousState?.documentFilter || "AWAITING",
+                status: previousState?.status || "all",
+                page: previousState?.page || 1,
+            },
+        });
+    };
 
     const handleSummaryChange = (summary: string) => {
         setDocument((prev) =>
@@ -193,7 +201,7 @@ const AwaitingApprovalDetails = () => {
             <div className="empty-state-wrapper">
                 <div className="empty-state">
                     <img src="/assets/table-fallback.svg" alt="No document" />
-                    <p>{isLoading ? "Loading document..." : "Document not found"}</p>
+                    <p>{isLoading ? "Document not found" : "Document not found"}</p>
                 </div>
             </div>
         );
@@ -208,7 +216,7 @@ const AwaitingApprovalDetails = () => {
                 {
                     label: "Reject",
                     type: "danger",
-                    // ✅ Wrap in zero-arg function
+                    //Wrap in zero-arg function
                     onClick: () => setShowRejectModal(true),
                 },
                 {

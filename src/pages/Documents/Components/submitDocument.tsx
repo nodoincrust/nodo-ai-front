@@ -64,8 +64,7 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
     // ❌ Block ONLY when NOTHING is selected at all
     if (selectedReviewers.length === 0) {
       notification.warning({
-        message: "No reviewer selected",
-        description: "Please select at least one reviewer.",
+        message: "Please select at least one reviewer.",
       });
       return;
     }

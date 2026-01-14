@@ -23,7 +23,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx",".txt"];
+  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx", ".txt"];
   const acceptedMimeTypes = [
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -92,8 +92,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   const handleUpload = async () => {
     if (!selectedFile) {
       notification.warning({
-        message: "No file selected",
-        description: "Please select a file to upload",
+        message: "Please select a file to upload",
       });
       return;
     }
@@ -141,9 +140,8 @@ const AddDocument: React.FC<AddDocumentProps> = ({
       }
     } catch (error: any) {
       notification.error({
-        message: "Upload failed",
-        description:
-          error?.response?.data?.message || error?.response?.data?.detail,
+        message:
+          error?.response?.data?.message || error?.response?.data?.detail || "Upload failed",
       });
     } finally {
       setIsUploading(false);
@@ -197,9 +195,8 @@ const AddDocument: React.FC<AddDocumentProps> = ({
           </div>
         )}
         <div
-          className={`file-upload-area ${isDragging ? "dragging" : ""} ${
-            selectedFile ? "has-file" : ""
-          }`}
+          className={`file-upload-area ${isDragging ? "dragging" : ""} ${selectedFile ? "has-file" : ""
+            }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}

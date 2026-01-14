@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({
   categoryButtonTextClassName,
   searchPlaceholder,
   showDropdown = false,
-  status = "all",
+  status = "ALL",
   onStatusChange,
   documentFilterValue,
   onDocumentFilterChange,
@@ -91,17 +91,19 @@ const Header: React.FC<HeaderProps> = ({
           {/* NEW DOCUMENT FILTER DROPDOWN */}
           {onDocumentFilterChange && shouldShowDocumentFilter && (
             <Dropdown
-              menu={{ items: documentFilterOptions, selectable: true, onClick: handleDocumentFilterClick }}
+              menu={{ items: documentFilterOptions, selectable: true, selectedKeys: [documentFilterValue || "MY_DOCUMENTS"], onClick: handleDocumentFilterClick }}
               trigger={["click"]}
               open={documentDropdownOpen}
               onOpenChange={setDocumentDropdownOpen}
             >
               <div
-                className={`status-dropdown ${documentFilterValue ? "status-dropdown--selected" : ""
+                className={`status-dropdown ${documentFilterValue === "MY_DOCUMENTS" || documentFilterValue === "AWAITING"
+                  ? "status-dropdown--selected"
+                  : ""
                   }`}
               >
                 <span className="status-title">
-                  {documentFilterValue === "MY_DOCUMENTS" ? "My Documents" : "Awaiting Approval"}
+                  {documentFilterValue === "AWAITING" ? "Awaiting Approval" : "My Documents"}
                 </span>
                 <img
                   src="/assets/chevron-down.svg"
@@ -120,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* EXISTING STATUS DROPDOWN */}
           {showDropdown && onStatusChange && (
             <Dropdown
-              menu={{ items: menu, selectable: true, selectedKeys: [status], onClick: handleMenuClick }}
+              menu={{ items: menu, selectable: true, selectedKeys: [status.toUpperCase() || "all"], onClick: handleMenuClick }}
               trigger={["click"]}
               open={dropdownOpen}
               onOpenChange={setDropdownOpen}
@@ -155,13 +157,15 @@ const Header: React.FC<HeaderProps> = ({
             >
               <div
                 className={`${categoryButtonClassName || "status-dropdown"} ${categoryMenu.selectedKeys &&
-                  categoryMenu.selectedKeys[0] !== "ALL"
+                  categoryMenu.selectedKeys.length > 0 &&
+                  categoryMenu.selectedKeys[0].toUpperCase() !== "ALL"
                   ? "status-dropdown--selected"
                   : ""
                   }`}
               >
                 <span className={categoryButtonTextClassName || "status-title"}>
-                  {categoryButtonText}
+                  {categoryButtonText?.replace("_", " ").toLowerCase()
+                    .replace(/\b\w/g, c => c.toUpperCase())}
                 </span>
 
                 <img

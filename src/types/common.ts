@@ -74,7 +74,8 @@ export interface ConfirmModalProps {
   confirmText: string;
   cancelText?: string;
   icon?: string;
-  confirmType?: "danger" | "primary";
+  confirmType?: "danger" | "primary" | "approve";
+  confirmBtnClassName?: string;
 }
 
 // DropdownOptionsModal.tsx
@@ -394,7 +395,7 @@ export interface AssignableEmployee {
   role: string;
   is_department_head: boolean;
   order: number;
-  self?:boolean;
+  self?: boolean;
 }
 
 export interface AssignableEmployeeResponse {
@@ -414,5 +415,5 @@ export interface DocumentHeaderAction {
   label: string;
   onClick: () => Promise<void> | void;
   type?: "primary" | "default" | "danger";
-    disabled?: boolean;
+  disabled?: boolean;
 }

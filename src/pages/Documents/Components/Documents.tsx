@@ -30,6 +30,22 @@ export default function DocumentsCombined() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Restore filter/status/page from location.state or sessionStorage
+  useEffect(() => {
+    if (location.state) {
+      // When navigating via React Router, restore the previous filter/status/page
+      const { documentFilter: savedFilter, status: savedStatus, page: savedPage } = location.state as any;
+      if (savedFilter) setDocumentFilter(savedFilter);
+      if (savedStatus) setStatus(savedStatus);
+      if (savedPage) setCurrentPage(savedPage);
+    } else {
+      // On full page refresh, always reset to defaults
+      setDocumentFilter("MY_DOCUMENTS");
+      setStatus("all");
+      setCurrentPage(1);
+    }
+  }, []);
+
   // --- Helpers ---
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + "B";
@@ -177,8 +193,16 @@ export default function DocumentsCombined() {
   };
 
   const handleViewDocument = (document: Document) => {
-    if (documentFilter === "MY_DOCUMENTS") navigate(`/documents/${document.document_id}`);
-    else navigate(`/awaitingApproval/${document.document_id}`);
+    if (documentFilter === "MY_DOCUMENTS")
+      navigate(`/documents/${document.document_id}`);
+    else
+      navigate(`/awaitingApproval/${document.document_id}`, {
+        state: {
+          documentFilter,
+          status,
+          page: currentPage,
+        },
+      });
   };
 
   // --- Columns ---
@@ -259,6 +283,8 @@ export default function DocumentsCombined() {
   ];
 
   const awaitingStatusMenu = {
+    selectable: true,
+    selectedKeys: [status],
     items: [
       { key: "all", label: "All" },
       { key: "APPROVED", label: "Approved" },
@@ -266,12 +292,15 @@ export default function DocumentsCombined() {
       { key: "PENDING", label: "Pending" },
     ],
     onClick: ({ key }: { key: string }) => {
-      setStatus(key === "all" ? "all" : key);
+      // setStatus(key === "all" ? "all" : key);
+      setStatus(key);
       setCurrentPage(1);
     },
   };
 
   const myDocumentsStatusMenu = {
+    selectable: true,
+    selectedKeys: [status],
     items: [
       { key: "all", label: "All" },
       { key: "APPROVED", label: "Approved" },
@@ -281,7 +310,8 @@ export default function DocumentsCombined() {
       { key: "PENDING", label: "Pending" },
     ],
     onClick: ({ key }: { key: string }) => {
-      setStatus(key === "all" ? "all" : key);
+      // setStatus(key === "all" ? "all" : key);
+      setStatus(key);
       setCurrentPage(1);
     },
   };
@@ -303,11 +333,11 @@ export default function DocumentsCombined() {
         onDocumentFilterChange={(val: DocumentFilter) => setDocumentFilter(val)}
         categoryButtonText={`Status: ${status === "all" ? "All" : getDisplayStatus(status)}`}
         categoryButtonClassName="status-dropdown"
-        categoryButtonTextClassName="status-dropdown-text"
+        categoryButtonTextClassName="status-title"
         categoryMenu={
           documentFilter === "AWAITING"
-            ? awaitingStatusMenu
-            : myDocumentsStatusMenu
+            ? { ...awaitingStatusMenu, selectedKeys: [status] }
+            : { ...myDocumentsStatusMenu, selectedKeys: [status] }
         }
       />
 
@@ -333,7 +363,7 @@ export default function DocumentsCombined() {
         emptyText={
           documentFilter === "MY_DOCUMENTS"
             ? "No documents found"
-            : "No documents awaiting approval"
+            : "No documents found"
         }
       />
 

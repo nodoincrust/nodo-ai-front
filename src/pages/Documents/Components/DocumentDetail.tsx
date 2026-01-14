@@ -64,11 +64,10 @@ const DocumentDetail: React.FC = () => {
       }
     } catch (error: any) {
       notification.error({
-        message: "Failed to load document",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Could not load document details.",
+          "Failed to load document details.",
       });
       navigate("/documents");
     } finally {
@@ -94,11 +93,10 @@ const DocumentDetail: React.FC = () => {
       setIsSubmitModalOpen(true);
     } catch (error: any) {
       notification.error({
-        message: "Failed to fetch employees",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Could not load employees list.",
+          "Failed to fetch employees",
       });
     } finally {
       setIsEmployeeLoading(false);
@@ -128,18 +126,17 @@ const DocumentDetail: React.FC = () => {
 
       notification.success({
         message: "Document submitted successfully",
-        description: `Document has been submitted to ${selectedReviewers.length} reviewer(s).`,
+        // description: `Document has been submitted to ${selectedReviewers.length} reviewer(s).`,
       });
 
       setIsSubmitModalOpen(false);
       fetchDocument();
     } catch (error: any) {
       notification.error({
-        message: "Failed to submit document",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Something went wrong",
+          "Failed to submit document",
       });
     } finally {
       getLoaderControl()?.hideLoader();
@@ -206,11 +203,10 @@ const DocumentDetail: React.FC = () => {
       setIsMetadataSaved(true);
     } catch (error: any) {
       notification.error({
-        message: "Failed to save metadata",
-        description:
+        message:
           error?.response?.data?.message ||
           error?.response?.data?.detail ||
-          "Something went wrong",
+          "Failed to save metadata",
       });
     } finally {
       getLoaderControl()?.hideLoader();
@@ -222,8 +218,8 @@ const DocumentDetail: React.FC = () => {
     if (!docId) return;
 
     notification.info({
-      message: "Generating summary",
-      description: "AI is analyzing the document...",
+      // message: "Generating summary",
+      message: "AI is analyzing the document...",
     });
 
     try {
@@ -274,16 +270,15 @@ const DocumentDetail: React.FC = () => {
           }
           setIsSummaryGenerating(false);
           notification.success({
-            message: "Summary generated",
-            description: "AI summary has been generated successfully.",
+            message: "AI summary has been generated successfully.",
             duration: 0,
           });
         },
         (err) => {
           setIsSummaryGenerating(false);
           notification.error({
-            message: "Summary failed",
-            description: String(err),
+            message: "AI Summary generation failed",
+            // description: String(err),
             duration: 0,
           });
         }
@@ -291,7 +286,7 @@ const DocumentDetail: React.FC = () => {
     } catch (err) {
       setIsSummaryGenerating(false);
       notification.error({
-        message: "Failed to start summary",
+        message: "Failed to generate summary",
       });
     }
   };
@@ -308,8 +303,7 @@ const DocumentDetail: React.FC = () => {
       };
     } catch (error: any) {
       notification.error({
-        message: "AI Chat failed",
-        description:
+        message:
           error?.response?.data?.message || "Unable to get response from AI",
       });
 
@@ -354,8 +348,11 @@ const DocumentDetail: React.FC = () => {
   // Early return AFTER all hooks
   if (isLoading || !document) {
     return (
-      <div style={{ padding: "24px", textAlign: "center" }}>
-        <p>Loading document...</p>
+      <div className="empty-state-wrapper">
+        <div className="empty-state">
+          <img src="/assets/table-fallback.svg" alt="No document" />
+          <p>{isLoading ? "Document not found" : "Document not found"}</p>
+        </div>
       </div>
     );
   }
@@ -474,7 +471,7 @@ const DocumentDetail: React.FC = () => {
   // Re-Upload button for employees when document is rejected
   if (status === "REJECTED") {
     extraActions.push({
-      label: "Re-Upload",
+      label: "Reupload",
       onClick: handleReupload,
       type: "default",
     });
