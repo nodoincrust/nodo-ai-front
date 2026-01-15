@@ -6,6 +6,7 @@ import "./DocumentHeader.scss";
 import type { DocumentHeaderProps } from "../../types/common";
 import RejectConfirmModal from "../RejectConfirmModal/RejectConfirmModal";
 
+
 const statusLabelMap: any = {
   APPROVED: "Approved",
   REJECTED: "Rejected",
@@ -33,6 +34,19 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveAction, setApproveAction] = useState<(() => void) | null>(null);
 
+  const normalizeStatus = (status?: string) => {
+    if (!status) return "draft";
+
+    const value = status.toLowerCase();
+
+    if (value.includes("reject")) return "rejected";
+    if (value.includes("approve")) return "approved";
+    if (value.includes("pending")) return "submitted";
+    if (value.includes("review")) return "in_review";
+
+    return "draft";
+  };
+
   const renderStatus = () => {
     const statusToDisplay = displayStatus || status;
     if (!statusToDisplay) return null;
@@ -40,23 +54,18 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
     const label =
       displayStatus || (status ? statusLabelMap[status] ?? status : "");
 
+    const baseStatus = normalizeStatus(statusToDisplay);
+
     const statusTag = (
-      <Tag
-        className={`doc-header-status doc-header-status--${status?.toLowerCase() || "draft"
-          }`}
-      >
+      <Tag className={`doc-header-status doc-header-status--${baseStatus}`}>
         <span className="dot" />
         {label}
       </Tag>
     );
 
-    // ✅ Show popover ONLY when rejected & remark exists
-    // Check both uppercase and the actual status value
-    const isRejected = status?.toUpperCase() === "REJECTED" || status === "REJECTED";
-    const hasRemark = rejectionRemark && rejectionRemark.trim().length > 0;
+    const isRejected = statusToDisplay.toUpperCase().includes("REJECT");
 
-    // Debug logging
-    console.log("DocumentHeader - Status:", status, "IsRejected:", isRejected, "HasRemark:", hasRemark, "Remark:", rejectionRemark);
+    const hasRemark = rejectionRemark && rejectionRemark.trim().length > 0;
 
     if (isRejected && hasRemark) {
       return (
@@ -71,15 +80,13 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           trigger="hover"
           overlayClassName="rejection-popover-wrapper"
         >
-          <span >{statusTag}</span>
+          <span>{statusTag}</span>
         </Popover>
       );
     }
 
     return statusTag;
   };
-
-    
 
   return (
     <>
@@ -148,9 +155,9 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
                   (a) =>
                     a.label === "Approve" ||
                     a.label === "Reject" ||
-                    a.label === "Re-Upload" ||
-                    a.label === "Edit"||
-                    a.label=== "Save"
+                    a.label === "Reupload" ||
+                    a.label === "Edit" ||
+                    a.label === "Save"
                 )
                 .map((a) => (
                   <PrimaryButton

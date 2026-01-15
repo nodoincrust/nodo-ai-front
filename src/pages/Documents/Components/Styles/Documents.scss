@@ -229,6 +229,15 @@
         background-color: #ff9500;
       }
     }
+
+    &.reuploaded {
+      background-color:#F3E8FF;
+      color: #8A38F5;
+
+      .badge-dot {
+        background-color: #8A38F5;
+      }
+    }
   }
 
   // ===============================

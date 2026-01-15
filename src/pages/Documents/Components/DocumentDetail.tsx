@@ -95,7 +95,7 @@ const DocumentDetail: React.FC = () => {
     notification.info({
       message: "Edit Mode Enabled",
       description: "You can now edit this document.",
-    });
+    });}
 
     // Example options:
     // 1. Enable editable preview
@@ -207,45 +207,7 @@ const DocumentDetail: React.FC = () => {
   };
 
 
-// const handleSave = async () => {
-//   if (!document) return;
 
-//   try {
-//     getLoaderControl()?.showLoader();
-
-//     // ✅ Convert edited text into a File
-//     const blob = new Blob([textContent], { type: "text/plain" });
-//     const fileName = document.version.file_name || "document.txt";
-//     const file = new File([blob], fileName, { type: "text/plain" });
-
-//     const formData = new FormData();
-//     formData.append("file", file);
-
-//     // ✅ Call REUPLOAD API (creates new version)
-//     await reuploadDocument(document.document_id, formData);
-
-//     notification.success({
-//       message: "Document saved",
-//       description: "A new version has been created successfully.",
-//     });
-
-//     setIsEditMode(false);
-//     setTextContent("");
-
-//     // ✅ Reload latest version
-//     await fetchDocument();
-//   } catch (error: any) {
-//     notification.error({
-//       message: "Save failed",
-//       description:
-//         error?.response?.data?.message ||
-//         error?.response?.data?.detail ||
-//         "Unable to save document",
-//     });
-//   } finally {
-//     getLoaderControl()?.hideLoader();
-//   }
-// };
 
 
   const handleAddTag = (tag: string) => {
@@ -548,22 +510,22 @@ const DocumentDetail: React.FC = () => {
     });
   }
 
-  if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
-    extraActions.push({
-      label: "Edit",
-      onClick: () => setIsEditMode(true),
-      type: "default",
-    });
-  }
+  // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
+  //   extraActions.push({
+  //     label: "Edit",
+  //     onClick: () => setIsEditMode(true),
+  //     type: "default",
+  //   });
+  // }
 
   
-  if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
-    extraActions.push({
-      label: "Save",
-      onClick: () => setIsEditMode(true),
-      type: "default",
-    });
-  }
+  // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
+  //   extraActions.push({
+  //     label: "Save",
+  //     onClick: () => setIsEditMode(true),
+  //     type: "default",
+  //   });
+  // }
   const hideSubmit = status === "REUPLOADED";
 
   const headerProps: DocumentHeaderProps = {

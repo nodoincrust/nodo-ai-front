@@ -72,6 +72,11 @@
         &:hover {
           color: $color-primary;
         }
+        
+      }
+
+      nav{
+        margin-top: 2px;
       }
 
       .filename {
@@ -89,6 +94,7 @@
         font-size: 16px;
         font-weight: 500;
         cursor: pointer;
+     
       }
     }
   }
@@ -119,7 +125,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    margin-top: 10px;
+    margin-top: 12px;
     height: 24px; // ✅ exact height
     min-width: 79px; // ✅ exact width (use min-width for dynamic text)
     padding: 4px 6px; // ✅ exact padding

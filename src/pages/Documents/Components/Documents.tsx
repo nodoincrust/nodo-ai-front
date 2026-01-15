@@ -17,7 +17,8 @@ import "../../Company/Awaiting_Approval/Components/Styles/AwaitingApproval.scss"
 type DocumentFilter = "MY_DOCUMENTS" | "AWAITING";
 
 export default function DocumentsCombined() {
-  const [documentFilter, setDocumentFilter] = useState<DocumentFilter>("MY_DOCUMENTS");
+  const [documentFilter, setDocumentFilter] =
+    useState<DocumentFilter>("MY_DOCUMENTS");
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -59,10 +60,12 @@ export default function DocumentsCombined() {
     const type = fileType.toLowerCase();
     if (type === "pdf") return "/assets/pdf_icon.svg";
     if (type === "docx" || type === "doc") return "/assets/doc_icon.svg";
-    if (type === "xlsm" || type === "xlsx" || type === "xls" || type === "xlc") return "/assets/xlc_icon.svg";
+    if (type === "xlsm" || type === "xlsx" || type === "xls" || type === "xlc")
+      return "/assets/xlc_icon.svg";
     if (type === "pptx" || type === "ppt") return "/assets/ppt_icon.svg";
     // For image files, we can use a default or add an image icon later
-    if (type === "png" || type === "jpg" || type === "jpeg" || type === "gif") return "/assets/imag.svg";
+    if (type === "png" || type === "jpg" || type === "jpeg" || type === "gif")
+      return "/assets/imag.svg";
     if (type === "txt") return "/assets/doc icons.svg";
     // Default to doc icon for unknown types
     return "/assets/doc_icon.svg";
@@ -70,28 +73,43 @@ export default function DocumentsCombined() {
 
   const getDisplayStatus = (status: string) => {
     switch (status) {
-      case "APPROVED": return "Approved";
-      case "DRAFT": return "Draft";
-      case "REJECTED": return "Rejected";
-      case "SUBMITTED": return "Submitted";
-      case "IN_REVIEW": return "In Review";
+      case "APPROVED":
+        return "Approved";
+      case "DRAFT":
+        return "Draft";
+      case "REJECTED":
+        return "Rejected";
+      case "SUBMITTED":
+        return "Submitted";
+      case "IN_REVIEW":
+        return "In Review";
       case "PENDING":
       case "AWAITING_APPROVAL":
         return "Pending";
-      default: return status;
+      case "REUPLOADED":
+        return "Reuploaded";
+      default:
+        return status;
     }
   };
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case "APPROVED": return "approved";
-      case "DRAFT": return "draft";
-      case "REJECTED": return "rejected";
-      case "SUBMITTED": return "submitted";
+      case "APPROVED":
+        return "approved";
+      case "DRAFT":
+        return "draft";
+      case "REJECTED":
+        return "rejected";
+      case "SUBMITTED":
+        return "submitted";
       case "PENDING":
       case "AWAITING_APPROVAL":
         return "pending";
-      default: return "";
+      case "REUPLOADED":
+        return "reuploaded";
+      default:
+        return "";
     }
   };
 
@@ -114,7 +132,8 @@ export default function DocumentsCombined() {
           name: doc.version?.file_name ?? "Unknown Document",
           size: doc.version?.file_size_bytes ?? 0,
           tags: Array.isArray(doc.version?.tags) ? doc.version.tags : [],
-          file_type: doc.version?.file_name?.split(".").pop()?.toLowerCase() ?? "doc",
+          file_type:
+            doc.version?.file_name?.split(".").pop()?.toLowerCase() ?? "doc",
         }));
         setDocumentList(normalizedDocuments);
         setCount(res.total || 0);
@@ -234,20 +253,27 @@ export default function DocumentsCombined() {
     ...commonColumns,
     {
       title: "SIZE",
-      render: (row: any) => <span className="document-size">{formatFileSize(row.size)}</span>,
+      render: (row: any) => (
+        <span className="document-size">{formatFileSize(row.size)}</span>
+      ),
     },
     {
       title: "TAGS",
       render: (row: any) => (
         <div className="tags-container">
-          {row.tags.map((tags: string, idx: number) => (
-            <span key={idx} className="tag-badge">
-              {tags}
-            </span>
-          ))}
+          {Array.isArray(row?.tags) && row.tags.length > 0 ? (
+            row.tags.map((tag: string, idx: number) => (
+              <span key={idx} className="tag-badge">
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span>-</span>
+          )}
         </div>
       ),
     },
+
     {
       title: "STATUS",
       render: (row: any) => (
@@ -267,7 +293,9 @@ export default function DocumentsCombined() {
     },
     {
       title: "SUBMITTED AT",
-      render: (row: any) => <span>{new Date(row.submitted_at).toLocaleString()}</span>,
+      render: (row: any) => (
+        <span>{new Date(row.submitted_at).toLocaleString()}</span>
+      ),
     },
     {
       title: "STATUS",
@@ -329,11 +357,15 @@ export default function DocumentsCombined() {
           setCurrentPage(1);
         }}
         searchPlaceholder="Search by document name or tag"
-        onAddClick={documentFilter === "MY_DOCUMENTS" ? openAddDocument : undefined}
+        onAddClick={
+          documentFilter === "MY_DOCUMENTS" ? openAddDocument : undefined
+        }
         addButtonText="Add Document"
         documentFilterValue={documentFilter}
         onDocumentFilterChange={(val: DocumentFilter) => setDocumentFilter(val)}
-        categoryButtonText={`Status: ${status === "all" ? "All" : getDisplayStatus(status)}`}
+        categoryButtonText={`Status: ${
+          status === "all" ? "All" : getDisplayStatus(status)
+        }`}
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-title"
         categoryMenu={
@@ -345,9 +377,16 @@ export default function DocumentsCombined() {
 
       <Table
         data={documentList}
-        columns={documentFilter === "MY_DOCUMENTS" ? myDocumentsColumns : awaitingColumns}
+        columns={
+          documentFilter === "MY_DOCUMENTS"
+            ? myDocumentsColumns
+            : awaitingColumns
+        }
         actions={(row) => (
-          <div className="documents-actions" onClick={() => handleViewDocument(row)}>
+          <div
+            className="documents-actions"
+            onClick={() => handleViewDocument(row)}
+          >
             <img src="/assets/Eye.svg" alt="View" />
             <span className="spantext">View</span>
           </div>
