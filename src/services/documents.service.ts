@@ -60,10 +60,7 @@ export const reuploadDocument = async (
 };
 
 // Get document by ID
-export const getDocumentById = async (
-  id: number,
-  version?: number
-): Promise<ApiDocument> => {
+export const getDocumentById = async (id: number, version?: number): Promise<ApiDocument> => {
   const response = await axios.get<ApiDocumentDetailResponse>(
     API_URL.getDocumentById(id),
     {
@@ -73,14 +70,17 @@ export const getDocumentById = async (
 
   const apiData = response.data.data;
 
-  // Construct full file URL safely
-  const fileUrl =
-    apiData.file?.file_path && config.docBaseUrl
-      ? `${config.docBaseUrl.replace(/\/$/, "")}/${apiData.file.file_path.replace(
-        /^\//,
-        ""
-      )}`
-      : "";
+  // Construct file URL
+  let fileUrl = "";
+  if (apiData.file.file_url) {
+    fileUrl = apiData.file.file_url;
+  } else if (apiData.file.file_path) {
+    const baseUrl = config.docBaseUrl.replace(/\/$/, "");
+    const path = apiData.file.file_path.startsWith("/")
+      ? apiData.file.file_path
+      : `/${apiData.file.file_path}`;
+    fileUrl = `${baseUrl}${path}`;
+  }
 
   return {
     document_id: apiData.document.id,
@@ -88,30 +88,6 @@ export const getDocumentById = async (
     display_status: apiData.document.display_status,
     remark: apiData.document.remark,
     current_version: apiData.document.current_version,
-    is_approved: apiData.document.is_approved,
-    is_active: apiData.document.is_active,
-    created_at: apiData.document.created_at,
-    uploaded_by: apiData.document.uploaded_by,
-    department_id: apiData.document.department_id,
-    company_id: apiData.document.company_id,
-    is_actionable: apiData.document.is_actionable,
-
-    file: apiData.file
-      ? {
-        file_name: apiData.file.file_name,
-        file_path: apiData.file.file_path || "",
-        version_number: apiData.file.version_number,
-      }
-      : undefined,
-
-    ai: apiData.ai
-      ? {
-        ai_document_id: apiData.ai.ai_document_id,
-        session_id: apiData.ai.session_id,
-        file_type: apiData.ai.file_type,
-        file_size_mb: apiData.ai.file_size_mb,
-      }
-      : undefined,
 
     summary: {
       text: apiData.summary?.text || "",
@@ -119,7 +95,13 @@ export const getDocumentById = async (
       citations: apiData.summary?.citations || [],
     },
 
-    versions: apiData.versions || [],
+    version: {
+      version_number: apiData.file.version_number,
+      file_name: apiData.file.file_name,
+      file_size_bytes: apiData.file.file_size_bytes,
+      file_url: fileUrl,
+      tags: apiData.summary?.tags || [],  // ✅ required by ApiDocumentVersion
+    },
   };
 };
 
@@ -201,7 +183,7 @@ export async function startSummary(
     API_URL.startSummary(documentId),
     null,
     {
-      params: { version },
+      params: { version }, // ✅ REQUIRED
     }
   );
 

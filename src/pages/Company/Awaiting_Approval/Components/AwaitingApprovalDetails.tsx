@@ -8,6 +8,7 @@ import DocumentPreview from "../../../Documents/DocumentPreview";
 
 import {
     ApiDocument,
+    ApiDocumentVersion,
     DocumentHeaderAction,
     DocumentHeaderProps,
 } from "../../../../types/common";
@@ -18,23 +19,15 @@ import {
     rejectDocumentByID,
 } from "../../../../services/awaitingApproval.services";
 
-import { config } from "../../../../config";
+import { config } from "../../../../config"; // Make sure config.docBaseUrl is imported
 
 const AwaitingApprovalDetails = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const location = useLocation();
-    const previousState = location.state as any;
 
     const [document, setDocument] = useState<ApiDocument | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [reloadKey, setReloadKey] = useState(0);
-    const [selectedVersion, setSelectedVersion] = useState<number>(1);
-
-    const [summaryText, setSummaryText] = useState<string>("");
-    const [activeTags, setActiveTags] = useState<string[]>([]);
-    const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
-
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [pendingRejectReason, setPendingRejectReason] = useState<string | null>(null);
     const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
@@ -92,34 +85,31 @@ const AwaitingApprovalDetails = () => {
                         ? "APPROVED"
                         : data.review?.status === "REJECTED"
                             ? "REJECTED"
-                            : "IN_REVIEW";
+                            : data.document?.status === "SUBMITTED"
+                                ? "SUBMITTED"
+                                : "IN_REVIEW";
 
-            // Flatten the document object for easier access
-            const normalizedDocument: any = {
+            const currentVersion = data.document.current_version;
+
+            /* ---------------- Set Document ---------------- */
+            setDocument({
                 document_id: data.document.id,
                 status: mappedStatus,
-                display_status: data.document.display_status ?? mappedStatus,
-                current_version: data.document.current_version,
-                file: data.file,
-                summary: {
-                    text: data.summary?.text ?? "",
-                    tags: data.summary?.tags ?? [],
-                    citations: data.summary?.citations ?? [],
-                },
-                versions: data.versions ?? [],
+                display_status: data.document.display_status,
+                current_version: currentVersion,
+                version: versionData,
                 is_actionable: data.document.is_actionable,
-                remark: data.document.remark ?? undefined,
-            };
+            });
 
-            setDocument(normalizedDocument);
-            setSummaryText(normalizedDocument.summary.text);
-            setSuggestedTags(normalizedDocument.summary.tags);
-            setActiveTags(normalizedDocument.summary.tags);
-            setSelectedVersion(version ?? data.document.current_version);
+            // Ensure selectedVersion is kept in sync (default to current_version on first load)
+            setSelectedVersion(prev =>
+                prev !== null ? prev : String(versionNumber || currentVersion || 1)
+            );
         } catch (error: any) {
             notification.error({
                 message:
-                    error?.response?.data?.message || "Could not load document details",
+                    error?.response?.data?.message ||
+                    "Could not load document details",
             });
             navigate("/documents");
         } finally {
@@ -128,10 +118,11 @@ const AwaitingApprovalDetails = () => {
         }
     };
 
+    /* ------------------------------ Handlers ------------------------------ */
     const handleBackClick = () => {
         navigate("/documents", {
             state: {
-                documentFilter: "AWAITING",
+                documentFilter: previousState?.documentFilter || "AWAITING",
                 status: previousState?.status || "all",
                 page: previousState?.page || 1,
             },
@@ -139,9 +130,10 @@ const AwaitingApprovalDetails = () => {
     };
 
     const handleSummaryChange = (summary: string) => {
-        setSummaryText(summary);
         setDocument((prev) =>
-            prev ? { ...prev, summary: { ...prev.summary, text: summary } } : prev
+            prev
+                ? { ...prev, version: { ...prev.version, summary } }
+                : prev
         );
     };
 
@@ -161,7 +153,17 @@ const AwaitingApprovalDetails = () => {
         try {
             await approveDocumentByID(document.document_id);
             notification.success({ message: "Document approved successfully" });
-            setReloadKey((prev) => prev + 1);
+
+            // setDocument(prev =>
+            //     prev
+            //         ? {
+            //             ...prev,
+            //             status: "APPROVED",
+            //             display_status: "Approved & Public", // ✅ UPDATE THIS
+            //         }
+            //         : prev
+            // );
+            setReloadKey(prev => prev + 1);
         } catch (error: any) {
             notification.error({
                 message:
@@ -177,9 +179,21 @@ const AwaitingApprovalDetails = () => {
 
         getLoaderControl()?.showLoader();
         try {
+            // Pass reason trimmed in payload
             await rejectDocumentByID(document.document_id, reason.trim());
+
             notification.success({ message: "Document rejected successfully" });
-            setReloadKey((prev) => prev + 1);
+
+            // setDocument(prev =>
+            //     prev
+            //         ? {
+            //             ...prev,
+            //             status: "REJECTED",
+            //             display_status: "Rejected",
+            //         }
+            //         : prev
+            // );
+            setReloadKey(prev => prev + 1);
         } catch (error: any) {
             notification.error({
                 message:
@@ -190,78 +204,81 @@ const AwaitingApprovalDetails = () => {
         }
     };
 
+    /* ------------------------------ Loading ------------------------------ */
     if (isLoading || !document) {
         return (
             <div className="empty-state-wrapper">
                 <div className="empty-state">
                     <img src="/assets/table-fallback.svg" alt="No document" />
-                    <p>Document not found</p>
+                    <p>{isLoading ? "Document not found" : "Document not found"}</p>
                 </div>
             </div>
         );
     }
 
-    // Header extra actions
-    const extraActions: DocumentHeaderAction[] = document.is_actionable
-        ? []
-        : [
-            {
-                label: "Reject",
-                type: "danger",
-                onClick: () => setShowRejectModal(true),
-            },
-            {
-                label: "Approve",
-                type: "primary",
-                onClick: handleApprove,
-            },
-        ];
 
-    const fileName = document.file?.file_name || "Document";
+    /* ------------------------------ Header ------------------------------ */
+    const extraActions: DocumentHeaderAction[] =
+        document.is_actionable
+            ? []
+            : [
+                {
+                    label: "Reject",
+                    type: "danger",
+                    //Wrap in zero-arg function
+                    onClick: () => setShowRejectModal(true),
+                },
+                {
+                    label: "Approve",
+                    type: "primary",
+                    onClick: handleApprove,
+                },
+            ];
 
-    const versionOptions = document.versions.map((v) => ({
-        label: `V${v.version}`,
-        value: String(v.version),
-    }));
+    // Build version options for all available versions
+    const versionOptions: DocumentHeaderProps["versionOptions"] = Array.from(
+        { length: document.current_version || 1 },
+        (_, i) => ({
+            value: String(i + 1),
+            label: `V${i + 1}`,
+        })
+    );
 
-    const headerProps: DocumentHeaderProps = {
+    const headerProps: any = {
         breadcrumb: [
-            { label: "Documents", path: "/documents" },
-            { label: document?.file?.file_name || "Unknown Document" }
+            { label: "Awaiting Approval", path: "/documents" },
+            { label: document.version.file_name || "Document" },
         ],
-        fileName: document?.file?.file_name || "Unknown Document",
-        status: document?.status,                    // e.g., "SUBMITTED"
-        displayStatus: document.display_status,   // ← pass the display_status here
-        rejectionRemark: document?.remark ?? undefined,
+        fileName: document.version.file_name || "",
+        status: document.display_status,
         onBackClick: handleBackClick,
-        versionOptions: document?.versions.map(v => ({
-            value: String(v.version),
-            label: `V${v.version}`
-        })) || [],
-        selectedVersion: String(selectedVersion),
-        onVersionChange: (value) => fetchDocumentDetails(Number(value)),
-        onSubmit: undefined, // or your submit handler
-        extraActions: [],     // if needed
+        extraActions,
+        versionOptions,
+        selectedVersion: selectedVersion ?? String(document.current_version),
+        onVersionChange: async (val: string) => {
+            const versionNumber = Number(val);
+            if (!Number.isNaN(versionNumber)) {
+                setSelectedVersion(val);
+                await fetchDocumentDetails(versionNumber);
+            }
+        },
+        ...(document.is_actionable && { extraActions }),
     };
 
-    const fileUrl =
-        document.file?.file_path && config.docBaseUrl
-            ? `${config.docBaseUrl.replace(/\/$/, "")}${document.file.file_path}`
-            : "";
-
+    /* ------------------------------ Render ------------------------------ */
     return (
         <AwaitingApprovalDocumentLayout
             headerProps={{ ...headerProps, onReject: handleReject }}
             document={document}
-            summaryText={summaryText}
-            suggestedTags={suggestedTags}
-            activeTags={activeTags}
             onSummaryChange={handleSummaryChange}
             onSaveMetadata={handleSaveMetadata}
         >
             <div className="document-viewer">
-                {fileUrl ? (
-                    <DocumentPreview fileName={fileName} fileUrl={fileUrl} />
+                {document.version.file_url ? (
+                    <DocumentPreview
+                        fileName={document.version.file_name}
+                        fileUrl={document.version.file_url}
+                    />
                 ) : (
                     <div className="document-placeholder">
                         <span className="document-placeholder-label">

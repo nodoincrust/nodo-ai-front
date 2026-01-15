@@ -87,37 +87,3 @@ export const getIsDepartmentHeadFromToken = (token: string): boolean => {
     return false;
   }
 };
-
-export const getStatusClassFromText = (displayStatus?: string, status?: string) => {
-  const text = (displayStatus || "").toLowerCase();
-
-  // First, try direct matching with displayStatus text
-  if (text.includes("reject")) return "rejected";
-  if (text.includes("approve")) return "approved";
-  if (text.includes("draft")) return "draft";
-  if (text.includes("submit")) return "submitted";
-  if (text.includes("pending")) return "pending";
-  if (text.includes("await")) return "pending"; // for 'awaiting approval'
-  if (text.includes("review")) return "in-review";
-
-  // fallback to enum status (always uppercase)
-  switch (status) {
-    case "APPROVED": return "approved";
-    case "REJECTED": return "rejected";
-    case "DRAFT": return "draft";
-    case "SUBMITTED": return "submitted";
-    case "IN_REVIEW": return "in-review"; // this covers pending drafts
-    case "PENDING": return "pending";     // explicitly cover PENDING
-    default: return "pending";
-  }
-};
-
-export const getDisplayStatus = (value?: string) => {
-  if (!value) return "";
-
-  return value
-    .toLowerCase()
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, c => c.toUpperCase());
-};
-
