@@ -280,40 +280,47 @@ export interface ApiDocumentDetailResponse {
   data: {
     document: {
       id: number;
-      status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED";
+      status: "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED" | "REUPLOADED";
       display_status?: string;
-      remark?: string;
+      remark?: string | null;
       is_active: boolean;
-      created_at: string;
-      current_version: number;
       uploaded_by: number;
       department_id: number;
       company_id: number;
+      current_version: number;
+      is_approved?: boolean;
+      created_at?: string;
+      is_actionable?: boolean;
     };
+
     file: {
       file_name: string;
-      file_url?: string;
       file_path?: string;
-      file_size_bytes: number;
+      file_url?: string;
+      file_size_bytes?: number;
       version_number: number;
     };
+
     ai: {
-      ai_document_id: number;
-      session_id: string;
-      file_type: string;
-      file_size_mb: number;
+      ai_document_id: number | null;
+      session_id: string | null;
+      file_type: string | null;
+      file_size_mb: number | null;
     };
+
     summary: {
-      text: string | null;
+      text: string;
       tags: string[];
       citations: any[];
     };
-    review: {
-      status: string | null;
-      reviewed_by: number | null;
-    };
+
+    versions: {
+      version: number;
+      created_at: string;
+    }[];
   };
 }
+
 export type DocumentStatus =
   | "IN_REVIEW"
   | "APPROVED"
@@ -352,17 +359,40 @@ export interface AwaitingDocumentHeaderProps extends DocumentHeaderProps {
 // Normalized document interface for UI
 export interface ApiDocument {
   document_id: number;
-  status: string;
+  status: any;
   display_status?: string;
   current_version: number;
-  version: ApiDocumentVersion;
-  remark?: string;
+  summaryversion?: ApiDocumentVersion;
+  remark?: string | null;
   is_actionable?: boolean;
+  is_approved?: boolean;
+  is_active?: boolean;
+  created_at?: string;
+  uploaded_by?: number;
+  department_id?: number;
+  company_id?: number;
+  file?: {
+    file_name: string;
+    file_path: string;
+    version_number: number;
+    file_size_bytes?: number;
+    file_url?: string;
+  };
+  ai?: {
+    ai_document_id?: number | null;
+    session_id?: string | null;
+    file_type?: string | null;
+    file_size_mb?: number | null;
+  };
   summary?: {
     text?: string;
     tags?: string[];
     citations?: any[];
   };
+  versions: {
+    version: number;
+    created_at?: string;
+  }[];
 }
 
 export interface DocumentsListResponse {

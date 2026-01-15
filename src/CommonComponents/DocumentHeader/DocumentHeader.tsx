@@ -5,6 +5,7 @@ import ConfirmModal from "../Confirm Modal/ConfirmModal";
 import "./DocumentHeader.scss";
 import type { DocumentHeaderProps } from "../../types/common";
 import RejectConfirmModal from "../RejectConfirmModal/RejectConfirmModal";
+import { getStatusClassFromText } from "../../utils/utilFunctions";
 
 
 const statusLabelMap: any = {
@@ -48,11 +49,18 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   };
 
   const renderStatus = () => {
-    const statusToDisplay = displayStatus || status;
-    if (!statusToDisplay) return null;
+    const effectiveStatus = status?.toUpperCase();
+    if (!effectiveStatus) return null;
 
     const label =
-      displayStatus || (status ? statusLabelMap[status] ?? status : "");
+      displayStatus ||
+      statusLabelMap[effectiveStatus] ||
+      effectiveStatus;
+
+    const statusClass = getStatusClassFromText(
+      displayStatus,
+      effectiveStatus
+    );
 
     const baseStatus = normalizeStatus(statusToDisplay);
 

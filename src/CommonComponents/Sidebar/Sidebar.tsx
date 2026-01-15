@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const disabledLinks = ["/dashboard", "/settings","/bouqet"];
+  const disabledLinks = ["/dashboard", "/settings", "/bouqet"];
   // READ AUTH DATA
   const authData: AuthData = JSON.parse(localStorage.getItem("authData") || "{}");
   const sidebarItems: SidebarItem[] = authData.sidebar || [];
@@ -108,11 +108,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   }, [isMobile, isOpen]);
 
   // CLEAR FILTER SESSION
-  const clearFilterSession = () => {
-    sessionStorage.removeItem("appliedFilters");
-    sessionStorage.removeItem("apiAppliedFilters");
+  const clearDocumentSession = () => {
+    sessionStorage.removeItem("documentFilter");
+    sessionStorage.removeItem("documentStatus");
+    sessionStorage.removeItem("documentPage");
   };
-
 
   return (
     <>
@@ -182,7 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   to={item.path}
                   className={`menu-item ${isActive ? "active" : ""}`}
                   onClick={() => {
-                    clearFilterSession();
+                    clearDocumentSession();
                     if (isMobile) toggleSidebar();
                   }}
                 >
@@ -236,7 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   }`}
                 onClick={() => {
                   setShowProfileModal(true);
-                  clearFilterSession();
+                  clearDocumentSession();
                   if (isMobile) toggleSidebar();
                 }}
               >

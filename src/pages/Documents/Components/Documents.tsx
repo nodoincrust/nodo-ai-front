@@ -6,7 +6,7 @@ import { MESSAGES } from "../../../utils/Messages";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { getDisplayStatus, getStatusClassFromText, scrollLayoutToTop } from "../../../utils/utilFunctions";
 import { ApiDocument, Document } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
@@ -17,35 +17,53 @@ import "../../Company/Awaiting_Approval/Components/Styles/AwaitingApproval.scss"
 type DocumentFilter = "MY_DOCUMENTS" | "AWAITING";
 
 export default function DocumentsCombined() {
-  const [documentFilter, setDocumentFilter] =
-    useState<DocumentFilter>("MY_DOCUMENTS");
+  // const [documentFilter, setDocumentFilter] = useState<DocumentFilter>("MY_DOCUMENTS");
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [documentList, setDocumentList] = useState<Document[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [status, setStatus] = useState<any>("all");
+  // const [status, setStatus] = useState<any>("all");
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
 
   // Restore filter/status/page from location.state or sessionStorage
-  useEffect(() => {
-    if (location.state) {
-      const { documentFilter, status, page } = location.state as any;
+  const state = location.state as any;
 
-      setDocumentFilter(documentFilter || "MY_DOCUMENTS");
-      setStatus(status || "all");
-      setCurrentPage(page || 1);
-    }
-  }, []);
+  // Lazy initialize from location.state, then sessionStorage, then default
+  const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
+    () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
+  );
+
+  const [status, setStatus] = useState<string>(
+    () => state?.status || sessionStorage.getItem("documentStatus") || "all"
+  );
+
+  const [currentPage, setCurrentPage] = useState<number>(
+    () => state?.page || (sessionStorage.getItem("documentPage") ? Number(sessionStorage.getItem("documentPage")) : 1)
+  );
 
   useEffect(() => {
-    if (location.state) {
-      navigate(location.pathname, { replace: true });
-    }
+    sessionStorage.setItem("documentFilter", documentFilter);
+    sessionStorage.setItem("documentStatus", status);
+    sessionStorage.setItem("documentPage", currentPage.toString());
+  }, [documentFilter, status, currentPage]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      sessionStorage.removeItem("documentFilter");
+      sessionStorage.removeItem("documentStatus");
+      sessionStorage.removeItem("documentPage");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
 
   // --- Helpers ---
@@ -125,9 +143,10 @@ export default function DocumentsCombined() {
       });
 
       if (res?.data) {
-        const normalizedDocuments: any = res.data.map((doc: ApiDocument) => ({
+        const normalizedDocuments: any = res.data.map((doc: any) => ({
           document_id: doc.document_id,
           status: doc.status,
+          pending_on: doc.pending_on,
           current_version: doc.current_version,
           name: doc.version?.file_name ?? "Unknown Document",
           size: doc.version?.file_size_bytes ?? 0,
@@ -176,7 +195,7 @@ export default function DocumentsCombined() {
           is_approved: doc.status === "Approved",
           status: doc.status || "-",
           submitted_by: doc.uploaded_by?.name || "Unknown",
-          submitted_at: doc.submitted_at,
+          submitted_at: doc.submitted_at ?? "-",
         }));
         setDocumentList(normalizedDocuments);
         setCount(res.total || 0);
@@ -277,11 +296,23 @@ export default function DocumentsCombined() {
     {
       title: "STATUS",
       render: (row: any) => (
-        <span className={`status-badge ${getStatusClass(row.status)}`}>
+        <span className={`status-badge ${getStatusClassFromText(row.status)}`}>
           <span className="badge-dot" />
           <span>{getDisplayStatus(row.status)}</span>
         </span>
       ),
+    },
+    {
+      title: "PENDING ON",
+      render: (row: any) =>
+        row.pending_on ? (
+          <span className={`status-badge ${getStatusClassFromText(row.pending_on)}`}>
+            <span className="badge-dot" />
+            <span>{getDisplayStatus(row.pending_on)}</span>
+          </span>
+        ) : (
+          "-"
+        ),
     },
   ];
 
@@ -293,9 +324,7 @@ export default function DocumentsCombined() {
     },
     {
       title: "SUBMITTED AT",
-      render: (row: any) => (
-        <span>{new Date(row.submitted_at).toLocaleString()}</span>
-      ),
+      render: (row: any) => <span>{row.submitted_at}</span>,
     },
     {
       title: "STATUS",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
@@ -14,26 +14,20 @@ import {
   getAiChatResponse,
 
 } from "../../../services/documents.service";
+import { ApiDocument, DocumentHeaderAction } from "../../../types/common";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { getRoleFromToken } from "../../../utils/jwt";
-import type {
-  DocumentHeaderProps,
-  ApiDocument,
-  AssignableEmployee,
-  DocumentHeaderAction,
-} from "../../../types/common";
-import "./Styles/DocumentLayout.scss";
-import AddDocument from "./AddDocument";
+import { approveDocumentByID, getAwaitingApprovalDetails, rejectDocumentByID } from "../../../services/awaitingApproval.services";
 import { config } from "../../../config";
+import AwaitingApprovalDocumentLayout from "../../Company/Awaiting_Approval/Components/AwaitingApprovalDocumentLayout";
+import DocumentPreview from "../DocumentPreview";
 
-const DocumentDetail: React.FC = () => {
+const AwaitingApprovalDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSummaryGenerating, setIsSummaryGenerating] = useState(false);
+  const previousState = location.state as any;
 
   const [document, setDocument] = useState<ApiDocument | null>(null);
-  const [selectedVersion, setSelectedVersion] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const autoSummaryTriggeredRef = useRef(false);
@@ -55,30 +49,70 @@ const DocumentDetail: React.FC = () => {
       fetchDocument();
     }
   }, [id]);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [selectedVersion, setSelectedVersion] = useState<number>(1);
 
-  const fetchDocument = async (version?: number) => {
+  const [summaryText, setSummaryText] = useState<string>("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+
+  const [showRejectModal, setShowRejectModal] = useState(false);
+
+  useEffect(() => {
+    if (id) fetchDocumentDetails();
+  }, [id, reloadKey]);
+
+  const fetchDocumentDetails = async (version?: number) => {
     if (!id) return;
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
 
     try {
-      const doc = await getDocumentById(Number(id), version);
-      setDocument(doc);
+      const res = await getAwaitingApprovalDetails(id, version);
+      const data = res.data?.data;
 
-      setSuggestedTags(doc.summary?.tags ?? []);
-      setActiveTags(doc.summary?.tags ?? []);
-      console.log("API summary tags:", doc.summary?.tags);
+      if (!data) throw new Error("Document not found");
 
-      setSelectedVersion(version ?? doc.version?.version_number ?? doc.current_version);
+      // ---- Normalize status ----
+      const rawStatus = (data.review?.status || data.document.status)?.toUpperCase();
+
+      let normalizedStatus: ApiDocument["status"];
+      if (rawStatus === "PENDING" || rawStatus === "IN_REVIEW") normalizedStatus = "IN_REVIEW";
+      else if (rawStatus === "APPROVED") normalizedStatus = "APPROVED";
+      else if (rawStatus === "REJECTED") normalizedStatus = "REJECTED";
+      else if (rawStatus === "DRAFT") normalizedStatus = "DRAFT";
+      else if (rawStatus === "SUBMITTED") normalizedStatus = "SUBMITTED";
+      else normalizedStatus = "DRAFT"; // fallback
+
+      // Flatten document object
+      const normalizedDocument: any = {
+        document_id: data.document.id,
+        status: normalizedStatus,
+        display_status: data.document.display_status ?? normalizedStatus,
+        current_version: data.document.current_version,
+        file: data.file,
+        summary: {
+          text: data.summary?.text ?? "",
+          tags: data.summary?.tags ?? [],
+          citations: data.summary?.citations ?? [],
+        },
+        versions: data.versions ?? [],
+        is_actionable: data.document.is_actionable,
+        remark: data.document.remark ?? undefined,
+      };
+
+      setDocument(normalizedDocument);
+      setSummaryText(normalizedDocument.summary.text);
+      setSuggestedTags(normalizedDocument.summary.tags);
+      setActiveTags(normalizedDocument.summary.tags);
+      setSelectedVersion(version ?? data.document.current_version);
 
     } catch (error: any) {
       notification.error({
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to load document details.",
+        message: error?.response?.data?.message || "Could not load document details",
       });
+      navigate("/documents");
     } finally {
       setIsLoading(false);
       getLoaderControl()?.hideLoader();
@@ -87,7 +121,11 @@ const DocumentDetail: React.FC = () => {
 
   const handleBackClick = () => {
     navigate("/documents", {
-      state: location.state ?? undefined,
+      state: {
+        documentFilter: "AWAITING",
+        status: previousState?.status || "all",
+        page: previousState?.page || 1,
+      },
     });
   };
 
@@ -135,56 +173,34 @@ const DocumentDetail: React.FC = () => {
 
   const handleSubmit = async () => {
     setIsEmployeeLoading(true);
+  const handleApprove = async () => {
+    if (!document) return;
+
+    getLoaderControl()?.showLoader();
     try {
-      const employees = await getAssignableEmployees();
-      setAssignableEmployees(employees);
-      setIsSubmitModalOpen(true);
+      await approveDocumentByID(document.document_id);
+      notification.success({ message: "Document approved successfully" });
+      setReloadKey((prev) => prev + 1);
     } catch (error: any) {
       notification.error({
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to fetch employees",
+        message: error?.response?.data?.message || "Failed to approve document",
       });
     } finally {
-      setIsEmployeeLoading(false);
+      getLoaderControl()?.hideLoader();
     }
   };
 
-  const handleDocumentSubmission = async (selectedReviewers: number[]) => {
+  const handleReject = async (reason: string) => {
     if (!document) return;
 
+    getLoaderControl()?.showLoader();
     try {
-      getLoaderControl()?.showLoader();
-
-      // ✅ REAL API CALL USING SELECTED EMPLOYEES
-      await submitDocumentForReview(
-        document.document_id,
-        selectedReviewers // ← from hierarchy API
-      );
-
-      // Update document status
-      setDocument((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          status: "SUBMITTED" as const,
-        };
-      });
-
-      notification.success({
-        message: "Document submitted successfully",
-        // description: `Document has been submitted to ${selectedReviewers.length} reviewer(s).`,
-      });
-
-      setIsSubmitModalOpen(false);
-      fetchDocument();
+      await rejectDocumentByID(document.document_id, reason.trim());
+      notification.success({ message: "Document rejected successfully" });
+      setReloadKey((prev) => prev + 1);
     } catch (error: any) {
       notification.error({
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to submit document",
+        message: error?.response?.data?.message || "Failed to reject document",
       });
     } finally {
       getLoaderControl()?.hideLoader();
@@ -234,32 +250,16 @@ const DocumentDetail: React.FC = () => {
     });
 
     notification.success({ message: `Tag "${tag}" created` });
+    setSummaryText(summary);
+    setDocument((prev) =>
+      prev ? { ...prev, summary: { ...prev.summary, text: summary } } : prev
+    );
   };
 
   const handleSaveMetadata = async () => {
-    if (!document) return;
-
-    const payload = {
-      summary: document.version?.summary ?? "",
-      tags: activeTags.filter(Boolean),
-    };
-
+    getLoaderControl()?.showLoader();
     try {
-      getLoaderControl()?.showLoader();
-
-      await saveDocumentMetadata(document.document_id, payload);
-
-      notification.success({
-        message: "Metadata saved successfully",
-      });
-      setIsMetadataSaved(true);
-    } catch (error: any) {
-      notification.error({
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to save metadata",
-      });
+      notification.success({ message: "Metadata saved successfully" });
     } finally {
       getLoaderControl()?.hideLoader();
     }
@@ -418,14 +418,11 @@ const DocumentDetail: React.FC = () => {
       <div className="empty-state-wrapper">
         <div className="empty-state">
           <img src="/assets/table-fallback.svg" alt="No document" />
-          <p>{isLoading ? "Document not found" : "Document not found"}</p>
+          <p>Document not found</p>
         </div>
       </div>
     );
   }
-  const fileName = document.version?.file_name || "Unknown Document";
-  const documentStatus = document.status;
-  const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
 
   // Create version options (assuming we might have multiple versions)
   const versionOptions = Array.from(
@@ -495,20 +492,31 @@ const DocumentDetail: React.FC = () => {
       "Unknown document status:",
       documentStatus,
       "- defaulting to DRAFT"
+  const fileName = document.file?.file_name || "Document";
+
+  // ---- Header extra actions ----
+  const extraActions: DocumentHeaderAction[] = [];
+  if (document.status === "REJECTED") {
+    extraActions.push({
+      label: "Reupload",
+      type: "default",
+      onClick: () => setShowRejectModal(false), // replace with real handler if any
+    });
+  }
+  if (document.is_actionable) {
+    extraActions.push(
+      { label: "Reject", type: "danger", onClick: () => setShowRejectModal(true) },
+      { label: "Approve", type: "primary", onClick: handleApprove }
     );
   }
 
-  // Build extra actions based on user role and document status
-  const extraActions: DocumentHeaderAction[] = [];
+  const versionOptions = document.versions.map((v) => ({
+    label: `V${v.version}`,
+    value: String(v.version),
+  }));
 
-  // Re-Upload button for employees when document is rejected
-  if (status === "REJECTED") {
-    extraActions.push({
-      label: "Reupload",
-      onClick: handleReupload,
-      type: "default",
-    });
-  }
+  // Show submit button for DRAFT or IN_REVIEW
+  const showSubmit = document.status === "DRAFT" || document.status === "IN_REVIEW";
 
   // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
   //   extraActions.push({
@@ -529,34 +537,28 @@ const DocumentDetail: React.FC = () => {
   const hideSubmit = status === "REUPLOADED";
 
   const headerProps: DocumentHeaderProps = {
+  const headerProps: any = {
     breadcrumb: [
       { label: "Documents", path: "/documents" },
       { label: fileName },
     ],
-    fileName: documentTitle,
-    status,
+    fileName,
+    status: document.status,
     displayStatus: document.display_status,
-    rejectionRemark: document.remark,
+    rejectionRemark: document.remark ?? undefined,
     onBackClick: handleBackClick,
-    versionOptions: versionOptions,
+    versionOptions,
     selectedVersion: String(selectedVersion),
-    onVersionChange: (value: string) => handleVersionChange(Number(value)),
-    // Only show submit button when status is DRAFT (no role restriction)
-    onSubmit: !hideSubmit && status === "DRAFT" ? handleSubmit : undefined,
-    // Disable submit until metadata has been saved at least once
-    submitDisabled: status === "DRAFT" && !isMetadataSaved,
+    onVersionChange: (value: any) => fetchDocumentDetails(Number(value)),
+    onSubmit: showSubmit ? handleSaveMetadata : undefined,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
   };
-  console.log(
-    "Document status:",
-    status,
-    "isSubmitModalOpen:",
-    isSubmitModalOpen
-  );
-  console.log("Document remark:", document.remark);
-  console.log("Rejection remark passed to header:", document.remark);
-  console.log("Extra actions:", extraActions);
-  console.log(fileUrl);
+
+  const fileUrl =
+    document.file?.file_path && config.docBaseUrl
+      ? `${config.docBaseUrl.replace(/\/$/, "")}${document.file.file_path}`
+      : "";
+
   return (
     <>
       <DocumentLayout
@@ -624,7 +626,28 @@ const DocumentDetail: React.FC = () => {
         }}
       />
     </>
+    <AwaitingApprovalDocumentLayout
+      headerProps={headerProps}
+      document={document}
+      summaryText={summaryText}
+      suggestedTags={suggestedTags}
+      activeTags={activeTags}
+      onSummaryChange={handleSummaryChange}
+      onSaveMetadata={handleSaveMetadata}
+    >
+      <div className="document-viewer">
+        {fileUrl ? (
+          <DocumentPreview fileName={fileName} fileUrl={fileUrl} />
+        ) : (
+          <div className="document-placeholder">
+            <span className="document-placeholder-label">
+              Document preview not available
+            </span>
+          </div>
+        )}
+      </div>
+    </AwaitingApprovalDocumentLayout>
   );
 };
 
-export default DocumentDetail;
+export default AwaitingApprovalDetails;

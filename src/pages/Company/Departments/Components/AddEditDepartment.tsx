@@ -279,8 +279,10 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
                                 if (open && employees.length === 0) fetchEmployees("");
                             }}
                             options={employees.map(emp => ({
-                                label: emp.name,
                                 value: emp.id,
+                                label: emp.department_name
+                                    ? `${emp.name} (${emp.department_name})`
+                                    : emp.name,
                             }))}
                             getPopupContainer={() => document.body}
                         />
