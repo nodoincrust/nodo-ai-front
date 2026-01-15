@@ -321,14 +321,7 @@ export interface ApiDocumentDetailResponse {
   };
 }
 
-export type DocumentStatus =
-  | "IN_REVIEW"
-  | "APPROVED"
-  | "REJECTED"
-  | "DRAFT"
-  | "SUBMITTED"
-  | "AWAITING_APPROVAL"
-  | "AWAITING_APPROVAL" | "REUPLOADED";
+export type DocumentStatus = "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED" | "all" | "PENDING" | "REUPLOADED";
 
 export interface DocumentBreadcrumbItem {
   label: string;

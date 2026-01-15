@@ -7,6 +7,7 @@ import { approveDocumentByID, getAwaitingApprovalDetails, rejectDocumentByID } f
 import { config } from "../../../config";
 import AwaitingApprovalDocumentLayout from "../../Company/Awaiting_Approval/Components/AwaitingApprovalDocumentLayout";
 import DocumentPreview from "../DocumentPreview";
+import { getDisplayStatus } from "../../../utils/utilFunctions";
 
 const AwaitingApprovalDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -190,7 +191,7 @@ const AwaitingApprovalDetails = () => {
     ],
     fileName,
     status: document.status,
-    displayStatus: document.display_status,
+    displayStatus: document.display_status || getDisplayStatus(document.status),
     rejectionRemark: document.remark ?? undefined,
     onBackClick: handleBackClick,
     versionOptions,

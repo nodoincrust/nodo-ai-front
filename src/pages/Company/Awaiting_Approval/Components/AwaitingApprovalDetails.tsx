@@ -19,6 +19,7 @@ import {
 } from "../../../../services/awaitingApproval.services";
 
 import { config } from "../../../../config";
+import { getDisplayStatus } from "../../../../utils/utilFunctions";
 
 const AwaitingApprovalDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -200,7 +201,7 @@ const AwaitingApprovalDetails = () => {
         ],
         fileName: document?.file?.file_name || "Unknown Document",
         status: document?.status,                    // e.g., "SUBMITTED"
-        displayStatus: document.display_status,   // ← pass the display_status here
+        displayStatus: document.display_status || getDisplayStatus(document.status),
         rejectionRemark: document?.remark ?? undefined,
         onBackClick: handleBackClick,
         versionOptions: document?.versions.map(v => ({

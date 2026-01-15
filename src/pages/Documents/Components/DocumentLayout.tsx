@@ -155,7 +155,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
             <ChatSidebar
               isOpen={isChatOpen}
               onToggle={toggleChatSidebar}
-              contextValue={document?.version?.file_name || ""}
+              contextValue={document?.file?.file_name || ""}
               documentId={document?.document_id}
               onSendMessage={onSendMessage}
             />

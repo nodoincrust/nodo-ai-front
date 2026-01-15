@@ -7,7 +7,7 @@ import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { getDisplayStatus, getStatusClassFromText, scrollLayoutToTop } from "../../../utils/utilFunctions";
-import { ApiDocument, Document } from "../../../types/common";
+import { ApiDocument, Document, DocumentStatus } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
 import AddDocument from "./AddDocument";
@@ -38,8 +38,8 @@ export default function DocumentsCombined() {
     () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
   );
 
-  const [status, setStatus] = useState<string>(
-    () => state?.status || sessionStorage.getItem("documentStatus") || "all"
+  const [status, setStatus] = useState<DocumentStatus>(
+    () => state?.status || (sessionStorage.getItem("documentStatus") as DocumentStatus) || "all"
   );
 
   const [currentPage, setCurrentPage] = useState<number>(
@@ -95,7 +95,7 @@ export default function DocumentsCombined() {
         page: currentPage,
         size: pageSize,
         search: debouncedSearch || undefined,
-        ...(status && status !== "all" ? { status } : {}),
+        ...(status && status !== "all" ? { status: status as Exclude<DocumentStatus, "all" | "PENDING" | "REUPLOADED"> } : {}),
       });
 
       if (res?.data) {
@@ -299,7 +299,7 @@ export default function DocumentsCombined() {
     ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
-      setStatus(key);
+      setStatus(key as DocumentStatus);
       setCurrentPage(1);
     },
   };
@@ -318,7 +318,7 @@ export default function DocumentsCombined() {
     ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
-      setStatus(key);
+      setStatus(key as DocumentStatus);
       setCurrentPage(1);
     },
   };
