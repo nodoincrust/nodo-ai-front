@@ -194,7 +194,7 @@ export default function Companies() {
             title: "Storage",
             render: (row) => (
               <span>
-                {Math.max(0, Math.round(row.total_space / (1024 * 1024 * 1024)))} GB
+                {row.total_space} GB
               </span>
             ),
           },

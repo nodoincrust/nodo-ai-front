@@ -3,5 +3,5 @@ export const config = {
   // Define VITE_API_BASE_URL in your .env file, for example:
   // VITE_API_BASE_URL=http://localhost:5000
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
-  docBaseUrl:import.meta.env.VITE_Document_Viewer_url
+  docBaseUrl:import.meta.env.VITE_DOCUMENT_VIEWER_URL || "http://localhost:5000",
 };

@@ -10,7 +10,9 @@ interface AwaitingApprovalDocumentLayoutProps {
     children?: React.ReactNode;
 
     showSummarySidebar?: boolean;
-
+    summaryText?: string;
+    suggestedTags?: string[];
+    activeTags?: string[];
     onSummaryChange?: (summary: string) => void;
     onAddTag?: (tag: string) => void;
     onRemoveTag?: (tag: string) => void;
@@ -60,9 +62,9 @@ const AwaitingApprovalDocumentLayout: React.FC<
                             <AwaitingApprovalSidebar
                                 isOpen={isSummaryOpen}
                                 onToggle={toggleSummarySidebar}
-                                summary={document?.version?.summary}
-                                suggestedTags={document?.version?.tags || []}
-                                activeTags={document?.version?.tags || []}
+                                summary={document?.summary?.text}
+                                suggestedTags={document?.summary?.tags || []}
+                                activeTags={document?.summary?.tags || []}
                                 onSummaryChange={onSummaryChange}
                                 onRegenerate={onRegenerate}
                                 documentId={document?.document_id}

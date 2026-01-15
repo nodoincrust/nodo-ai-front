@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DocumentHeader from "../../../CommonComponents/DocumentHeader/DocumentHeader";
 import ChatSidebar from "../../../CommonComponents/ChatSidebar/ChatSidebar";
 import SummarySidebar from "../../../CommonComponents/SummarySidebar/SummarySidebar";
@@ -18,6 +18,7 @@ interface DocumentLayoutProps {
   children?: React.ReactNode;
   isSummaryGenerating?: boolean;
   document?: ApiDocument | null;
+  summaryText?: string;
   suggestedTags?: string[];
   activeTags?: string[];
   onSummaryChange?: (summary: string) => void;
@@ -42,6 +43,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
   activeTags = [],
   isSummaryGenerating,
   onSummaryChange,
+  summaryText,
   onAddTag,
   onRemoveTag,
   onCreateTag,
@@ -102,6 +104,8 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
     }
   };
 
+
+
   return (
     <div className="document-layout">
       <DocumentHeader {...headerProps} />
@@ -110,14 +114,13 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
         {/* Left Sidebar - Summary */}
         {showSummarySidebar && (
           <div
-            className={`document-layout-sidebar document-layout-sidebar--left ${
-              isSummaryOpen ? "open" : "collapsed"
-            } ${isSummaryClosing ? "closing" : ""}`}
+            className={`document-layout-sidebar document-layout-sidebar--left ${isSummaryOpen ? "open" : "collapsed"
+              } ${isSummaryClosing ? "closing" : ""}`}
           >
             <SummarySidebar
               isOpen={isSummaryOpen}
               onToggle={toggleSummarySidebar}
-              summary={document?.version?.summary}
+              summary={summaryText}
               suggestedTags={suggestedTags || []}
               activeTags={activeTags || []}
               onSummaryChange={onSummaryChange}
@@ -146,9 +149,8 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
         {/* Right Sidebar - Chat */}
         {showChatSidebar && (
           <div
-            className={`document-layout-sidebar document-layout-sidebar--right ${
-              isChatOpen ? "open" : "collapsed"
-            } ${isChatClosing ? "closing" : ""}`}
+            className={`document-layout-sidebar document-layout-sidebar--right ${isChatOpen ? "open" : "collapsed"
+              } ${isChatClosing ? "closing" : ""}`}
           >
             <ChatSidebar
               isOpen={isChatOpen}
