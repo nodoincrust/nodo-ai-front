@@ -17,44 +17,57 @@ import "../../Company/Awaiting_Approval/Components/Styles/AwaitingApproval.scss"
 type DocumentFilter = "MY_DOCUMENTS" | "AWAITING";
 
 export default function DocumentsCombined() {
-  const [documentFilter, setDocumentFilter] =
-    useState<DocumentFilter>("MY_DOCUMENTS");
+  // const [documentFilter, setDocumentFilter] =
+  //   useState<DocumentFilter>("MY_DOCUMENTS");
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [documentList, setDocumentList] = useState<Document[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [status, setStatus] = useState<any>("all");
+  // const [status, setStatus] = useState<any>("all");
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
 
   // Restore filter/status/page from location.state or sessionStorage
-  useEffect(() => {
-    if (location.state) {
-      const { documentFilter, status, page } = location.state as any;
 
+   const state = location.state as any;
+ 
   // Lazy initialize from location.state, then sessionStorage, then default
   const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
     () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
   );
-
+ 
   const [status, setStatus] = useState<DocumentStatus>(
     () => state?.status || (sessionStorage.getItem("documentStatus") as DocumentStatus) || "all"
   );
-
+ 
   const [currentPage, setCurrentPage] = useState<number>(
     () => state?.page || (sessionStorage.getItem("documentPage") ? Number(sessionStorage.getItem("documentPage")) : 1)
   );
-
+ 
   useEffect(() => {
-    if (location.state) {
-      navigate(location.pathname, { replace: true });
-    }
+    sessionStorage.setItem("documentFilter", documentFilter);
+    sessionStorage.setItem("documentStatus", status);
+    sessionStorage.setItem("documentPage", currentPage.toString());
+  }, [documentFilter, status, currentPage]);
+ 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      sessionStorage.removeItem("documentFilter");
+      sessionStorage.removeItem("documentStatus");
+      sessionStorage.removeItem("documentPage");
+    };
+ 
+    window.addEventListener("beforeunload", handleBeforeUnload);
+ 
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
-
+ 
   // --- Helpers ---
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + "B";
