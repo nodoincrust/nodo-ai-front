@@ -76,17 +76,18 @@ export default function DocumentsCombined() {
   };
 
   // Get file type icon path
-  const getFileTypeIcon = (fileType: string): string => {
-    const type = fileType.toLowerCase();
-    if (type === "pdf") return "/assets/pdf_icon.svg";
-    if (type === "docx" || type === "doc") return "/assets/doc_icon.svg";
-    if (type === "xlsm" || type === "xlsx" || type === "xls" || type === "xlc")
+  const getFileTypeIcon = (fileName: string): string => {
+    const ext = fileName?.split(".").pop()?.toLowerCase();
+    if (!ext) return "/assets/doc_icon.svg";
+    if (ext === "pdf") return "/assets/pdf_icon.svg";
+    if (ext === "docx" || ext === "doc") return "/assets/doc_icon.svg";
+    if (ext === "xlsm" || ext === "xlsx" || ext === "xls" || ext === "xlc")
       return "/assets/xlc_icon.svg";
-    if (type === "pptx" || type === "ppt") return "/assets/ppt_icon.svg";
+    if (ext === "pptx" || ext === "ppt") return "/assets/ppt_icon.svg";
     // For image files, we can use a default or add an image icon later
-    if (type === "png" || type === "jpg" || type === "jpeg" || type === "gif")
+    if (ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "gif")
       return "/assets/imag.svg";
-    if (type === "txt") return "/assets/doc icons.svg";
+    if (ext === "txt") return "/assets/doc icons.svg";
     // Default to doc icon for unknown types
     return "/assets/doc_icon.svg";
   };
