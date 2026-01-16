@@ -205,7 +205,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           {/* BOTTOM */}
           <div className="bottom-div">
             {/* STORAGE USAGE – ONLY FOR COMPANY ADMIN */}
-            {showStorage && totalStorage > 0 && (
+            {showStorage && (
               <div className="storage-usage">
                 <div className="storage-header">
                   <div className="storage-title">
