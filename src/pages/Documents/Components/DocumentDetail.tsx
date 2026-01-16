@@ -73,7 +73,6 @@ const DocumentDetail: React.FC = () => {
 
       setSuggestedTags(doc.summary?.tags ?? []);
       setActiveTags(doc.summary?.tags ?? []);
-      console.log("API summary tags:", doc.summary?.tags);
 
       // Set isUserWrittenSummary based on API response
       setIsUserWrittenSummary(doc.summary?.is_self_generated === true);
@@ -103,41 +102,42 @@ const DocumentDetail: React.FC = () => {
     notification.info({
       message: "Edit Mode Enabled",
       description: "You can now edit this document.",
-    });}
+    });
+  }
 
-    // Example options:
-    // 1. Enable editable preview
-    // 2. Open editor modal
-    // 3. Navigate to edit screen
-    // navigate(`/documents/${document?.document_id}/edit`);
+  // Example options:
+  // 1. Enable editable preview
+  // 2. Open editor modal
+  // 3. Navigate to edit screen
+  // navigate(`/documents/${document?.document_id}/edit`);
   // const handleVersionChange = (version: number) => {
   //   setSelectedVersion(version);
   //   fetchDocument(version);
   // };
 
-// const handleVersionChange = async (version: number) => {
-//   if (!id) return;
+  // const handleVersionChange = async (version: number) => {
+  //   if (!id) return;
 
-//   setSelectedVersion(version);
-//   setIsMetadataSaved(false); // metadata already saved for old versions
+  //   setSelectedVersion(version);
+  //   setIsMetadataSaved(false); // metadata already saved for old versions
 
-//   try {
-//     getLoaderControl()?.showLoader();
-//     const data = await getDocumentById(Number(id), version);
-//     setDocument(data);
+  //   try {
+  //     getLoaderControl()?.showLoader();
+  //     const data = await getDocumentById(Number(id), version);
+  //     setDocument(data);
 
-//     // Reset tags for selected version
-//     setSuggestedTags(data.version?.tags || []);
-//     setActiveTags([]);
-//   } catch (error) {
-//     notification.error({
-//       message: "Failed to load version",
-//       description: "Unable to load selected document version",
-//     });
-//   } finally {
-//     getLoaderControl()?.hideLoader();
-//   }
-// };
+  //     // Reset tags for selected version
+  //     setSuggestedTags(data.version?.tags || []);
+  //     setActiveTags([]);
+  //   } catch (error) {
+  //     notification.error({
+  //       message: "Failed to load version",
+  //       description: "Unable to load selected document version",
+  //     });
+  //   } finally {
+  //     getLoaderControl()?.hideLoader();
+  //   }
+  // };
 
 
 
@@ -234,7 +234,7 @@ const DocumentDetail: React.FC = () => {
   const handleSummaryUpdate = (updatedSummary: string) => {
     handleSummaryChange(updatedSummary);
     setIsMetadataSaved(false);
-    
+
     // Preserve is_self_generated state when updating
     setDocument((prev) => {
       if (!prev) return prev;
@@ -253,7 +253,7 @@ const DocumentDetail: React.FC = () => {
     handleSummaryChange(savedSummary);
     setIsMetadataSaved(false);
     setIsUserWrittenSummary(true); // Mark as user-written when saved
-    
+
     // Update document state to reflect is_self_generated
     setDocument((prev) => {
       if (!prev) return prev;
@@ -444,24 +444,24 @@ const DocumentDetail: React.FC = () => {
 
   // MUST be after all other hooks but before any conditional returns
   useEffect(() => {
-  if (autoSummaryTriggeredRef.current) return;
-  if (!document || isLoading) return;
+    if (autoSummaryTriggeredRef.current) return;
+    if (!document || isLoading) return;
 
-  // 🚫 Only for latest version
-  if (selectedVersion !== document.current_version) return;
+    // 🚫 Only for latest version
+    if (selectedVersion !== document.current_version) return;
 
-  // Check if summary exists in the API response (data.summary.text)
-  // This prevents auto-regenerating when summary already exists
-  const hasNoSummary =
-    !document.summary?.text || 
-    !document.summary.text.trim() || 
-    document.summary.text.trim() === "";
+    // Check if summary exists in the API response (data.summary.text)
+    // This prevents auto-regenerating when summary already exists
+    const hasNoSummary =
+      !document.summary?.text ||
+      !document.summary.text.trim() ||
+      document.summary.text.trim() === "";
 
-  if (hasNoSummary) {
-    autoSummaryTriggeredRef.current = true;
-    void handleRegenerate(document.document_id);
-  }
-}, [document, isLoading, selectedVersion]);
+    if (hasNoSummary) {
+      autoSummaryTriggeredRef.current = true;
+      void handleRegenerate(document.document_id);
+    }
+  }, [document, isLoading, selectedVersion]);
 
 
   const fileUrl = document?.version?.file_url || "";
@@ -567,11 +567,6 @@ const DocumentDetail: React.FC = () => {
     status = "REUPLOADED" as any;
   } else {
     status = "DRAFT";
-    console.warn(
-      "Unknown document status:",
-      documentStatus,
-      "- defaulting to DRAFT"
-    );
   }
 
   // Build extra actions based on user role and document status
@@ -594,7 +589,7 @@ const DocumentDetail: React.FC = () => {
   //   });
   // }
 
-  
+
   // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
   //   extraActions.push({
   //     label: "Save",
@@ -623,16 +618,6 @@ const DocumentDetail: React.FC = () => {
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
   };
-  console.log(
-    "Document status:",
-    status,
-    "isSubmitModalOpen:",
-    isSubmitModalOpen
-  );
-  console.log("Document remark:", document.remark);
-  console.log("Rejection remark passed to header:", document.remark);
-  console.log("Extra actions:", extraActions);
-  console.log(fileUrl);
   return (
     <>
       <DocumentLayout

@@ -48,7 +48,6 @@ const ExcelViewer = ({ fileUrl }: ExcelViewerProps) => {
         setActiveSheet(first);
         loadSheetData(wb, first);
       } catch (err) {
-        console.error(err);
         setError("Failed to load Excel file");
       } finally {
         setLoading(false);
