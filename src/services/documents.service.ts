@@ -93,6 +93,7 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
       text: apiData.summary?.text || "",
       tags: apiData.summary?.tags || [],
       citations: apiData.summary?.citations || [],
+      is_self_generated: apiData.summary?.is_self_generated || false,
     },
 
     version: {
@@ -101,6 +102,7 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
       file_size_bytes: apiData.file.file_size_bytes,
       file_url: fileUrl,
       tags: apiData.summary?.tags || [],  // ✅ required by ApiDocumentVersion
+      summary: apiData.summary?.text || "",  // ✅ Map summary text to version.summary
     },
   };
 };
@@ -121,6 +123,7 @@ export const saveDocumentMetadata = async (
   payload: {
     summary: string;
     tags: string[];
+    is_self_generated: boolean;
   }
 ) => {
   const response = await axios.post(

@@ -30,6 +30,9 @@ interface DocumentLayoutProps {
     message: string,
     documentId: number
   ) => Promise<AiChatResult>;
+  onEditSummaryClick?: () => void;
+  onWriteOwnSummaryClick?: () => void;
+  isUserWrittenSummary?: boolean;
 }
 
 const DocumentLayout: React.FC<DocumentLayoutProps> = ({
@@ -48,6 +51,9 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
   onSaveMetadata,
   onRegenerate,
   onSendMessage,
+  onEditSummaryClick,
+  onWriteOwnSummaryClick,
+  isUserWrittenSummary = false,
 }) => {
   const [isSummaryOpen, setIsSummaryOpen] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -128,6 +134,9 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
               onRegenerate={onRegenerate}
               documentId={document?.document_id}
               isSummaryGenerating={isSummaryGenerating}
+              onEditSummaryClick={onEditSummaryClick}
+              onWriteOwnSummaryClick={onWriteOwnSummaryClick}
+              isUserWrittenSummary={isUserWrittenSummary}
             />
           </div>
         )}

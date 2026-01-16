@@ -25,6 +25,9 @@ interface SummarySidebarProps {
   onRegenerate?: () => Promise<void> | void;
   documentId?: number;
   isSummaryGenerating?: boolean;
+  onEditSummaryClick?: () => void;
+  onWriteOwnSummaryClick?: () => void;
+  isUserWrittenSummary?: boolean;
 }
 
 const SummarySidebar: React.FC<SummarySidebarProps> = ({
@@ -42,6 +45,10 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   onSaveMetadata,
   onRegenerate,
   documentId,
+
+  onEditSummaryClick,
+  onWriteOwnSummaryClick,
+  isUserWrittenSummary = false,
 }) => {
   const [summary, setSummary] = useState(propSummary);
   const [suggestedTags] = useState<string[]>(propSuggestedTags);
@@ -70,7 +77,13 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   };
 
   const handleEditSummary = () => {
-    setIsEditingSummary(true);
+    // If onEditSummaryClick is provided, use modal instead of inline editing
+    if (onEditSummaryClick) {
+      onEditSummaryClick();
+    } else {
+      // Fallback to inline editing if no handler provided
+      setIsEditingSummary(true);
+    }
   };
 
   const handleRegenerate = () => {
@@ -78,10 +91,16 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   };
 
   const handleWriteOwnSummary = () => {
-    setIsEditingSummary(true);
-    setSummary("");
-    if (onSummaryChange) {
-      onSummaryChange("");
+    // If onWriteOwnSummaryClick is provided, use modal instead of inline editing
+    if (onWriteOwnSummaryClick) {
+      onWriteOwnSummaryClick();
+    } else {
+      // Fallback to inline editing if no handler provided
+      setIsEditingSummary(true);
+      setSummary("");
+      if (onSummaryChange) {
+        onSummaryChange("");
+      }
     }
   };
 
@@ -157,11 +176,24 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
               )}
               <div className="summary-text-box">
                 <div className="summary-ai-header">
-                  <div className="summary-ai-badge">
+                  <div
+                    className={`summary-ai-badge ${
+                      isUserWrittenSummary ? "user-writeup" : ""
+                    }`}
+                  >
                     <span className="summary-ai-sparkle">
-                      <img src="/assets/Star.svg" alt="" />
+                      <img
+                        src={
+                          isUserWrittenSummary
+                            ? "/assets/writeup.svg"
+                            : "/assets/Star.svg"
+                        }
+                        alt=""
+                      />
                     </span>
-                    <span className="summary-ai-label">AI Generated</span>
+                    <span className="summary-ai-label">
+                      {isUserWrittenSummary ? "Your Writeup" : "AI Generated"}
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -231,33 +263,51 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
 
                     <span>Edit Summary</span>
                   </button>
-                  <button
-                    type="button"
-                    className="summary-action-btn"
-                    onClick={handleRegenerate}
-                    disabled={isSummaryGenerating}
-                  >
-                    <svg
-                      className="action-icon"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
+                  {!isUserWrittenSummary && (
+                    <button
+                      type="button"
+                      className="summary-action-btn"
+                      onClick={handleRegenerate}
+                      disabled={isSummaryGenerating}
                     >
-                      <path d="M1.67511 11.3318C1.41526 11.4567 1.25 11.7195 1.25 12.0078C1.25 12.7431 1.32394 13.462 1.46503 14.157C2.46112 19.0641 6.79837 22.7578 12 22.7578C17.9371 22.7578 22.75 17.9449 22.75 12.0078C22.75 6.07075 17.9371 1.25781 12 1.25781C7.59065 1.25781 3.80298 3.9124 2.14482 7.70753C1.97898 8.0871 2.15224 8.52924 2.53181 8.69508C2.91137 8.86091 3.35351 8.68765 3.51935 8.30809C4.94742 5.0396 8.20808 2.75781 12 2.75781C17.1086 2.75781 21.25 6.89918 21.25 12.0078C21.25 17.1164 17.1086 21.2578 12 21.2578C7.84953 21.2578 4.33622 18.5236 3.16544 14.7578H4.5C4.81852 14.7578 5.10229 14.5566 5.20772 14.2561C5.31315 13.9555 5.21724 13.6211 4.96852 13.4222L2.46852 11.4222C2.24339 11.2421 1.93496 11.2069 1.67511 11.3318Z" />
-                    </svg>
-                    <span>Regenerate</span>
-                  </button>
+                      <svg
+                        className="action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M1.67511 11.3318C1.41526 11.4567 1.25 11.7195 1.25 12.0078C1.25 12.7431 1.32394 13.462 1.46503 14.157C2.46112 19.0641 6.79837 22.7578 12 22.7578C17.9371 22.7578 22.75 17.9449 22.75 12.0078C22.75 6.07075 17.9371 1.25781 12 1.25781C7.59065 1.25781 3.80298 3.9124 2.14482 7.70753C1.97898 8.0871 2.15224 8.52924 2.53181 8.69508C2.91137 8.86091 3.35351 8.68765 3.51935 8.30809C4.94742 5.0396 8.20808 2.75781 12 2.75781C17.1086 2.75781 21.25 6.89918 21.25 12.0078C21.25 17.1164 17.1086 21.2578 12 21.2578C7.84953 21.2578 4.33622 18.5236 3.16544 14.7578H4.5C4.81852 14.7578 5.10229 14.5566 5.20772 14.2561C5.31315 13.9555 5.21724 13.6211 4.96852 13.4222L2.46852 11.4222C2.24339 11.2421 1.93496 11.2069 1.67511 11.3318Z" />
+                      </svg>
+                      <span>Regenerate</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="summary-write-own-btn"
-                onClick={handleWriteOwnSummary}
-              >
-                Write Your Own Summary
-              </button>
+              {!isUserWrittenSummary && (
+                <button
+                  type="button"
+                  className="summary-write-own-btn"
+                  onClick={handleWriteOwnSummary}
+                >
+                  Write Your Own Summary
+                </button>
+              )}
+
+              {isUserWrittenSummary && (
+                <button
+                  type="button"
+                  className="summary-generate-ai-btn"
+                  onClick={handleRegenerate}
+                  disabled={isSummaryGenerating}
+                >
+                  <span className="summary-generate-ai-icon">
+                    <img src="/assets/Star.svg" alt="" />
+                  </span>
+                  <span>Generate with AI</span>
+                </button>
+              )}
             </div>
 
             {/* Suggested Tags Section */}

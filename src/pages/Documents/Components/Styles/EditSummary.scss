@@ -1,0 +1,115 @@
+@use '../../../../variables.scss' as *;
+
+.edit-summary-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-summary-label {
+  font-family: $font-family-main;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: $label-color;
+  margin-bottom: 4px;
+}
+
+.edit-summary-textarea {
+  /* existing styles */
+  width: 100%;
+  min-height: 20px;
+  padding: 12px 16px;
+  border: 1px solid $input-border;
+  border-radius: $border-radius-md;
+  font-family: $font-family-main;
+  font-size: 14px;
+  line-height: 20px;
+  resize: vertical;
+  outline: none;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #1B324952 transparent;
+
+  /* Chrome, Edge, Safari */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #1B324952;
+    border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #1B324980; // slightly darker on hover
+  }
+}
+
+
+.edit-summary-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.edit-summary-btn {
+  min-width: 120px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-family: $font-family-main;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 140%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.cancel-btn {
+    background-color: $color-white;
+    border: 1px solid #CACFD6;
+    color: $subheading-color;
+
+    &:hover:not(:disabled) {
+      background-color: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #f3f4f6;
+    }
+  }
+
+  &.update-btn {
+    background-color: #437EF7;
+    border: 1px solid #00000014;
+    color: $color-white;
+    box-shadow: 0px 1px 2px 0px $color-btn-primary-shadow;
+
+    // &:hover:not(:disabled) {
+    //   background-color: #0a4ba8;
+    //   border-color: #0a4ba8;
+    //   opacity: 0.95;
+    // }
+
+    // &:active:not(:disabled) {
+    //   background-color: #083d8a;
+    //   border-color: #083d8a;
+    //   opacity: 0.9;
+    // }
+  }
+}
+

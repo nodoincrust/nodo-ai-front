@@ -307,6 +307,7 @@ export interface ApiDocumentDetailResponse {
       text: string | null;
       tags: string[];
       citations: any[];
+      is_self_generated?: boolean;
     };
     review: {
       status: string | null;
@@ -356,6 +357,7 @@ export interface ApiDocument {
     text?: string;
     tags?: string[];
     citations?: any[];
+    is_self_generated?: boolean;
   };
 }
 

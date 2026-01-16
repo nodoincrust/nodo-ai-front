@@ -4,6 +4,8 @@ import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
 import DocumentPreview from "../DocumentPreview";
 import SubmitDocument from "./submitDocument";
+import EditSummary from "./EditSummary";
+import WriteownSummary from "./WriteownSummary";
 import {
   getDocumentById,
   startSummary,
@@ -50,6 +52,9 @@ const DocumentDetail: React.FC = () => {
   const [isTextLoading, setIsTextLoading] = useState(false);
 
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
+  const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
+  const [isWriteOwnSummaryOpen, setIsWriteOwnSummaryOpen] = useState(false);
+  const [isUserWrittenSummary, setIsUserWrittenSummary] = useState(false);
   useEffect(() => {
     if (id) {
       fetchDocument();
@@ -69,6 +74,9 @@ const DocumentDetail: React.FC = () => {
       setSuggestedTags(doc.summary?.tags ?? []);
       setActiveTags(doc.summary?.tags ?? []);
       console.log("API summary tags:", doc.summary?.tags);
+
+      // Set isUserWrittenSummary based on API response
+      setIsUserWrittenSummary(doc.summary?.is_self_generated === true);
 
       setSelectedVersion(version ?? doc.version?.version_number ?? doc.current_version);
 
@@ -203,9 +211,58 @@ const DocumentDetail: React.FC = () => {
 
       return {
         ...prev,
+        summary: {
+          ...prev.summary,
+          text: summary,
+        },
         version: {
           ...prev.version,
           summary,
+        },
+      };
+    });
+  };
+
+  const handleEditSummaryClick = () => {
+    setIsEditSummaryOpen(true);
+  };
+
+  const handleWriteOwnSummaryClick = () => {
+    setIsWriteOwnSummaryOpen(true);
+  };
+
+  const handleSummaryUpdate = (updatedSummary: string) => {
+    handleSummaryChange(updatedSummary);
+    setIsMetadataSaved(false);
+    
+    // Preserve is_self_generated state when updating
+    setDocument((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        summary: {
+          ...prev.summary,
+          text: updatedSummary,
+          is_self_generated: prev.summary?.is_self_generated || false,
+        },
+      };
+    });
+  };
+
+  const handleSummarySave = (savedSummary: string) => {
+    handleSummaryChange(savedSummary);
+    setIsMetadataSaved(false);
+    setIsUserWrittenSummary(true); // Mark as user-written when saved
+    
+    // Update document state to reflect is_self_generated
+    setDocument((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        summary: {
+          ...prev.summary,
+          text: savedSummary,
+          is_self_generated: true,
         },
       };
     });
@@ -247,6 +304,7 @@ const DocumentDetail: React.FC = () => {
     const payload = {
       summary: document.version?.summary ?? "",
       tags: activeTags.filter(Boolean),
+      is_self_generated: document.summary?.is_self_generated || false, // Preserve existing state
     };
 
     try {
@@ -311,11 +369,16 @@ const DocumentDetail: React.FC = () => {
             return;
           }
 
-          // ✅ Update summary for SAME version
+          // ✅ Update summary for SAME version (update both summary.text and version.summary)
           setDocument((prev) => {
             if (!prev) return prev;
             return {
               ...prev,
+              summary: {
+                ...prev.summary,
+                text: result.summary,
+                is_self_generated: false, // AI-generated
+              },
               version: {
                 ...prev.version,
                 summary: result.summary,
@@ -328,6 +391,7 @@ const DocumentDetail: React.FC = () => {
           }
 
           setIsSummaryGenerating(false);
+          setIsUserWrittenSummary(false); // Mark as AI-generated when regenerated
 
           notification.success({
             message: "Summary generated",
@@ -386,8 +450,12 @@ const DocumentDetail: React.FC = () => {
   // 🚫 Only for latest version
   if (selectedVersion !== document.current_version) return;
 
+  // Check if summary exists in the API response (data.summary.text)
+  // This prevents auto-regenerating when summary already exists
   const hasNoSummary =
-    !document.version?.summary || document.version.summary.trim() === "";
+    !document.summary?.text || 
+    !document.summary.text.trim() || 
+    document.summary.text.trim() === "";
 
   if (hasNoSummary) {
     autoSummaryTriggeredRef.current = true;
@@ -582,6 +650,9 @@ const DocumentDetail: React.FC = () => {
         onRegenerate={handleRegenerate}
         onSendMessage={handleSendMessage}
         isSummaryGenerating={isSummaryGenerating}
+        onEditSummaryClick={handleEditSummaryClick}
+        onWriteOwnSummaryClick={handleWriteOwnSummaryClick}
+        isUserWrittenSummary={isUserWrittenSummary}
       >
         <div className="document-viewer">
           {isEditMode && isTextFile ? (
@@ -631,6 +702,28 @@ const DocumentDetail: React.FC = () => {
           fetchDocument(); // refresh document + version
         }}
       />
+
+      {document && (
+        <>
+          <EditSummary
+            open={isEditSummaryOpen}
+            onClose={() => setIsEditSummaryOpen(false)}
+            summary={document.version?.summary || ""}
+            documentId={document.document_id}
+            activeTags={activeTags}
+            onUpdate={handleSummaryUpdate}
+            isUserWrittenSummary={isUserWrittenSummary}
+          />
+          <WriteownSummary
+            open={isWriteOwnSummaryOpen}
+            onClose={() => setIsWriteOwnSummaryOpen(false)}
+            summary={document.version?.summary || ""}
+            documentId={document.document_id}
+            activeTags={activeTags}
+            onSave={handleSummarySave}
+          />
+        </>
+      )}
     </>
   );
 };
