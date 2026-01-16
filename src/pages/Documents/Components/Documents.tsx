@@ -7,7 +7,7 @@ import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { scrollLayoutToTop } from "../../../utils/utilFunctions";
-import { ApiDocument, Document } from "../../../types/common";
+import { ApiDocument, Document, DocumentStatus } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
 import AddDocument from "./AddDocument";
@@ -36,11 +36,18 @@ export default function DocumentsCombined() {
     if (location.state) {
       const { documentFilter, status, page } = location.state as any;
 
-      setDocumentFilter(documentFilter || "MY_DOCUMENTS");
-      setStatus(status || "all");
-      setCurrentPage(page || 1);
-    }
-  }, []);
+  // Lazy initialize from location.state, then sessionStorage, then default
+  const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
+    () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
+  );
+
+  const [status, setStatus] = useState<DocumentStatus>(
+    () => state?.status || (sessionStorage.getItem("documentStatus") as DocumentStatus) || "all"
+  );
+
+  const [currentPage, setCurrentPage] = useState<number>(
+    () => state?.page || (sessionStorage.getItem("documentPage") ? Number(sessionStorage.getItem("documentPage")) : 1)
+  );
 
   useEffect(() => {
     if (location.state) {
@@ -121,7 +128,7 @@ export default function DocumentsCombined() {
         page: currentPage,
         size: pageSize,
         search: debouncedSearch || undefined,
-        ...(status && status !== "all" ? { status } : {}),
+        ...(status && status !== "all" ? { status: status as Exclude<DocumentStatus, "all" | "PENDING" | "REUPLOADED"> } : {}),
       });
 
       if (res?.data) {
@@ -175,6 +182,7 @@ export default function DocumentsCombined() {
           file_type: doc.file_name.split(".").pop()?.toLowerCase() || "doc",
           is_approved: doc.status === "Approved",
           status: doc.status || "-",
+          pending_on: doc.pending_on,
           submitted_by: doc.uploaded_by?.name || "Unknown",
           submitted_at: doc.submitted_at,
         }));
@@ -293,9 +301,7 @@ export default function DocumentsCombined() {
     },
     {
       title: "SUBMITTED AT",
-      render: (row: any) => (
-        <span>{new Date(row.submitted_at).toLocaleString()}</span>
-      ),
+      render: (row: any) => <span>{new Date(row.submitted_at).toLocaleString()}</span>,
     },
     {
       title: "STATUS",
@@ -305,6 +311,18 @@ export default function DocumentsCombined() {
           <span className={`status-badge ${statusClass}`}>
             <span className="badge-dot" />
             <span>{row.status}</span>
+          </span>
+        );
+      },
+    },
+    {
+      title: "PENDING WITH",
+      render: (row: any) => {
+        const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+        return (
+          <span className={`status-badge ${statusClass}`}>
+            <span className="badge-dot" />
+            <span>{row.pending_on || "-"}</span>
           </span>
         );
       },
@@ -322,7 +340,7 @@ export default function DocumentsCombined() {
     ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
-      setStatus(key);
+      setStatus(key as DocumentStatus);
       setCurrentPage(1);
     },
   };
@@ -341,7 +359,7 @@ export default function DocumentsCombined() {
     ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
-      setStatus(key);
+      setStatus(key as DocumentStatus);
       setCurrentPage(1);
     },
   };

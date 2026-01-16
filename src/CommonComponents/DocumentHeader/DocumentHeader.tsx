@@ -6,7 +6,6 @@ import "./DocumentHeader.scss";
 import type { DocumentHeaderProps } from "../../types/common";
 import RejectConfirmModal from "../RejectConfirmModal/RejectConfirmModal";
 
-
 const statusLabelMap: any = {
   APPROVED: "Approved",
   REJECTED: "Rejected",
@@ -80,7 +79,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           trigger="hover"
           overlayClassName="rejection-popover-wrapper"
         >
-          <span>{statusTag}</span>
+          <span >{statusTag}</span>
         </Popover>
       );
     }

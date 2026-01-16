@@ -156,6 +156,11 @@
       color: #d92d20;
     }
 
+    &.doc-header-status--pending {
+      background-color: #ffecc8;
+      color: #ff9500;
+    }
+
     &.doc-header-status--draft {
       background-color: #f3f4f6;
       color: #00132e;

@@ -102,10 +102,10 @@ const DocumentDetail: React.FC = () => {
     // 2. Open editor modal
     // 3. Navigate to edit screen
     // navigate(`/documents/${document?.document_id}/edit`);
-  const handleVersionChange = (version: number) => {
-    setSelectedVersion(version);
-    fetchDocument(version);
-  };
+  // const handleVersionChange = (version: number) => {
+  //   setSelectedVersion(version);
+  //   fetchDocument(version);
+  // };
 
 // const handleVersionChange = async (version: number) => {
 //   if (!id) return;
@@ -132,6 +132,11 @@ const DocumentDetail: React.FC = () => {
 // };
 
 
+
+  const handleVersionChange = (version: number) => {
+    setSelectedVersion(version);
+    fetchDocument(version);
+  };
 
   const handleSubmit = async () => {
     setIsEmployeeLoading(true);
@@ -265,87 +270,87 @@ const DocumentDetail: React.FC = () => {
     }
   };
 
- const handleRegenerate = async (documentId?: number) => {
-  const docId = documentId || document?.document_id;
-  if (!docId) return;
+  const handleRegenerate = async (documentId?: number) => {
+    const docId = documentId || document?.document_id;
+    if (!docId) return;
 
-  // ✅ version from dropdown
-  const version = selectedVersion;
+    // ✅ version from dropdown
+    const version = selectedVersion;
 
-  notification.info({
-    message: "Generating summary",
-    description: `AI is analyzing version ${version} of the document...`,
-  });
-
-  try {
-    const jobId = await startSummary(docId, version);
-
-    setIsSummaryGenerating(true);
-
-    pollSummaryStatus(
-      jobId,
-      (result) => {
-        if (
-          result?.status === "processing" ||
-          result?.message?.includes("Chunks not ready")
-        ) {
-          setIsSummaryGenerating(false);
-          notification.error({
-            message: "Summary generation failed",
-            duration: 0,
-          });
-          return;
-        }
-
-        if (!result?.summary) {
-          setIsSummaryGenerating(false);
-          notification.error({
-            message: "Summary generation failed",
-            duration: 0,
-          });
-          return;
-        }
-
-        // ✅ Update summary for SAME version
-        setDocument((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            version: {
-              ...prev.version,
-              summary: result.summary,
-            },
-          };
-        });
-
-        if (result.tags) {
-          setSuggestedTags(result.tags);
-        }
-
-        setIsSummaryGenerating(false);
-
-        notification.success({
-          message: "Summary generated",
-          description: `Summary generated for version ${version}`,
-          duration: 0,
-        });
-      },
-      (err) => {
-        setIsSummaryGenerating(false);
-        notification.error({
-          message: "Summary failed",
-          description: String(err),
-          duration: 0,
-        });
-      }
-    );
-  } catch (err) {
-    setIsSummaryGenerating(false);
-    notification.error({
-      message: "Failed to start summary",
+    notification.info({
+      message: "Generating summary",
+      description: `AI is analyzing version ${version} of the document...`,
     });
-  }
-};
+
+    try {
+      const jobId = await startSummary(docId, version);
+
+      setIsSummaryGenerating(true);
+
+      pollSummaryStatus(
+        jobId,
+        (result) => {
+          if (
+            result?.status === "processing" ||
+            result?.message?.includes("Chunks not ready")
+          ) {
+            setIsSummaryGenerating(false);
+            notification.error({
+              message: "Summary generation failed",
+              duration: 0,
+            });
+            return;
+          }
+
+          if (!result?.summary) {
+            setIsSummaryGenerating(false);
+            notification.error({
+              message: "Summary generation failed",
+              duration: 0,
+            });
+            return;
+          }
+
+          // ✅ Update summary for SAME version
+          setDocument((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              version: {
+                ...prev.version,
+                summary: result.summary,
+              },
+            };
+          });
+
+          if (result.tags) {
+            setSuggestedTags(result.tags);
+          }
+
+          setIsSummaryGenerating(false);
+
+          notification.success({
+            message: "Summary generated",
+            description: `Summary generated for version ${version}`,
+            duration: 0,
+          });
+        },
+        (err) => {
+          setIsSummaryGenerating(false);
+          notification.error({
+            message: "Summary failed",
+            description: String(err),
+            duration: 0,
+          });
+        }
+      );
+    } catch (err) {
+      setIsSummaryGenerating(false);
+      notification.error({
+        message: "Failed to start summary",
+      });
+    }
+  };
 
 
   // Handler for ChatSidebar
@@ -426,6 +431,9 @@ const DocumentDetail: React.FC = () => {
   const fileName = document.version?.file_name || "Unknown Document";
   const documentStatus = document.status;
   const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
+
+  // Get file URL from version (already processed in service to be full URL)
+  // const fileUrl = document.version?.file_url || "";
 
   // Create version options (assuming we might have multiple versions)
   const versionOptions = Array.from(
