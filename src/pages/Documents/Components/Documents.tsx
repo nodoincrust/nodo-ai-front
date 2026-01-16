@@ -374,7 +374,8 @@ export default function DocumentsCombined() {
           setCurrentPage(1);
         }}
         searchPlaceholder="Search by document name or tag"
-        onAddClick={documentFilter === "MY_DOCUMENTS" ? openAddDocument : undefined}
+        // onAddClick={documentFilter === "MY_DOCUMENTS" ? openAddDocument : undefined}
+        onAddClick={openAddDocument}
         addButtonText="Add Document"
         documentFilterValue={documentFilter}
         onDocumentFilterChange={(val: DocumentFilter) => setDocumentFilter(val)}
