@@ -97,24 +97,6 @@ export default function DocumentsCombined() {
   const getDisplayStatus = (status: string) => {
     switch (status) {
       case "APPROVED":
-<<<<<<< HEAD
-        return "Approved";
-      case "DRAFT":
-        return "Draft";
-      case "REJECTED":
-        return "Rejected";
-      case "SUBMITTED":
-        return "Submitted";
-      case "IN_REVIEW":
-        return "In Review";
-      case "PENDING":
-      case "AWAITING_APPROVAL":
-        return "Pending";
-      case "REUPLOADED":
-        return "Reuploaded";
-      default:
-        return status;
-=======
       case "DRAFT":
       case "REJECTED":
       case "SUBMITTED":
@@ -124,7 +106,6 @@ export default function DocumentsCombined() {
         return toCamelCase(status.replace(/_/g, " "));
       default:
         return toCamelCase(status);
->>>>>>> rakesh_dev
     }
   };
 
@@ -442,40 +423,6 @@ export default function DocumentsCombined() {
         }
       />
 
-<<<<<<< HEAD
-      <Table
-        data={documentList}
-        columns={
-          documentFilter === "MY_DOCUMENTS"
-            ? myDocumentsColumns
-            : awaitingColumns
-        }
-        actions={(row) => (
-          <div
-            className="documents-actions"
-            onClick={() => handleViewDocument(row)}
-          >
-            <img src="/assets/Eye.svg" alt="View" />
-            <span className="spantext">View</span>
-          </div>
-        )}
-        actionsTitle="ACTION"
-        currentPage={currentPage}
-        totalPages={Math.ceil(count / pageSize)}
-        onPageChange={setCurrentPage}
-        pageSize={pageSize}
-        totalRecords={count}
-        onPageSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
-        emptyText={
-          documentFilter === "MY_DOCUMENTS"
-            ? "No documents found"
-            : "No documents found"
-        }
-      />
-=======
       <div
         className={`language-table ${documentFilter === "MY_DOCUMENTS" && userRole !== "COMPANY_ADMIN"
           ? "with-pending"
@@ -508,7 +455,6 @@ export default function DocumentsCombined() {
           }
         />
       </div>
->>>>>>> rakesh_dev
 
       {documentFilter === "MY_DOCUMENTS" && (
         <AddDocument
