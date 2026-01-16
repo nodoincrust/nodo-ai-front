@@ -30,7 +30,7 @@ const AwaitingApprovalDetails = () => {
     const [document, setDocument] = useState<ApiDocument | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [reloadKey, setReloadKey] = useState(0);
-    const [selectedVersion, setSelectedVersion] = useState<number>(1);
+    const [selectedVersion, setSelectedVersion] = useState<number>();
 
     /* ------------------------------ Fetch Document ------------------------------ */
     useEffect(() => {
