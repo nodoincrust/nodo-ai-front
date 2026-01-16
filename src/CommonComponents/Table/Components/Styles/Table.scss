@@ -106,9 +106,10 @@
         background: #334155;
     }
 }
+
 .empty-placeholder-row td {
-  background: inherit;
-  border-bottom: 1px solid $color-border;
+    background: inherit;
+    border-bottom: 1px solid $color-border;
 }
 
 /* --------------------------
@@ -337,7 +338,7 @@
 
     display: flex !important;
     align-items: center !important;
-    z-index: 2000;
+    // z-index: 2000;
 }
 
 /* Selected value text */

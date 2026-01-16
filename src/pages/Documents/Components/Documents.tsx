@@ -6,7 +6,7 @@ import { MESSAGES } from "../../../utils/Messages";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { getDisplayStatus, getStatusClass, scrollLayoutToTop, toCamelCase } from "../../../utils/utilFunctions";
 import { ApiDocument, Document, DocumentStatus } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
@@ -27,47 +27,49 @@ export default function DocumentsCombined() {
   const [pageSize, setPageSize] = useState(10);
   // const [status, setStatus] = useState<any>("all");
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false);
+  const authData: any = JSON.parse(localStorage.getItem("authData") || "{}");
+  const userRole = authData.user?.role || "";
 
   const location = useLocation();
   const navigate = useNavigate();
 
   // Restore filter/status/page from location.state or sessionStorage
 
-   const state = location.state as any;
- 
+  const state = location.state as any;
+
   // Lazy initialize from location.state, then sessionStorage, then default
   const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
     () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
   );
- 
+
   const [status, setStatus] = useState<DocumentStatus>(
     () => state?.status || (sessionStorage.getItem("documentStatus") as DocumentStatus) || "all"
   );
- 
+
   const [currentPage, setCurrentPage] = useState<number>(
     () => state?.page || (sessionStorage.getItem("documentPage") ? Number(sessionStorage.getItem("documentPage")) : 1)
   );
- 
+
   useEffect(() => {
     sessionStorage.setItem("documentFilter", documentFilter);
     sessionStorage.setItem("documentStatus", status);
     sessionStorage.setItem("documentPage", currentPage.toString());
   }, [documentFilter, status, currentPage]);
- 
+
   useEffect(() => {
     const handleBeforeUnload = () => {
       sessionStorage.removeItem("documentFilter");
       sessionStorage.removeItem("documentStatus");
       sessionStorage.removeItem("documentPage");
     };
- 
+
     window.addEventListener("beforeunload", handleBeforeUnload);
- 
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
- 
+
   // --- Helpers ---
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + "B";
@@ -90,48 +92,6 @@ export default function DocumentsCombined() {
     if (ext === "txt") return "/assets/doc icons.svg";
     // Default to doc icon for unknown types
     return "/assets/doc_icon.svg";
-  };
-
-  const getDisplayStatus = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-        return "Approved";
-      case "DRAFT":
-        return "Draft";
-      case "REJECTED":
-        return "Rejected";
-      case "SUBMITTED":
-        return "Submitted";
-      case "IN_REVIEW":
-        return "In Review";
-      case "PENDING":
-      case "AWAITING_APPROVAL":
-        return "Pending";
-      case "REUPLOADED":
-        return "Reuploaded";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-        return "approved";
-      case "DRAFT":
-        return "draft";
-      case "REJECTED":
-        return "rejected";
-      case "SUBMITTED":
-        return "submitted";
-      case "PENDING":
-      case "AWAITING_APPROVAL":
-        return "pending";
-      case "REUPLOADED":
-        return "reuploaded";
-      default:
-        return "";
-    }
   };
 
   // --- Fetch Functions ---
@@ -306,18 +266,21 @@ export default function DocumentsCombined() {
         </span>
       ),
     },
-    {
-      title: "PENDING ON",
-      render: (row: any) => {
-        const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
-        return (
-          <span className={`status-badge ${statusClass}`}>
-            <span className="badge-dot" />
-            <span>{row.pending_on || "-"}</span>
-          </span>
-        );
-      },
-    },
+    // Only show "PENDING ON" if not COMPANY_ADMIN
+    ...(userRole !== "COMPANY_ADMIN"
+      ? [{
+        title: "PENDING ON",
+        render: (row: any) => {
+          const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+          return (
+            <span className={`status-badge  ${getStatusClass(row.pending_on)}`}>
+              <span className="badge-dot" />
+              <span>{getDisplayStatus(row.pending_on || "-")}</span>
+            </span>
+          );
+        },
+      }]
+      : []),
   ];
 
   const awaitingColumns = [
@@ -375,15 +338,21 @@ export default function DocumentsCombined() {
   const myDocumentsStatusMenu = {
     selectable: true,
     selectedKeys: [status],
-    items: [
-      { key: "all", label: "All" },
-      { key: "APPROVED", label: "Approved" },
-      { key: "DRAFT", label: "Draft" },
-      { key: "REJECTED", label: "Rejected" },
-      { key: "SUBMITTED", label: "Submitted" },
-      { key: "PENDING", label: "Pending" },
-      { key: "REUPLOADED", label: "Reuploaded" },
-    ],
+    items: userRole === "COMPANY_ADMIN"
+      ? [
+        { key: "all", label: "All" },
+        { key: "APPROVED", label: "Approved" },
+        { key: "DRAFT", label: "Draft" },
+      ]
+      : [
+        { key: "all", label: "All" },
+        { key: "APPROVED", label: "Approved" },
+        { key: "DRAFT", label: "Draft" },
+        { key: "REJECTED", label: "Rejected" },
+        { key: "SUBMITTED", label: "Submitted" },
+        { key: "PENDING", label: "Pending" },
+        { key: "REUPLOADED", label: "Reuploaded" },
+      ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
       setStatus(key as DocumentStatus);
@@ -407,9 +376,8 @@ export default function DocumentsCombined() {
         addButtonText="Add Document"
         documentFilterValue={documentFilter}
         onDocumentFilterChange={(val: DocumentFilter) => setDocumentFilter(val)}
-        categoryButtonText={`Status: ${
-          status === "all" ? "All" : getDisplayStatus(status)
-        }`}
+        categoryButtonText={`Status: ${status === "all" ? "All" : getDisplayStatus(status)
+          }`}
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-title"
         categoryMenu={
@@ -419,38 +387,38 @@ export default function DocumentsCombined() {
         }
       />
 
-      <Table
-        data={documentList}
-        columns={
-          documentFilter === "MY_DOCUMENTS"
-            ? myDocumentsColumns
-            : awaitingColumns
-        }
-        actions={(row) => (
-          <div
-            className="documents-actions"
-            onClick={() => handleViewDocument(row)}
-          >
-            <img src="/assets/Eye.svg" alt="View" />
-            <span className="spantext">View</span>
-          </div>
-        )}
-        actionsTitle="ACTION"
-        currentPage={currentPage}
-        totalPages={Math.ceil(count / pageSize)}
-        onPageChange={setCurrentPage}
-        pageSize={pageSize}
-        totalRecords={count}
-        onPageSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
-        emptyText={
-          documentFilter === "MY_DOCUMENTS"
-            ? "No documents found"
-            : "No documents found"
-        }
-      />
+      <div
+        className={`language-table ${documentFilter === "MY_DOCUMENTS" && userRole !== "COMPANY_ADMIN"
+          ? "with-pending"
+          : "without-pending"
+          }`}
+      >
+        <Table
+          data={documentList}
+          columns={documentFilter === "MY_DOCUMENTS" ? myDocumentsColumns : awaitingColumns}
+          actions={(row) => (
+            <div className="documents-actions" onClick={() => handleViewDocument(row)}>
+              <img src="/assets/Eye.svg" alt="View" />
+              <span className="spantext">View</span>
+            </div>
+          )}
+          actionsTitle="ACTION"
+          currentPage={currentPage}
+          totalPages={Math.ceil(count / pageSize)}
+          onPageChange={setCurrentPage}
+          pageSize={pageSize}
+          totalRecords={count}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          emptyText={
+            documentFilter === "MY_DOCUMENTS"
+              ? "No documents found"
+              : "No documents found"
+          }
+        />
+      </div>
 
       {documentFilter === "MY_DOCUMENTS" && (
         <AddDocument
