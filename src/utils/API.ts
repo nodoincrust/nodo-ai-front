@@ -32,7 +32,7 @@ export const API_URL = {
 
   // ========================================
   //   Documents
-  // =========================a==================
+  // ===========================================
   getDocumentList: "/employee/documents",
   uploadDocument: "/newdocuments/upload",
   reuploadDocument: (id: number) => `/newdocuments/reupload/${id}`,
@@ -46,4 +46,5 @@ export const API_URL = {
 
   startSummary: (id: number | string) => `/ai/summary/start/${id}`,
   sumarryStatus: (id: number | string) => `/ai/summary/status/${id}`,
+
 };

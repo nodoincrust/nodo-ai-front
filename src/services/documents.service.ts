@@ -190,6 +190,7 @@ export async function startSummary(
   return res.data.job_id;
 }
 
+
 export function pollSummaryStatus(
   jobId: number | string,
   onSuccess: (result: any) => void,
@@ -218,5 +219,7 @@ export function pollSummaryStatus(
   return () => clearInterval(interval); // optional cancel
 }
 
-// Approve document
+
+
+
 

@@ -1051,4 +1051,11 @@ input {
   tr {
     border-width: 1px !important;
   }
+ pre {
+  height: none !important;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+}
+
 }

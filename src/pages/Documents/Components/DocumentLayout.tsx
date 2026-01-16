@@ -110,8 +110,9 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
         {/* Left Sidebar - Summary */}
         {showSummarySidebar && (
           <div
-            className={`document-layout-sidebar document-layout-sidebar--left ${isSummaryOpen ? "open" : "collapsed"
-              } ${isSummaryClosing ? "closing" : ""}`}
+            className={`document-layout-sidebar document-layout-sidebar--left ${
+              isSummaryOpen ? "open" : "collapsed"
+            } ${isSummaryClosing ? "closing" : ""}`}
           >
             <SummarySidebar
               isOpen={isSummaryOpen}
@@ -145,8 +146,9 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
         {/* Right Sidebar - Chat */}
         {showChatSidebar && (
           <div
-            className={`document-layout-sidebar document-layout-sidebar--right ${isChatOpen ? "open" : "collapsed"
-              } ${isChatClosing ? "closing" : ""}`}
+            className={`document-layout-sidebar document-layout-sidebar--right ${
+              isChatOpen ? "open" : "collapsed"
+            } ${isChatClosing ? "closing" : ""}`}
           >
             <ChatSidebar
               isOpen={isChatOpen}

@@ -17,7 +17,7 @@ export const getAwaitingApprovalDetails = (
     });
 };
 
-
+   
 // Approve a document by ID
 export const approveDocumentByID = async (documentId: number | string) => {
     const response = await axios.post(`${API_URL.approveDocumentByID}/${documentId}`, {

@@ -1,19 +1,22 @@
 @use '../../../../variables.scss' as *;
-
 .document-layout {
   display: flex;
   flex-direction: column;
   height: 100%;
   background-color: #f3f4f6;
+  overflow: hidden;
 }
 
-.document-layout-body {
-  display: flex;
-  align-items: stretch;
-  height: calc(100vh - 80px);
-  max-height: 100%;
-  gap: 0;
+.document-layout-main {
+  flex: 1 1 auto;
+  padding: 16px 20px;
+  overflow-y: auto;
+  min-width: 0;
+  transition: all 0.3s ease;
+
+ 
 }
+
 
 .document-layout-main {
   flex: 1 1 auto;
@@ -110,6 +113,7 @@
   width: 100%;
   max-width: 100%;
   height: 100vh;
+ 
 }
 
 .document-content {

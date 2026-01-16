@@ -17,7 +17,8 @@ import "../../Company/Awaiting_Approval/Components/Styles/AwaitingApproval.scss"
 type DocumentFilter = "MY_DOCUMENTS" | "AWAITING";
 
 export default function DocumentsCombined() {
-  // const [documentFilter, setDocumentFilter] = useState<DocumentFilter>("MY_DOCUMENTS");
+  // const [documentFilter, setDocumentFilter] =
+  //   useState<DocumentFilter>("MY_DOCUMENTS");
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -31,41 +32,42 @@ export default function DocumentsCombined() {
   const navigate = useNavigate();
 
   // Restore filter/status/page from location.state or sessionStorage
-  const state = location.state as any;
 
+   const state = location.state as any;
+ 
   // Lazy initialize from location.state, then sessionStorage, then default
   const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
     () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
   );
-
+ 
   const [status, setStatus] = useState<DocumentStatus>(
     () => state?.status || (sessionStorage.getItem("documentStatus") as DocumentStatus) || "all"
   );
-
+ 
   const [currentPage, setCurrentPage] = useState<number>(
     () => state?.page || (sessionStorage.getItem("documentPage") ? Number(sessionStorage.getItem("documentPage")) : 1)
   );
-
+ 
   useEffect(() => {
     sessionStorage.setItem("documentFilter", documentFilter);
     sessionStorage.setItem("documentStatus", status);
     sessionStorage.setItem("documentPage", currentPage.toString());
   }, [documentFilter, status, currentPage]);
-
+ 
   useEffect(() => {
     const handleBeforeUnload = () => {
       sessionStorage.removeItem("documentFilter");
       sessionStorage.removeItem("documentStatus");
       sessionStorage.removeItem("documentPage");
     };
-
+ 
     window.addEventListener("beforeunload", handleBeforeUnload);
-
+ 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
-
+ 
   // --- Helpers ---
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + "B";
@@ -74,43 +76,61 @@ export default function DocumentsCombined() {
   };
 
   // Get file type icon path
-  const getFileTypeIcon = (fileType: string): string => {
-    const type = fileType.toLowerCase();
-    if (type === "pdf") return "/assets/pdf_icon.svg";
-    if (type === "docx" || type === "doc") return "/assets/doc_icon.svg";
-    if (type === "xlsm" || type === "xlsx" || type === "xls" || type === "xlc") return "/assets/xlc_icon.svg";
-    if (type === "pptx" || type === "ppt") return "/assets/ppt_icon.svg";
+  const getFileTypeIcon = (fileName: string): string => {
+    const ext = fileName?.split(".").pop()?.toLowerCase();
+    if (!ext) return "/assets/doc_icon.svg";
+    if (ext === "pdf") return "/assets/pdf_icon.svg";
+    if (ext === "docx" || ext === "doc") return "/assets/doc_icon.svg";
+    if (ext === "xlsm" || ext === "xlsx" || ext === "xls" || ext === "xlc")
+      return "/assets/xlc_icon.svg";
+    if (ext === "pptx" || ext === "ppt") return "/assets/ppt_icon.svg";
     // For image files, we can use a default or add an image icon later
-    if (type === "png" || type === "jpg" || type === "jpeg" || type === "gif") return "/assets/imag.svg";
-    if (type === "txt") return "/assets/doc icons.svg";
+    if (ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "gif")
+      return "/assets/imag.svg";
+    if (ext === "txt") return "/assets/doc icons.svg";
     // Default to doc icon for unknown types
     return "/assets/doc_icon.svg";
   };
 
   const getDisplayStatus = (status: string) => {
     switch (status) {
-      case "APPROVED": return "Approved";
-      case "DRAFT": return "Draft";
-      case "REJECTED": return "Rejected";
-      case "SUBMITTED": return "Submitted";
-      case "IN_REVIEW": return "In Review";
+      case "APPROVED":
+        return "Approved";
+      case "DRAFT":
+        return "Draft";
+      case "REJECTED":
+        return "Rejected";
+      case "SUBMITTED":
+        return "Submitted";
+      case "IN_REVIEW":
+        return "In Review";
       case "PENDING":
       case "AWAITING_APPROVAL":
         return "Pending";
-      default: return status;
+      case "REUPLOADED":
+        return "Reuploaded";
+      default:
+        return status;
     }
   };
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case "APPROVED": return "approved";
-      case "DRAFT": return "draft";
-      case "REJECTED": return "rejected";
-      case "SUBMITTED": return "submitted";
+      case "APPROVED":
+        return "approved";
+      case "DRAFT":
+        return "draft";
+      case "REJECTED":
+        return "rejected";
+      case "SUBMITTED":
+        return "submitted";
       case "PENDING":
       case "AWAITING_APPROVAL":
         return "pending";
-      default: return "";
+      case "REUPLOADED":
+        return "reuploaded";
+      default:
+        return "";
     }
   };
 
@@ -134,7 +154,8 @@ export default function DocumentsCombined() {
           name: doc.version?.file_name ?? "Unknown Document",
           size: doc.version?.file_size_bytes ?? 0,
           tags: Array.isArray(doc.version?.tags) ? doc.version.tags : [],
-          file_type: doc.version?.file_name?.split(".").pop()?.toLowerCase() ?? "doc",
+          file_type:
+            doc.version?.file_name?.split(".").pop()?.toLowerCase() ?? "doc",
         }));
         setDocumentList(normalizedDocuments);
         setCount(res.total || 0);
@@ -255,20 +276,27 @@ export default function DocumentsCombined() {
     ...commonColumns,
     {
       title: "SIZE",
-      render: (row: any) => <span className="document-size">{formatFileSize(row.size)}</span>,
+      render: (row: any) => (
+        <span className="document-size">{formatFileSize(row.size)}</span>
+      ),
     },
     {
       title: "TAGS",
       render: (row: any) => (
         <div className="tags-container">
-          {row.tags.map((tags: string, idx: number) => (
-            <span key={idx} className="tag-badge">
-              {tags}
-            </span>
-          ))}
+          {Array.isArray(row?.tags) && row.tags.length > 0 ? (
+            row.tags.map((tag: string, idx: number) => (
+              <span key={idx} className="tag-badge">
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span>-</span>
+          )}
         </div>
       ),
     },
+
     {
       title: "STATUS",
       render: (row: any) => (
@@ -379,7 +407,9 @@ export default function DocumentsCombined() {
         addButtonText="Add Document"
         documentFilterValue={documentFilter}
         onDocumentFilterChange={(val: DocumentFilter) => setDocumentFilter(val)}
-        categoryButtonText={`Status: ${status === "all" ? "All" : getDisplayStatus(status)}`}
+        categoryButtonText={`Status: ${
+          status === "all" ? "All" : getDisplayStatus(status)
+        }`}
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-title"
         categoryMenu={
@@ -391,9 +421,16 @@ export default function DocumentsCombined() {
 
       <Table
         data={documentList}
-        columns={documentFilter === "MY_DOCUMENTS" ? myDocumentsColumns : awaitingColumns}
+        columns={
+          documentFilter === "MY_DOCUMENTS"
+            ? myDocumentsColumns
+            : awaitingColumns
+        }
         actions={(row) => (
-          <div className="documents-actions" onClick={() => handleViewDocument(row)}>
+          <div
+            className="documents-actions"
+            onClick={() => handleViewDocument(row)}
+          >
             <img src="/assets/Eye.svg" alt="View" />
             <span className="spantext">View</span>
           </div>

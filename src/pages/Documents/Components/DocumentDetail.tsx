@@ -12,6 +12,7 @@ import {
   submitDocumentForReview,
   getAssignableEmployees,
   getAiChatResponse,
+
 } from "../../../services/documents.service";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { getRoleFromToken } from "../../../utils/jwt";
@@ -43,6 +44,11 @@ const DocumentDetail: React.FC = () => {
   const [isMetadataSaved, setIsMetadataSaved] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  //edit document propose
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [textContent, setTextContent] = useState("");
+  const [isTextLoading, setIsTextLoading] = useState(false);
+
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   useEffect(() => {
     if (id) {
@@ -84,6 +90,48 @@ const DocumentDetail: React.FC = () => {
       state: location.state ?? undefined,
     });
   };
+
+  const handleEdit = () => {
+    notification.info({
+      message: "Edit Mode Enabled",
+      description: "You can now edit this document.",
+    });}
+
+    // Example options:
+    // 1. Enable editable preview
+    // 2. Open editor modal
+    // 3. Navigate to edit screen
+    // navigate(`/documents/${document?.document_id}/edit`);
+  // const handleVersionChange = (version: number) => {
+  //   setSelectedVersion(version);
+  //   fetchDocument(version);
+  // };
+
+// const handleVersionChange = async (version: number) => {
+//   if (!id) return;
+
+//   setSelectedVersion(version);
+//   setIsMetadataSaved(false); // metadata already saved for old versions
+
+//   try {
+//     getLoaderControl()?.showLoader();
+//     const data = await getDocumentById(Number(id), version);
+//     setDocument(data);
+
+//     // Reset tags for selected version
+//     setSuggestedTags(data.version?.tags || []);
+//     setActiveTags([]);
+//   } catch (error) {
+//     notification.error({
+//       message: "Failed to load version",
+//       description: "Unable to load selected document version",
+//     });
+//   } finally {
+//     getLoaderControl()?.hideLoader();
+//   }
+// };
+
+
 
   const handleVersionChange = (version: number) => {
     setSelectedVersion(version);
@@ -162,6 +210,10 @@ const DocumentDetail: React.FC = () => {
       };
     });
   };
+
+
+
+
 
   const handleAddTag = (tag: string) => {
     setIsMetadataSaved(false);
@@ -328,20 +380,42 @@ const DocumentDetail: React.FC = () => {
 
   // MUST be after all other hooks but before any conditional returns
   useEffect(() => {
-    if (autoSummaryTriggeredRef.current) return;
-    if (!document) return;
-    if (isLoading) return;
+  if (autoSummaryTriggeredRef.current) return;
+  if (!document || isLoading) return;
 
-    // Check if summary is missing or empty
-    const hasNoSummary =
-      !document.version?.summary || document.version.summary.trim() === "";
+  // 🚫 Only for latest version
+  if (selectedVersion !== document.current_version) return;
 
-    if (hasNoSummary && document.document_id) {
-      autoSummaryTriggeredRef.current = true;
-      // Automatically trigger summary regeneration
-      void handleRegenerate(document.document_id);
-    }
-  }, [document, isLoading]);
+  const hasNoSummary =
+    !document.version?.summary || document.version.summary.trim() === "";
+
+  if (hasNoSummary) {
+    autoSummaryTriggeredRef.current = true;
+    void handleRegenerate(document.document_id);
+  }
+}, [document, isLoading, selectedVersion]);
+
+
+  const fileUrl = document?.version?.file_url || "";
+  const isTextFile = document?.version?.file_name?.endsWith(".txt");
+  useEffect(() => {
+    const loadTextFile = async () => {
+      if (!fileUrl || !isTextFile || !isEditMode) return;
+
+      try {
+        setIsTextLoading(true);
+        const response = await fetch(fileUrl);
+        const text = await response.text();
+        setTextContent(text);
+      } catch {
+        notification.error({ message: "Failed to load text file" });
+      } finally {
+        setIsTextLoading(false);
+      }
+    };
+
+    loadTextFile();
+  }, [fileUrl, isTextFile, isEditMode]);
 
   // Early return AFTER all hooks
   if (isLoading || !document) {
@@ -359,7 +433,7 @@ const DocumentDetail: React.FC = () => {
   const documentTitle = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension for display
 
   // Get file URL from version (already processed in service to be full URL)
-  const fileUrl = document.version?.file_url || "";
+  // const fileUrl = document.version?.file_url || "";
 
   // Create version options (assuming we might have multiple versions)
   const versionOptions = Array.from(
@@ -444,6 +518,22 @@ const DocumentDetail: React.FC = () => {
     });
   }
 
+  // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
+  //   extraActions.push({
+  //     label: "Edit",
+  //     onClick: () => setIsEditMode(true),
+  //     type: "default",
+  //   });
+  // }
+
+  
+  // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
+  //   extraActions.push({
+  //     label: "Save",
+  //     onClick: () => setIsEditMode(true),
+  //     type: "default",
+  //   });
+  // }
   const hideSubmit = status === "REUPLOADED";
 
   const headerProps: DocumentHeaderProps = {
@@ -494,17 +584,27 @@ const DocumentDetail: React.FC = () => {
         isSummaryGenerating={isSummaryGenerating}
       >
         <div className="document-viewer">
-          {fileUrl && document.version?.file_name ? (
+          {isEditMode && isTextFile ? (
+            isTextLoading ? (
+              <p>Loading text...</p>
+            ) : (
+              <textarea
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                rows={25}
+                style={{
+                  width: "100%",
+                  fontFamily: "monospace",
+                  padding: "12px",
+                  fontSize: "14px",
+                }}
+              />
+            )
+          ) : (
             <DocumentPreview
               fileName={document.version?.file_name || "Unknown Document"}
               fileUrl={document.version?.file_url || ""}
             />
-          ) : (
-            <div className="document-placeholder">
-              <span className="document-placeholder-label">
-                Document preview not available
-              </span>
-            </div>
           )}
         </div>
       </DocumentLayout>
