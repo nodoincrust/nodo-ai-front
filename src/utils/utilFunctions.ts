@@ -87,3 +87,13 @@ export const getIsDepartmentHeadFromToken = (token: string): boolean => {
     return false;
   }
 };
+
+// Convert strings like "AWAITING_APPROVAL" or "PENDING ON DEPARTMENT_HEAD" to CamelCase
+export const toCamelCase = (text: string) => {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .split(/[_\s]/) // split by underscore or space
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
