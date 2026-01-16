@@ -4,36 +4,6 @@
 // Scoped styles for Documents
 // ===============================
 .documents-container {
-  // padding: 24px;
-
-  // ===============================
-  // Status Dropdown
-  // ===============================
-  // .status-dropdown {
-  //   display: flex;
-  //   align-items: center;
-  //   height: 40px;
-  //   gap: 4px;
-  //   padding: 10px 16px;
-  //   border-radius: 8px;
-  //   border: 1px solid #d5d7da;
-  //   background-color: #ffffff;
-  //   font-family: $font-family-main;
-  //   font-weight: 600;
-  //   font-size: 14px;
-  //   line-height: 20px;
-  //   color: #414651;
-  //   cursor: pointer;
-  //   transition: $transition;
-
-  //   &:hover {
-  //     border-color: $color-primary;
-  //   }
-  // }
-
-  // .status-dropdown-text {
-  //   color: #414651;
-  // }
 
   // ===============================
   // Table
@@ -64,42 +34,84 @@
         text-align: left;
         vertical-align: middle;
       }
+    }
+  }
 
-      // Column widths
+  /* =================================================
+     MY DOCUMENTS TABLE (6 columns → has Pending On)
+     ================================================= */
+  .language-table:has(table th:nth-child(6)) {
+    table {
+
       th:nth-child(1),
       td:nth-child(1) {
-        width: 80px;
+        width: 80px; // SR.NO
       }
 
       th:nth-child(2),
       td:nth-child(2) {
-        min-width: 300px;
+        min-width: 300px; // Document Name
       }
 
       th:nth-child(3),
       td:nth-child(3) {
-        width: 120px;
+        width: 120px; // Size
       }
 
       th:nth-child(4),
       td:nth-child(4) {
-        width: 250px;
+        width: 250px; // Tags
       }
 
       th:nth-child(5),
       td:nth-child(5) {
-        width: 150px;
+        width: 150px; // Status
       }
 
       th:nth-child(6),
       td:nth-child(6) {
-        min-width: 250px;
+        min-width: 220px; // Pending On
       }
 
-      td:last-child,
-      th:last-child {
+      th:last-child,
+      td:last-child {
+        width: 100px; // Action
         text-align: center;
-        width: 100px;
+        padding: 0;
+      }
+    }
+  }
+
+  /* =========================================
+     AWAITING DOCUMENTS (NO Pending column)
+     ========================================= */
+  .language-table:not(:has(table th:nth-child(6))) {
+    table {
+
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 80px; // SR.NO
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        min-width: 300px; // Document Name
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 180px; // Uploaded By
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 160px; // Status
+      }
+
+      th:last-child,
+      td:last-child {
+        width: 100px; // Action
+        text-align: center;
         padding: 0;
       }
     }
@@ -218,15 +230,8 @@
       }
     }
 
+    &.submitted,
     &.in-review {
-      background-color: #ffecc8;
-      color: #ff9500;
-
-      .badge-dot {
-        background-color: #ff9500;
-      }
-    }
-    &.submitted {
       background-color: #ffecc8;
       color: #ff9500;
 
@@ -252,7 +257,6 @@
       align-items: center;
       justify-content: center;
       padding: 8px 12px;
-
       border-radius: 10px;
       border: 1px solid #e5e7eb;
       background-color: #ffffff;
