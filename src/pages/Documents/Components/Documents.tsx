@@ -126,9 +126,10 @@ export default function DocumentsCombined() {
       });
 
       if (res?.data) {
-        const normalizedDocuments: any = res.data.map((doc: ApiDocument) => ({
+        const normalizedDocuments: any = res.data.map((doc: any) => ({
           document_id: doc.document_id,
           status: doc.status,
+          pending_on: doc.pending_on,
           current_version: doc.current_version,
           name: doc.version?.file_name ?? "Unknown Document",
           size: doc.version?.file_size_bytes ?? 0,
@@ -277,6 +278,18 @@ export default function DocumentsCombined() {
         </span>
       ),
     },
+    {
+      title: "PENDING ON",
+      render: (row: any) => {
+        const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+        return (
+          <span className={`status-badge ${statusClass}`}>
+            <span className="badge-dot" />
+            <span>{row.pending_on || "-"}</span>
+          </span>
+        );
+      },
+    },
   ];
 
   const awaitingColumns = [
@@ -285,10 +298,10 @@ export default function DocumentsCombined() {
       title: "UPLOADED BY",
       render: (row: any) => <span>{row.submitted_by}</span>,
     },
-    {
-      title: "SUBMITTED AT",
-      render: (row: any) => <span>{new Date(row.submitted_at).toLocaleString()}</span>,
-    },
+    // {
+    //   title: "SUBMITTED AT",
+    //   render: (row: any) => <span>{new Date(row.submitted_at).toLocaleString()}</span>,
+    // },
     {
       title: "STATUS",
       render: (row: any) => {
@@ -301,18 +314,18 @@ export default function DocumentsCombined() {
         );
       },
     },
-    {
-      title: "PENDING WITH",
-      render: (row: any) => {
-        const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
-        return (
-          <span className={`status-badge ${statusClass}`}>
-            <span className="badge-dot" />
-            <span>{row.pending_on || "-"}</span>
-          </span>
-        );
-      },
-    },
+    // {
+    //   title: "REVIEWED BY",
+    //   render: (row: any) => {
+    //     const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+    //     return (
+    //       <span className={`status-badge ${statusClass}`}>
+    //         <span className="badge-dot" />
+    //         <span>{row.pending_on || "-"}</span>
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
 
   const awaitingStatusMenu = {
