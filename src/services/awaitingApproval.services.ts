@@ -8,10 +8,8 @@ export const getApprovalList = async (payload: ApiPayload = {}) => {
     return response.data;
 };
 
-export const getAwaitingApprovalDetails = (documentId: string | number, version?: number) => {
-    return axios.get(`/newdocuments/${documentId}/details`, {
-        params: version ? { version } : undefined,
-    });
+export const getAwaitingApprovalDetails = (documentId: string | number) => {
+    return axios.get(`/newdocuments/${documentId}/details`);
 };
 
 

@@ -87,26 +87,3 @@ export const getIsDepartmentHeadFromToken = (token: string): boolean => {
     return false;
   }
 };
-
-export const getStatusClassFromText = (displayStatus?: string, status?: string) => {
-  const text = ((displayStatus || status || "")).toLowerCase();
-
-  if (text.includes("reject")) return "rejected";
-  if (text.includes("approve")) return "approved";
-  if (text.includes("draft")) return "draft";
-  if (text.includes("submit")) return "submitted";
-  if (text.includes("pending") || text.includes("await")) return "pending";
-  if (text.includes("review")) return "in-review";
-
-  return "pending"; // default
-};
-
-export const getDisplayStatus = (value?: string) => {
-  if (!value) return "";
-
-  return value
-    .toLowerCase()
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, c => c.toUpperCase());
-};
-

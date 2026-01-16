@@ -6,7 +6,7 @@ import { MESSAGES } from "../../../utils/Messages";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { getDisplayStatus, getStatusClassFromText, scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { scrollLayoutToTop } from "../../../utils/utilFunctions";
 import { ApiDocument, Document, DocumentStatus } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
@@ -87,6 +87,33 @@ export default function DocumentsCombined() {
     return "/assets/doc_icon.svg";
   };
 
+  const getDisplayStatus = (status: string) => {
+    switch (status) {
+      case "APPROVED": return "Approved";
+      case "DRAFT": return "Draft";
+      case "REJECTED": return "Rejected";
+      case "SUBMITTED": return "Submitted";
+      case "IN_REVIEW": return "In Review";
+      case "PENDING":
+      case "AWAITING_APPROVAL":
+        return "Pending";
+      default: return status;
+    }
+  };
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case "APPROVED": return "approved";
+      case "DRAFT": return "draft";
+      case "REJECTED": return "rejected";
+      case "SUBMITTED": return "submitted";
+      case "PENDING":
+      case "AWAITING_APPROVAL":
+        return "pending";
+      default: return "";
+    }
+  };
+
   // --- Fetch Functions ---
   const fetchMyDocuments = async () => {
     getLoaderControl()?.showLoader();
@@ -99,10 +126,9 @@ export default function DocumentsCombined() {
       });
 
       if (res?.data) {
-        const normalizedDocuments: any = res.data.map((doc: any) => ({
+        const normalizedDocuments: any = res.data.map((doc: ApiDocument) => ({
           document_id: doc.document_id,
           status: doc.status,
-          pending_on: doc.pending_on,
           current_version: doc.current_version,
           name: doc.version?.file_name ?? "Unknown Document",
           size: doc.version?.file_size_bytes ?? 0,
@@ -149,8 +175,9 @@ export default function DocumentsCombined() {
           file_type: doc.file_name.split(".").pop()?.toLowerCase() || "doc",
           is_approved: doc.status === "Approved",
           status: doc.status || "-",
+          pending_on: doc.pending_on,
           submitted_by: doc.uploaded_by?.name || "Unknown",
-          submitted_at: doc.submitted_at ?? "-",
+          submitted_at: doc.submitted_at,
         }));
         setDocumentList(normalizedDocuments);
         setCount(res.total || 0);
@@ -244,23 +271,11 @@ export default function DocumentsCombined() {
     {
       title: "STATUS",
       render: (row: any) => (
-        <span className={`status-badge ${getStatusClassFromText(row.status)}`}>
+        <span className={`status-badge ${getStatusClass(row.status)}`}>
           <span className="badge-dot" />
           <span>{getDisplayStatus(row.status)}</span>
         </span>
       ),
-    },
-    {
-      title: "PENDING ON",
-      render: (row: any) =>
-        row.pending_on ? (
-          <span className={`status-badge ${getStatusClassFromText(row.pending_on)}`}>
-            <span className="badge-dot" />
-            <span>{getDisplayStatus(row.pending_on)}</span>
-          </span>
-        ) : (
-          "-"
-        ),
     },
   ];
 
@@ -272,7 +287,7 @@ export default function DocumentsCombined() {
     },
     {
       title: "SUBMITTED AT",
-      render: (row: any) => <span>{row.submitted_at}</span>,
+      render: (row: any) => <span>{new Date(row.submitted_at).toLocaleString()}</span>,
     },
     {
       title: "STATUS",
@@ -282,6 +297,18 @@ export default function DocumentsCombined() {
           <span className={`status-badge ${statusClass}`}>
             <span className="badge-dot" />
             <span>{row.status}</span>
+          </span>
+        );
+      },
+    },
+    {
+      title: "PENDING WITH",
+      render: (row: any) => {
+        const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+        return (
+          <span className={`status-badge ${statusClass}`}>
+            <span className="badge-dot" />
+            <span>{row.pending_on || "-"}</span>
           </span>
         );
       },

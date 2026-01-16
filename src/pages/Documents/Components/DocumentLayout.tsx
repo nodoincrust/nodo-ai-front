@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import DocumentHeader from "../../../CommonComponents/DocumentHeader/DocumentHeader";
 import ChatSidebar from "../../../CommonComponents/ChatSidebar/ChatSidebar";
 import SummarySidebar from "../../../CommonComponents/SummarySidebar/SummarySidebar";
@@ -18,7 +18,6 @@ interface DocumentLayoutProps {
   children?: React.ReactNode;
   isSummaryGenerating?: boolean;
   document?: ApiDocument | null;
-  summaryText?: string;
   suggestedTags?: string[];
   activeTags?: string[];
   onSummaryChange?: (summary: string) => void;
@@ -43,7 +42,6 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
   activeTags = [],
   isSummaryGenerating,
   onSummaryChange,
-  summaryText,
   onAddTag,
   onRemoveTag,
   onCreateTag,
@@ -104,8 +102,6 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
     }
   };
 
-
-
   return (
     <div className="document-layout">
       <DocumentHeader {...headerProps} />
@@ -120,7 +116,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
             <SummarySidebar
               isOpen={isSummaryOpen}
               onToggle={toggleSummarySidebar}
-              summary={summaryText}
+              summary={document?.version?.summary}
               suggestedTags={suggestedTags || []}
               activeTags={activeTags || []}
               onSummaryChange={onSummaryChange}
@@ -155,7 +151,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
             <ChatSidebar
               isOpen={isChatOpen}
               onToggle={toggleChatSidebar}
-              contextValue={document?.file?.file_name || ""}
+              contextValue={document?.version?.file_name || ""}
               documentId={document?.document_id}
               onSendMessage={onSendMessage}
             />
