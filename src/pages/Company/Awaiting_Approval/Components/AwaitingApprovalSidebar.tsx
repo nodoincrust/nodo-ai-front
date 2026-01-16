@@ -186,14 +186,14 @@ const AwaitingApprovalSidebar: React.FC<AwaitingApprovalSidebarProps> = ({
                         {/* AI Generated Section */}
                         <div className="summary-ai-section">
                             <div className="summary-text-box">
-                                <div className="summary-ai-header">
+                                {/* <div className="summary-ai-header">
                                     <div className="summary-ai-badge">
                                         <span className="summary-ai-sparkle">
                                             <img src="/assets/Star.svg" alt="" />
                                         </span>
                                         <span className="summary-ai-label">AI Generated</span>
                                     </div>
-                                    {/* <button
+                                    <button
                                         type="button"
                                         className="summary-copy-btn"
                                         onClick={handleCopySummary}
@@ -228,8 +228,8 @@ const AwaitingApprovalSidebar: React.FC<AwaitingApprovalSidebarProps> = ({
                                                 d="M5.5 9.49701C5.5 7.22518 5.5 6.08927 6.20294 5.3835C6.90589 4.67773 8.03726 4.67773 10.3 4.67773H12.7C14.9627 4.67773 16.0941 4.67773 16.7971 5.3835C17.5 6.08927 17.5 7.22518 17.5 9.49701V13.5131C17.5 15.7849 17.5 16.9208 16.7971 17.6266C16.0941 18.3324 14.9627 18.3324 12.7 18.3324H10.3C8.03726 18.3324 6.90589 18.3324 6.20294 17.6266C5.5 16.9208 5.5 15.7849 5.5 13.5131V9.49701Z"
                                             />
                                         </svg>
-                                    </button> */}
-                                </div>
+                                    </button>
+                                </div> */}
                                 {isEditingSummary ? (
                                     <textarea
                                         value={summary}

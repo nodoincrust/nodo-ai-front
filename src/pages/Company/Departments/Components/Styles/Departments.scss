@@ -95,13 +95,14 @@
 
             th:nth-child(5),
             td:nth-child(5) {
-                text-align: center;
+                max-width: 100px;
+                // text-align: center;
             }
 
             td:last-child,
             th:last-child {
                 text-align: center;
-                width: 120px;
+                // width: 120px;
                 padding: 0;
             }
         }

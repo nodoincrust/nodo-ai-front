@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Styles/login.scss";
 import { Input, notification } from "antd";
@@ -6,11 +6,32 @@ import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { authService } from "../../../services/auth.service";
 import AppButton from "../../../components/common/AppButton";
 import { MESSAGES } from "../../../utils/Messages";
+import { getRoleFromToken } from "../../../utils/jwt";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
+
+  //Redirect if token exists in localStorage
+  useEffect(() => {
+    const authDataRaw = localStorage.getItem("authData");
+    const authData = authDataRaw ? JSON.parse(authDataRaw) : null;
+    const token = authData?.token || localStorage.getItem("accessToken");
+
+    if (token) {
+      const role = getRoleFromToken(token);
+      const sidebar = authData?.sidebar;
+
+      if (role === "SYSTEM_ADMIN") navigate("/companies", { replace: true });
+      else if (role === "COMPANY_ADMIN") navigate("/departments", { replace: true });
+      else if (role === "EMPLOYEE" || role === "employee")
+        navigate(sidebar?.[0]?.path || "/documents", { replace: true });
+      else if (role === "USER") navigate("/user", { replace: true });
+      else navigate("/documents", { replace: true });
+    }
+  }, [navigate]);
+
 
   // Email validation
   const validateEmail = (value: string) => {
@@ -22,7 +43,8 @@ const Login = () => {
   const handleSendOtp = async () => {
     localStorage.removeItem("authData");
     localStorage.removeItem("accessToken");
-
+    localStorage.clear();
+    sessionStorage.clear();
     const error = validateEmail(email);
     setEmailError(error);
     if (error) return;

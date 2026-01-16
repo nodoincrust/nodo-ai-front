@@ -6,7 +6,7 @@ import { MESSAGES } from "../../../utils/Messages";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop, toCamelCase } from "../../../utils/utilFunctions";
+import { getDisplayStatus, getStatusClass, scrollLayoutToTop, toCamelCase } from "../../../utils/utilFunctions";
 import { ApiDocument, Document, DocumentStatus } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
@@ -35,41 +35,41 @@ export default function DocumentsCombined() {
 
   // Restore filter/status/page from location.state or sessionStorage
 
-   const state = location.state as any;
- 
+  const state = location.state as any;
+
   // Lazy initialize from location.state, then sessionStorage, then default
   const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
     () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
   );
- 
+
   const [status, setStatus] = useState<DocumentStatus>(
     () => state?.status || (sessionStorage.getItem("documentStatus") as DocumentStatus) || "all"
   );
- 
+
   const [currentPage, setCurrentPage] = useState<number>(
     () => state?.page || (sessionStorage.getItem("documentPage") ? Number(sessionStorage.getItem("documentPage")) : 1)
   );
- 
+
   useEffect(() => {
     sessionStorage.setItem("documentFilter", documentFilter);
     sessionStorage.setItem("documentStatus", status);
     sessionStorage.setItem("documentPage", currentPage.toString());
   }, [documentFilter, status, currentPage]);
- 
+
   useEffect(() => {
     const handleBeforeUnload = () => {
       sessionStorage.removeItem("documentFilter");
       sessionStorage.removeItem("documentStatus");
       sessionStorage.removeItem("documentPage");
     };
- 
+
     window.addEventListener("beforeunload", handleBeforeUnload);
- 
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
- 
+
   // --- Helpers ---
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + "B";
@@ -92,41 +92,6 @@ export default function DocumentsCombined() {
     if (ext === "txt") return "/assets/doc icons.svg";
     // Default to doc icon for unknown types
     return "/assets/doc_icon.svg";
-  };
-
-  const getDisplayStatus = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-      case "DRAFT":
-      case "REJECTED":
-      case "SUBMITTED":
-      case "IN_REVIEW":
-      case "PENDING":
-      case "AWAITING_APPROVAL":
-        return toCamelCase(status.replace(/_/g, " "));
-      default:
-        return toCamelCase(status);
-    }
-  };
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-        return "approved";
-      case "DRAFT":
-        return "draft";
-      case "REJECTED":
-        return "rejected";
-      case "SUBMITTED":
-        return "submitted";
-      case "PENDING":
-      case "AWAITING_APPROVAL":
-        return "pending";
-      case "REUPLOADED":
-        return "reuploaded";
-      default:
-        return "";
-    }
   };
 
   // --- Fetch Functions ---
@@ -308,9 +273,9 @@ export default function DocumentsCombined() {
         render: (row: any) => {
           const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
           return (
-            <span className={`status-badge ${statusClass}`}>
+            <span className={`status-badge  ${getStatusClass(row.pending_on)}`}>
               <span className="badge-dot" />
-              <span>{row.pending_on || "-"}</span>
+              <span>{getDisplayStatus(row.pending_on || "-")}</span>
             </span>
           );
         },
@@ -411,9 +376,8 @@ export default function DocumentsCombined() {
         addButtonText="Add Document"
         documentFilterValue={documentFilter}
         onDocumentFilterChange={(val: DocumentFilter) => setDocumentFilter(val)}
-        categoryButtonText={`Status: ${
-          status === "all" ? "All" : getDisplayStatus(status)
-        }`}
+        categoryButtonText={`Status: ${status === "all" ? "All" : getDisplayStatus(status)
+          }`}
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-title"
         categoryMenu={

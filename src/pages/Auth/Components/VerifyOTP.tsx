@@ -120,7 +120,6 @@ const VerifyOtp = () => {
         }
       }
     } catch (err: any) {
-      console.error(err);
       setError(err.response?.data?.message || MESSAGES.ERRORS.OTP_VERIFICATION_FAILED);
     } finally {
       getLoaderControl()?.hideLoader();

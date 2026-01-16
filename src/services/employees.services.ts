@@ -17,17 +17,17 @@ export const addEmployee = async (payload: any) => {
 
 // Update employee
 export const updateEmployee = async (employeeId: number, payload: any) => {
-    const response = await axios.put(
-        `${API_URL.updateEmployee}/${employeeId}`,
-        payload
-    );
+    const response = await axios.put(`${API_URL.updateEmployee}/${employeeId}`, payload);
     return response.data;
 };
 
 // Delete employee
 export const deleteEmployee = async (employeeId: number) => {
-    const response = await axios.delete(
-        `${API_URL.deleteEmployee}/${employeeId}`
-    );
+    const response = await axios.delete(`${API_URL.deleteEmployee}/${employeeId}`);
+    return response.data;
+};
+
+export const getCompanyDesignations = async () => {
+    const response = await axios.get((API_URL.getCompanyDesignations));
     return response.data;
 };

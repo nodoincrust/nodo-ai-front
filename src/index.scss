@@ -841,7 +841,7 @@ input {
   line-height: 16px;
   border-radius: 4px !important;
   padding: 4px 6px;
-  margin: 0 auto;
+  // margin: 0 auto;
   flex-shrink: 0;
 
   .badge-div,
@@ -928,6 +928,7 @@ input {
   &.active {
     background-color: $color-status-bg-active;
     color: $color-status-text-active;
+    max-width: 80px;
 
     .badge-div,
     .badge-dot {
@@ -938,6 +939,7 @@ input {
   &.inactive {
     background-color: $color-status-bg-inactive;
     color: $color-status-text-inactive;
+    max-width: 80px;
 
     .badge-div,
     .badge-dot {

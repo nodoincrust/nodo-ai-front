@@ -273,19 +273,32 @@ const AddEditDepartment: React.FC<AddEditDepartmentProps> = ({
                             showSearch
                             filterOption={false}
                             onSearch={(value: any) => setSearch(value)}
-                            /* Replaces onDropdownVisibleChange */
                             onOpenChange={(open) => {
                                 setDeptOpen(open);
                                 if (open && employees.length === 0) fetchEmployees("");
                             }}
                             options={employees.map(emp => ({
-                                label: emp.name,
+                                label: `${emp.name} (${emp.department_name})`,
                                 value: emp.id,
                             }))}
                             getPopupContainer={() => document.body}
+                            onChange={(value, option) => {
+                                // Remove cursor after selecting option
+                                const input = document.querySelector<HTMLInputElement>(
+                                    ".add-edit-department-modal .ant-select-selector input"
+                                );
+                                if (input) {
+                                    input.blur(); // removes cursor
+                                }
+                            }}
+                            onFocus={(e) => {
+                                // Move cursor to end when user clicks
+                                const input = e.target as HTMLInputElement;
+                                const length = input.value.length;
+                                input.setSelectionRange(length, length);
+                            }}
                         />
                     </Form.Item>
-
 
                     {/* STATUS */}
                     <div className="status-row">

@@ -97,3 +97,33 @@ export const toCamelCase = (text: string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
+
+export const getDisplayStatus = (status: string) => {
+  switch (status) {
+    case "APPROVED":
+    case "DRAFT":
+    case "REJECTED":
+    case "SUBMITTED":
+    case "IN_REVIEW":
+    case "PENDING":
+    case "AWAITING_APPROVAL":
+      return toCamelCase(status.replace(/_/g, " "));
+    default:
+      return toCamelCase(status);
+  }
+};
+
+export const getStatusClass = (status?: string) => {
+  if (!status) return "";
+
+  const value = status.toLowerCase();
+
+  if (value.includes("approved")) return "approved";
+  if (value.includes("rejected")) return "rejected";
+  if (value.includes("pending")) return "pending";
+  if (value.includes("draft")) return "draft";
+  if (value.includes("submitted")) return "submitted";
+  if (value.includes("reuploaded")) return "reuploaded";
+
+  return "";
+};

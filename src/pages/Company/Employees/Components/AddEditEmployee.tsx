@@ -6,6 +6,7 @@ import { MESSAGES } from "../../../../utils/Messages";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
 import {
     addEmployee,
+    getCompanyDesignations,
     updateEmployee,
 } from "../../../../services/employees.services";
 import { getDepartmentsListWithoutPagination } from "../../../../services/departments.services";
@@ -27,33 +28,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
     const [animateClose, setAnimateClose] = useState(false);
     const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
     const [departments, setDepartments] = useState<any[]>([]);
-    const [roles, setRoles] = useState<string[]>([
-        "Admin",
-        "Super Admin",
-        "Manager",
-        "Assistant Manager",
-        "Team Lead",
-        "Senior Executive",
-        "Executive",
-        "Staff",
-        "HR",
-        "HR Manager",
-        "Recruiter",
-        "Finance Manager",
-        "Accountant",
-        "Operations Manager",
-        "Operations Executive",
-        "Project Manager",
-        "Product Manager",
-        "Business Analyst",
-        "Developer",
-        "Senior Developer",
-        "QA Engineer",
-        "UI/UX Designer",
-        "Support Engineer",
-        "Customer Support",
-        "Intern",
-    ]);
+    const [roles, setRoles] = useState<string[]>([]);
     const [deptOpen, setDeptOpen] = useState(false);
     const [roleOpen, setRoleOpen] = useState(false);
     const initialRef = useRef<any>(null);
@@ -70,6 +45,8 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
         setShowModal(true);
         setAnimateClose(false);
         form.resetFields();
+
+        fetchRoles();
 
         const departmentValue = initialData?.department_id && initialData?.department_name
             ? { value: initialData.department_id, label: initialData.department_name }
@@ -163,6 +140,34 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
             setDepartments([]);
             notification.error({
                 message: error?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+            });
+        } finally {
+            getLoaderControl()?.hideLoader();
+        }
+    };
+
+    const fetchRoles = async () => {
+        getLoaderControl()?.showLoader();
+        try {
+            const res = await getCompanyDesignations();
+            if (res.statusCode === 200) {
+                setRoles(
+                    (res.data?.roles || []).slice().sort((a: string, b: string) =>
+                        a.localeCompare(b)
+                    )
+                );
+            } else {
+                setRoles([]);
+                notification.error({
+                    message: res.message || "Failed to fetch roles",
+                });
+            }
+        } catch (error: any) {
+            setRoles([]);
+            notification.error({
+                message:
+                    error?.response?.data?.message ||
+                    MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
             });
         } finally {
             getLoaderControl()?.hideLoader();
@@ -325,6 +330,19 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                                 />
                             }
                             getPopupContainer={() => document.body}
+                            onChange={(value, option) => {
+                                // remove cursor after selecting an option
+                                const input = document.querySelector<HTMLInputElement>(
+                                    ".add-edit-employee-modal .ant-select-selector input"
+                                );
+                                if (input) input.blur();
+                            }}
+                            onFocus={(e) => {
+                                // move cursor to end on focus
+                                const input = e.target as HTMLInputElement;
+                                const length = input.value.length;
+                                input.setSelectionRange(length, length);
+                            }}
                         >
                             {departments.map((d) => (
                                 <Select.Option key={d.id} value={d.id}>

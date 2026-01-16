@@ -7,13 +7,17 @@
     ],
     "jsx": "react-jsx",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "types": [
+      "react",
+      "react-dom"
+    ],
+    "noEmit": true
   },
   "include": [
     "src"

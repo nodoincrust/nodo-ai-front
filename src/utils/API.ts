@@ -24,6 +24,7 @@ export const API_URL = {
   addEmployee: "/company/addEmployee",
   updateEmployee: "/company/updateEmployee",
   deleteEmployee: "/company/deleteEmployee",
+  getCompanyDesignations: "/company/designations",
 
   //Awaiting Approval
   getApprovalList: "/newdocuments/approver/inbox",
