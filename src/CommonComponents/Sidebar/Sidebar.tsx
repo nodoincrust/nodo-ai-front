@@ -281,6 +281,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         onCancel={() => setShowLogoutModal(false)}
         onConfirm={() => {
           localStorage.clear();
+          sessionStorage.clear();
           navigate("/");
         }}
         title="Log out of NODO AI?"

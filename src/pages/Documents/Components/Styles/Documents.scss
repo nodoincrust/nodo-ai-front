@@ -1,8 +1,5 @@
 @use "../../../../variables.scss" as *;
 
-// ===============================
-// Scoped styles for Documents
-// ===============================
 .documents-container {
 
   // ===============================
@@ -20,7 +17,7 @@
         color: $color-gray-table;
         padding: 12px 16px;
         text-align: left;
-        text-transform: uppercase;
+        // text-transform: uppercase;
         letter-spacing: 0.5px;
       }
 
@@ -35,85 +32,82 @@
         vertical-align: middle;
       }
     }
-  }
 
-  /* =================================================
-     MY DOCUMENTS TABLE (6 columns → has Pending On)
-     ================================================= */
-  .language-table:has(table th:nth-child(6)) {
-    table {
-
-      th:nth-child(1),
-      td:nth-child(1) {
-        width: 80px; // SR.NO
+    // ===============================
+    // Dynamic Column Widths
+    // ===============================
+    // If PENDING ON exists → 6 columns
+    &.with-pending th,
+    &.with-pending td {
+      &:nth-child(1) {
+        width: 80px;
       }
 
-      th:nth-child(2),
-      td:nth-child(2) {
-        min-width: 300px; // Document Name
+      // SR.NO
+      &:nth-child(2) {
+        min-width: 300px;
       }
 
-      th:nth-child(3),
-      td:nth-child(3) {
-        width: 120px; // Size
+      // Document Name
+      &:nth-child(3) {
+        width: 120px;
       }
 
-      th:nth-child(4),
-      td:nth-child(4) {
-        width: 250px; // Tags
+      // Size
+      &:nth-child(4) {
+        width: 250px;
       }
 
-      th:nth-child(5),
-      td:nth-child(5) {
-        width: 150px; // Status
+      // Tags
+      &:nth-child(5) {
+        width: 150px;
       }
 
-      th:nth-child(6),
-      td:nth-child(6) {
-        min-width: 220px; // Pending On
+      // Status
+      &:nth-child(6) {
+        min-width: 250px;
       }
 
-      th:last-child,
-      td:last-child {
-        width: 100px; // Action
+      // Pending On
+      &:last-child {
+        width: 100px;
         text-align: center;
         padding: 0;
       }
+
+      // Action
     }
-  }
 
-  /* =========================================
-     AWAITING DOCUMENTS (NO Pending column)
-     ========================================= */
-  .language-table:not(:has(table th:nth-child(6))) {
-    table {
-
-      th:nth-child(1),
-      td:nth-child(1) {
-        width: 80px; // SR.NO
+    // If PENDING ON does NOT exist → 5 columns
+    &.without-pending th,
+    &.without-pending td {
+      &:nth-child(1) {
+        width: 80px;
       }
 
-      th:nth-child(2),
-      td:nth-child(2) {
-        min-width: 300px; // Document Name
+      // SR.NO
+      &:nth-child(2) {
+        min-width: 300px;
       }
 
-      th:nth-child(3),
-      td:nth-child(3) {
-        width: 180px; // Uploaded By
+      // Document Name
+      &:nth-child(3) {
+        width: 180px;
       }
 
-      th:nth-child(4),
-      td:nth-child(4) {
-        width: 160px; // Status
+      // Uploaded By
+      &:nth-child(4) {
+        width: 160px;
       }
 
-      th:last-child,
-      td:last-child {
-        width: 100px; // Action
+      // Status
+      &:last-child {
+        width: 100px;
         text-align: center;
         padding: 0;
       }
+
+      // Action
     }
   }
 

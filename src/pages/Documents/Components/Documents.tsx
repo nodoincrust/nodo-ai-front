@@ -6,7 +6,7 @@ import { MESSAGES } from "../../../utils/Messages";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { scrollLayoutToTop, toCamelCase } from "../../../utils/utilFunctions";
 import { ApiDocument, Document, DocumentStatus } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
@@ -27,6 +27,8 @@ export default function DocumentsCombined() {
   const [pageSize, setPageSize] = useState(10);
   // const [status, setStatus] = useState<any>("all");
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false);
+  const authData: any = JSON.parse(localStorage.getItem("authData") || "{}");
+  const userRole = authData.user?.role || "";
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -95,6 +97,7 @@ export default function DocumentsCombined() {
   const getDisplayStatus = (status: string) => {
     switch (status) {
       case "APPROVED":
+<<<<<<< HEAD
         return "Approved";
       case "DRAFT":
         return "Draft";
@@ -111,6 +114,17 @@ export default function DocumentsCombined() {
         return "Reuploaded";
       default:
         return status;
+=======
+      case "DRAFT":
+      case "REJECTED":
+      case "SUBMITTED":
+      case "IN_REVIEW":
+      case "PENDING":
+      case "AWAITING_APPROVAL":
+        return toCamelCase(status.replace(/_/g, " "));
+      default:
+        return toCamelCase(status);
+>>>>>>> rakesh_dev
     }
   };
 
@@ -306,18 +320,21 @@ export default function DocumentsCombined() {
         </span>
       ),
     },
-    {
-      title: "PENDING ON",
-      render: (row: any) => {
-        const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
-        return (
-          <span className={`status-badge ${statusClass}`}>
-            <span className="badge-dot" />
-            <span>{row.pending_on || "-"}</span>
-          </span>
-        );
-      },
-    },
+    // Only show "PENDING ON" if not COMPANY_ADMIN
+    ...(userRole !== "COMPANY_ADMIN"
+      ? [{
+        title: "PENDING ON",
+        render: (row: any) => {
+          const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+          return (
+            <span className={`status-badge ${statusClass}`}>
+              <span className="badge-dot" />
+              <span>{row.pending_on || "-"}</span>
+            </span>
+          );
+        },
+      }]
+      : []),
   ];
 
   const awaitingColumns = [
@@ -375,15 +392,21 @@ export default function DocumentsCombined() {
   const myDocumentsStatusMenu = {
     selectable: true,
     selectedKeys: [status],
-    items: [
-      { key: "all", label: "All" },
-      { key: "APPROVED", label: "Approved" },
-      { key: "DRAFT", label: "Draft" },
-      { key: "REJECTED", label: "Rejected" },
-      { key: "SUBMITTED", label: "Submitted" },
-      { key: "PENDING", label: "Pending" },
-      { key: "REUPLOADED", label: "Reuploaded" },
-    ],
+    items: userRole === "COMPANY_ADMIN"
+      ? [
+        { key: "all", label: "All" },
+        { key: "APPROVED", label: "Approved" },
+        { key: "DRAFT", label: "Draft" },
+      ]
+      : [
+        { key: "all", label: "All" },
+        { key: "APPROVED", label: "Approved" },
+        { key: "DRAFT", label: "Draft" },
+        { key: "REJECTED", label: "Rejected" },
+        { key: "SUBMITTED", label: "Submitted" },
+        { key: "PENDING", label: "Pending" },
+        { key: "REUPLOADED", label: "Reuploaded" },
+      ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
       setStatus(key as DocumentStatus);
@@ -419,6 +442,7 @@ export default function DocumentsCombined() {
         }
       />
 
+<<<<<<< HEAD
       <Table
         data={documentList}
         columns={
@@ -451,6 +475,40 @@ export default function DocumentsCombined() {
             : "No documents found"
         }
       />
+=======
+      <div
+        className={`language-table ${documentFilter === "MY_DOCUMENTS" && userRole !== "COMPANY_ADMIN"
+          ? "with-pending"
+          : "without-pending"
+          }`}
+      >
+        <Table
+          data={documentList}
+          columns={documentFilter === "MY_DOCUMENTS" ? myDocumentsColumns : awaitingColumns}
+          actions={(row) => (
+            <div className="documents-actions" onClick={() => handleViewDocument(row)}>
+              <img src="/assets/Eye.svg" alt="View" />
+              <span className="spantext">View</span>
+            </div>
+          )}
+          actionsTitle="ACTION"
+          currentPage={currentPage}
+          totalPages={Math.ceil(count / pageSize)}
+          onPageChange={setCurrentPage}
+          pageSize={pageSize}
+          totalRecords={count}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          emptyText={
+            documentFilter === "MY_DOCUMENTS"
+              ? "No documents found"
+              : "No documents found"
+          }
+        />
+      </div>
+>>>>>>> rakesh_dev
 
       {documentFilter === "MY_DOCUMENTS" && (
         <AddDocument
