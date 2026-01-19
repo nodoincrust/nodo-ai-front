@@ -1,0 +1,67 @@
+@use '../../../../variables.scss' as *;
+
+// Scoped styles for Bouquets
+.bouquets-container {
+
+    // Table
+    .language-table {
+        table {
+            border-collapse: separate;
+
+            thead th {
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-size: 12px;
+                line-height: 18px;
+                color: $table-head-bg;
+                padding: 12px 16px;
+                text-align: left;
+            }
+
+            tbody td {
+                padding: 16px;
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-size: 14px;
+                line-height: 24px;
+                color: $label-color;
+            }
+
+            th:nth-child(1),
+            td:nth-child(1) {
+                width: 100px;
+                min-width: 100px;
+            }
+
+            th:nth-child(2),
+            td:nth-child(2) {
+                width: 240px;
+                min-width: 240px;
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                width: auto;
+            }
+
+            th:last-child,
+            td:last-child {
+                text-align: center;
+                padding: 0;
+            }
+        }
+    }
+
+    .bouquet-name {
+        // font-weight: 600;
+    }
+
+    .bouquet-description {
+        color: $label-color-light;
+    }
+
+    // Actions
+    .bouquets-actions img {
+        cursor: pointer;
+    }
+}
