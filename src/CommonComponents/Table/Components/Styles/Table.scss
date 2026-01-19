@@ -12,9 +12,7 @@
     border: 1px solid $border-bottom;
 }
 
-/* --------------------------
-    TABLE WRAPPER
---------------------------- */
+// TABLE WRAPPER
 .language-table {
     width: 100%;
     margin-bottom: 0 !important;
@@ -25,9 +23,7 @@
         position: relative;
     }
 
-    /* --------------------------
-    COMPANY CELL
---------------------------- */
+    // COMPANY CELL
     .company-cell {
         display: flex;
         align-items: center;
@@ -54,7 +50,7 @@
 
     /* --------------------------
     CONTACT CELL
---------------------------- */
+    --------------------------- */
     .contact-cell {
         display: flex;
         flex-direction: column;

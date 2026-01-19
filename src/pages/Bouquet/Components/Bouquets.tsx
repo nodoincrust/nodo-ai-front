@@ -8,7 +8,6 @@ import { MESSAGES } from "../../../utils/Messages";
 import { scrollLayoutToTop } from "../../../utils/utilFunctions";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
-import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 import AddEditBouquet from "./AddEditBouquet";
 import { getBouquetsList } from "../../../services/bouquets.services";
 
@@ -87,50 +86,10 @@ export default function Bouquets() {
         setIsAddEditOpen(true);
     };
 
-    // Delete
-    // const handleDeleteBouquet = async () => {
-    //     if (!bouquetToDelete) return;
-
-    //     getLoaderControl()?.showLoader();
-    //     try {
-    //         const res: any = await deleteBouquet(bouquetToDelete);
-
-    //         if (res?.statusCode === 200) {
-    //             notification.success({
-    //                 message:
-    //                     res?.message ||
-    //                     MESSAGES.SUCCESS.BOUQUET_DELETED_SUCCESSFULLY,
-    //             });
-
-    //             if (bouquetList.length === 1 && currentPage > 1) {
-    //                 setCurrentPage((prev) => prev - 1);
-    //             } else {
-    //                 fetchBouquets();
-    //             }
-    //         } else {
-    //             notification.error({
-    //                 message:
-    //                     res?.message ||
-    //                     MESSAGES.ERRORS.BOUQUET_DELETE_FAILED,
-    //             });
-    //         }
-    //     } catch (error: any) {
-    //         notification.error({
-    //             message:
-    //                 error?.response?.data?.message ||
-    //                 MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
-    //         });
-    //     } finally {
-    //         setShowDeleteModal(false);
-    //         setBouquetToDelete(null);
-    //         getLoaderControl()?.hideLoader();
-    //     }
-    // };
-
     return (
         <div className="bouquets-container">
             <Header
-                title="Bouquet"
+                title="Bouquets"
                 count={`${count} Bouquets`}
                 searchValue={search}
                 onSearchChange={(value: any) => {
@@ -184,7 +143,7 @@ export default function Bouquets() {
                         <img
                             src="/assets/edit.svg"
                             alt="Edit"
-                            // onClick={() => openEditBouquet(row)}
+                            onClick={() => openEditBouquet(row)}
                         />
                         <img
                             src="/assets/trash.svg"
@@ -223,21 +182,6 @@ export default function Bouquets() {
                     }}
                 />
             )}
-
-            {/* <ConfirmModal
-                open={showDeleteModal}
-                onCancel={() => {
-                    setShowDeleteModal(false);
-                    setBouquetToDelete(null);
-                }}
-                onConfirm={handleDeleteBouquet}
-                title="Delete Bouquet?"
-                description={
-                    "Deleting this bouquet will permanently remove all associated documents.\nThis action cannot be undone."
-                }
-                confirmText="Delete"
-                icon="/assets/trash-hover.svg"
-            /> */}
         </div>
     );
 }
