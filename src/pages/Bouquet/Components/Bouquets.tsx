@@ -196,12 +196,12 @@ export default function Bouquets() {
                 onAddClick={openAddBouquet}
                 addButtonText="Add Bouquet"
                 searchPlaceholder="Search Bouquet by name"
-                // showDropdown={true}
-                // status={status}
-                // onStatusChange={(val) => {
-                //     setStatus(val);
-                //     setCurrentPage(1);
-                // }}
+            // showDropdown={true}
+            // status={status}
+            // onStatusChange={(val) => {
+            //     setStatus(val);
+            //     setCurrentPage(1);
+            // }}
             />
 
             <Table
@@ -232,6 +232,11 @@ export default function Bouquets() {
                 ]}
                 actions={(row) => (
                     <div className="bouquets-actions">
+                        <img
+                            src="/assets/Eye.svg"
+                            alt="Eye"
+                            onClick={() => navigate(`/bouquet/documents/${row.id}`)}
+                        />
                         <img
                             src="/assets/edit.svg"
                             alt="Edit"
