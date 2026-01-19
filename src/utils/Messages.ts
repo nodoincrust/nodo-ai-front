@@ -24,6 +24,11 @@ export const MESSAGES = {
         EMPLOYEE_CREATED_SUCCESSFULLY: "Employee added successfully.",
         EMPLOYEE_UPDATED_SUCCESSFULLY: "Employee updated successfully.",
         EMPLOYEE_DELETED_SUCCESSFULLY: "Employee deleted successfully.",
+
+        // BOUQUETS
+        BOUQUET_CREATED_SUCCESSFULLY: "Bouquet created successfully.",
+        BOUQUET_UPDATED_SUCCESSFULLY: "Bouquet updated successfully.",
+        BOUQUET_DELETED_SUCCESSFULLY: "Bouquet deleted successfully.",
     },
 
     ERRORS: {
@@ -82,5 +87,11 @@ export const MESSAGES = {
         EMPLOYEE_DEPARTMENT_REQUIRED: "Department is required.",
         EMPLOYEE_ALREADY_EXISTS: "An employee with this email already exists.",
         ONLY_CHARS_ALLOWED: "Only characters are allowed",
+
+        // BOUQUETS
+        FAILED_TO_FETCH_BOUQUETS: "Failed to fetch bouquets.",
+        BOUQUET_DELETE_FAILED: "Failed to delete bouquet.",
+        BOUQUET_CREATE_FAILED: "Failed to create bouquet.",
+        BOUQUET_UPDATE_FAILED: "Failed to update bouquet.",
     },
 };

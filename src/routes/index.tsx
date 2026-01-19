@@ -7,6 +7,7 @@ import { departmentsRoutes } from "../pages/Company/Departments/departments.rout
 import { documentsRoutes } from "../pages/Documents/documents.routes";
 import { employeesRoutes } from "../pages/Company/Employees/employees.routes";
 import { awaitingApprovalRoutes } from "../pages/Company/Awaiting_Approval/awaitingApproval.routes";
+import { bouquetsRoutes } from "../pages/Bouquet/bouquet.routes";
 const router = createBrowserRouter([
   ...authRoutes,
   {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       ...documentsRoutes,
       ...employeesRoutes,
       ...awaitingApprovalRoutes,
+      ...bouquetsRoutes,
     ],
   },
 ]);
