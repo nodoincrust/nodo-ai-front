@@ -418,3 +418,10 @@ export interface DocumentHeaderAction {
   type?: "primary" | "default" | "danger";
   disabled?: boolean;
 }
+
+export interface AddEditBouquetProps {
+  open: boolean;
+  initialData?: any;
+  onClose: () => void;
+  onSave: () => void;
+}

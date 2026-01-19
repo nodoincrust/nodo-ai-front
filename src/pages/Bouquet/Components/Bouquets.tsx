@@ -9,6 +9,8 @@ import { scrollLayoutToTop } from "../../../utils/utilFunctions";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
+import AddEditBouquet from "./AddEditBouquet";
+import { getBouquetsList } from "../../../services/bouquets.services";
 
 export default function Bouquets() {
     const [count, setCount] = useState(0);
@@ -27,81 +29,23 @@ export default function Bouquets() {
     const navigate = useNavigate();
 
     // Fetch bouquets
-    // const fetchBouquets = async () => {
-    //     getLoaderControl()?.showLoader();
-    //     try {
-    //         const payload = {
-    //             page: currentPage,
-    //             pagelimit: pageSize,
-    //             search,
-    //             status: status === "all" ? undefined : status,
-    //         };
-
-    //         const res: any = await getBouquetsList(payload);
-
-    //         if (res?.statusCode === 200) {
-    //             setBouquetList(res?.data || []);
-    //             setCount(res?.total || 0);
-    //         } else {
-    //             setBouquetList([]);
-    //             setCount(0);
-    //             notification.error({
-    //                 message:
-    //                     res?.message ||
-    //                     MESSAGES.ERRORS.FAILED_TO_FETCH_BOUQUETS,
-    //             });
-    //         }
-    //     } catch (error: any) {
-    //         setBouquetList([]);
-    //         setCount(0);
-    //         notification.error({
-    //             message:
-    //                 error?.response?.data?.message ||
-    //                 MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
-    //         });
-    //     } finally {
-    //         getLoaderControl()?.hideLoader();
-    //     }
-    // };
-
     const fetchBouquets = async () => {
         getLoaderControl()?.showLoader();
         try {
-            // 🔹 Dummy API-like response
-            const res: any = {
-                statusCode: 200,
-                total: 4,
-                data: [
-                    {
-                        id: 1,
-                        name: "Design",
-                        description:
-                            "A centralized collection of all UI/UX-related documents including wireframes, design specifications, prototypes, branding assets, and visual guidelines, bundled together for easy access and reference.",
-                    },
-                    {
-                        id: 2,
-                        name: "Development",
-                        description:
-                            "Groups all technical and implementation documents such as API specifications, backend logic, database schemas, architecture diagrams, and development guidelines in one unified location.",
-                    },
-                    {
-                        id: 3,
-                        name: "QA",
-                        description:
-                            "A single place for test cases, test plans, defect reports, validation documents, and automation scripts related to ensuring application quality and reliability.",
-                    },
-                    {
-                        id: 4,
-                        name: "Support",
-                        description:
-                            "Bundles user manuals, troubleshooting guides, incident reports, support tickets, and operational documents required for day-to-day application support and maintenance.",
-                    },
-                ],
+            const payload = {
+                page: currentPage,
+                pagelimit: pageSize,
+                search,
+                status: status === "all" ? undefined : status,
             };
+
+            const res: any = await getBouquetsList(payload);
 
             if (res?.statusCode === 200) {
                 setBouquetList(res?.data || []);
-                setCount(res?.total || 0);
+                setCount(res?.pagination?.total || 0);
+                setCurrentPage(res?.pagination?.page || 1);
+                setPageSize(res?.pagination?.limit || pageSize);
             } else {
                 setBouquetList([]);
                 setCount(0);
@@ -240,7 +184,7 @@ export default function Bouquets() {
                         <img
                             src="/assets/edit.svg"
                             alt="Edit"
-                            onClick={() => openEditBouquet(row)}
+                            // onClick={() => openEditBouquet(row)}
                         />
                         <img
                             src="/assets/trash.svg"
@@ -264,7 +208,7 @@ export default function Bouquets() {
                 emptyText="No bouquets found"
             />
 
-            {/* {isAddEditOpen && (
+            {isAddEditOpen && (
                 <AddEditBouquet
                     open={isAddEditOpen}
                     initialData={selectedBouquet}
@@ -278,7 +222,7 @@ export default function Bouquets() {
                         setSelectedBouquet(null);
                     }}
                 />
-            )} */}
+            )}
 
             {/* <ConfirmModal
                 open={showDeleteModal}

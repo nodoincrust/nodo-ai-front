@@ -48,4 +48,9 @@ export const API_URL = {
   startSummary: (id: number | string) => `/ai/summary/start/${id}`,
   sumarryStatus: (id: number | string) => `/ai/summary/status/${id}`,
 
+  //Bouuquet
+  getBouquetsList: "/newdocuments/getAllBoq",
+  addBouquet: "/newdocuments/createBouquet",
+  updateBouquet: "/newdocuments/updateBouquet",
+  deleteBouquet: "/newdocuments/deleteBouquet",
 };

@@ -6,7 +6,7 @@ export const bouquetsRoutes: RouteObject[] = [
         path: "bouquet",
         children: [
             { index: true, element: <Bouquets /> },
-            { path: "documents/:id", element: <BouquetDocuments /> },
+            // { path: "documents/:id", element: <BouquetDocuments /> },
         ],
     },
 ];

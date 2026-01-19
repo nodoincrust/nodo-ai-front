@@ -26,7 +26,7 @@ export const MESSAGES = {
         EMPLOYEE_DELETED_SUCCESSFULLY: "Employee deleted successfully.",
 
         // BOUQUETS
-        BOUQUET_CREATED_SUCCESSFULLY: "Bouquet created successfully.",
+        BOUQUET_ADDED_SUCCESSFULLY: "Bouquet added successfully.",
         BOUQUET_UPDATED_SUCCESSFULLY: "Bouquet updated successfully.",
         BOUQUET_DELETED_SUCCESSFULLY: "Bouquet deleted successfully.",
     },
@@ -91,7 +91,11 @@ export const MESSAGES = {
         // BOUQUETS
         FAILED_TO_FETCH_BOUQUETS: "Failed to fetch bouquets.",
         BOUQUET_DELETE_FAILED: "Failed to delete bouquet.",
-        BOUQUET_CREATE_FAILED: "Failed to create bouquet.",
+        BOUQUET_ADD_FAILED: "Failed to add bouquet.",
         BOUQUET_UPDATE_FAILED: "Failed to update bouquet.",
+        BOUQUET_NAME_REQUIRED: "Bouquet name is required.",
+        BOUQUET_DESCRIPTION_REQUIRED: "Bouquet description is required.",
+        BOUQUET_STORAGE_REQUIRED: "Bouquet storage is required.",
+        BOUQUET_PRICE_REQUIRED: "Bouquet price is required.",
     },
 };
