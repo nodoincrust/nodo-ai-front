@@ -5,3 +5,33 @@ export const getBouquetsList = async (payload: any) => {
     const response = await axios.post(API_URL.getBouquetsList, payload);
     return response.data;
 };
+
+export const getBouquetDocuments = async (
+  boqId: number | string,
+  payload: {
+    search?: string;
+    page: number;
+    pagelimit: number;
+  }
+) => {
+  const response = await axios.post(
+    API_URL.getBouquetDocuments(boqId),
+    payload
+  );
+  return response.data;
+};
+
+
+export const removeDocumentFromBouquet = async (
+  boqId: number | string,
+  documentId: number | string
+) => {
+  const response = await axios.delete(
+    API_URL.removeDocumentFromBouquet(boqId),
+    {
+      data: { documentId }, // ✅ axios delete body
+    }
+  );
+
+  return response.data;
+};

@@ -79,7 +79,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           trigger="hover"
           overlayClassName="rejection-popover-wrapper"
         >
-          <span >{statusTag}</span>
+          <span>{statusTag}</span>
         </Popover>
       );
     }
@@ -110,8 +110,26 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             )}
 
             <Breadcrumb separator="/" className="doc">
-              <Breadcrumb.Item onClick={onBackClick}>Documents</Breadcrumb.Item>
-              <Breadcrumb.Item className="filename">{fileName}</Breadcrumb.Item>
+              {breadcrumb && breadcrumb.length > 0 ? (
+                breadcrumb.map((item, index) => (
+                  <Breadcrumb.Item
+                    key={index}
+                    className={item.isActive ? "filename" : ""}
+                    onClick={item.onClick}
+                  >
+                    {item.label}
+                  </Breadcrumb.Item>
+                ))
+              ) : (
+                <>
+                  <Breadcrumb.Item onClick={onBackClick}>
+                    Documents
+                  </Breadcrumb.Item>
+                  <Breadcrumb.Item className="filename">
+                    {fileName}
+                  </Breadcrumb.Item>
+                </>
+              )}
             </Breadcrumb>
           </div>
 

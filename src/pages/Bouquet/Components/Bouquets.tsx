@@ -9,7 +9,7 @@ import { scrollLayoutToTop } from "../../../utils/utilFunctions";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
-import AddEditBouquet from "./AddEditBouquet";
+// import AddEditBouquet from "./AddEditBouquet";
 import { getBouquetsList } from "../../../services/bouquets.services";
 
 export default function Bouquets() {
@@ -179,7 +179,7 @@ export default function Bouquets() {
                         <img
                             src="/assets/Eye.svg"
                             alt="Eye"
-                            onClick={() => navigate(`/bouquet/documents/${row.id}`)}
+                            onClick={() => navigate(`/bouquet/documents`, { state: { bouquetId: row.id } })}
                         />
                         <img
                             src="/assets/edit.svg"
@@ -208,7 +208,7 @@ export default function Bouquets() {
                 emptyText="No bouquets found"
             />
 
-            {isAddEditOpen && (
+            {/* {isAddEditOpen && (
                 <AddEditBouquet
                     open={isAddEditOpen}
                     initialData={selectedBouquet}
@@ -222,9 +222,9 @@ export default function Bouquets() {
                         setSelectedBouquet(null);
                     }}
                 />
-            )}
+            )} */}
 
-            {/* <ConfirmModal
+            <ConfirmModal
                 open={showDeleteModal}
                 onCancel={() => {
                     setShowDeleteModal(false);
@@ -237,7 +237,7 @@ export default function Bouquets() {
                 }
                 confirmText="Delete"
                 icon="/assets/trash-hover.svg"
-            /> */}
+            />
         </div>
     );
 }

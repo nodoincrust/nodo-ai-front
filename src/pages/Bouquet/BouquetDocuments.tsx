@@ -6,6 +6,7 @@ import { MESSAGES } from "../../utils/Messages";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../CommonComponents/Loader/loader";
+import ConfirmModal from "../../CommonComponents/Confirm Modal/ConfirmModal";
 import {
   getDisplayStatus,
   getStatusClass,
@@ -13,9 +14,9 @@ import {
   toCamelCase,
 } from "../../utils/utilFunctions";
 import { ApiDocument, Document, DocumentStatus } from "../../types/common";
-import { getDocumentsList } from "../../services/documents.service";
+import { getBouquetDocuments, removeDocumentFromBouquet } from "../../services/bouquets.services";
 // import AddDocument from "../";
-
+import { useParams } from "react-router-dom";
 import "./Components/Styles/BouquetDocuments.scss";
 
 type DocumentFilter = "MY_DOCUMENTS" | "AWAITING";
@@ -33,13 +34,14 @@ export default function BouquetDocuments() {
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false);
   const authData: any = JSON.parse(localStorage.getItem("authData") || "{}");
   const userRole = authData.user?.role || "";
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Restore filter/status/page from location.state or sessionStorage
-
+  // Get bouquet ID from location.state instead of route params
   const state = location.state as any;
+  const bouquetId = state?.bouquetId;
 
   // Lazy initialize from location.state, then sessionStorage, then default
   const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
@@ -109,35 +111,29 @@ export default function BouquetDocuments() {
   };
 
   // --- Fetch Functions ---
-  const fetchMyDocuments = async () => {
+  const fetchBouquetDocuments = async () => {
+    if (!bouquetId) return;
+
     getLoaderControl()?.showLoader();
+
     try {
-      const res = await getDocumentsList({
+      const res = await getBouquetDocuments(bouquetId, {
+        search: debouncedSearch || "",
         page: currentPage,
-        size: pageSize,
-        search: debouncedSearch || undefined,
-        ...(status && status !== "all"
-          ? {
-              status: status as Exclude<
-                DocumentStatus,
-                "all" | "PENDING" | "REUPLOADED"
-              >,
-            }
-          : {}),
+        pagelimit: pageSize,
       });
 
-      if (res?.data) {
-        const normalizedDocuments: any = res.data.map((doc: any) => ({
-          document_id: doc.document_id,
-          status: doc.status,
-          pending_on: doc.pending_on,
-          current_version: doc.current_version,
-          name: doc.version?.file_name ?? "Unknown Document",
-          size: doc.version?.file_size_bytes ?? 0,
-          tags: Array.isArray(doc.version?.tags) ? doc.version.tags : [],
-          file_type:
-            doc.version?.file_name?.split(".").pop()?.toLowerCase() ?? "doc",
+      if (res?.data && Array.isArray(res.data)) {
+        const normalizedDocuments: Document[] = res.data.map((doc: any) => ({
+          document_id: doc.documentId, // ✅ correct
+          name: doc.fileName, // ✅ correct
+          status: doc.status, // ✅ correct
+          tags: Array.isArray(doc.tags) ? doc.tags : [],
+          current_version: doc.version, // ✅ correct
+          size: doc.size, // ❗ not provided by API
+          file_type: doc.fileName?.split(".").pop()?.toLowerCase(),
         }));
+
         setDocumentList(normalizedDocuments);
         setCount(res.total || 0);
       } else {
@@ -161,22 +157,25 @@ export default function BouquetDocuments() {
   // --- Handlers ---
   const openAddDocument = () => setIsAddDocumentOpen(true);
 
-  const handleAddDocumentSuccess = () => {
-    fetchMyDocuments();
-  };
+  //   const handleAddDocumentSuccess = () => {
+  //     fetchMyDocuments();
+  //   };
 
   const handleViewDocument = (document: Document) => {
-    if (documentFilter === "MY_DOCUMENTS")
-      navigate(`/documents/${document.document_id}`);
-    else
-      navigate(`/awaitingApproval/${document.document_id}`, {
-        state: {
-          documentFilter,
-          status,
-          page: currentPage,
-        },
-      });
+    navigate(`/bouquet/documents/${document.document_id}`, {
+      state: {
+        bouquetId,
+        documentFilter,
+        status,
+        page: currentPage,
+      },
+    });
   };
+
+  useEffect(() => {
+    fetchBouquetDocuments();
+    scrollLayoutToTop();
+  }, [bouquetId, debouncedSearch, currentPage, pageSize]);
 
   // --- Columns ---
   const commonColumns = [
@@ -237,24 +236,24 @@ export default function BouquetDocuments() {
       ),
     },
     // Only show "PENDING ON" if not COMPANY_ADMIN
-    ...(userRole !== "COMPANY_ADMIN"
-      ? [
-          {
-            title: "PENDING ON",
-            render: (row: any) => {
-              const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
-              return (
-                <span
-                  className={`status-badge  ${getStatusClass(row.pending_on)}`}
-                >
-                  <span className="badge-dot" />
-                  <span>{getDisplayStatus(row.pending_on || "-")}</span>
-                </span>
-              );
-            },
-          },
-        ]
-      : []),
+    // ...(userRole !== "COMPANY_ADMIN"
+    //   ? [
+    //       {
+    //         title: "PENDING ON",
+    //         render: (row: any) => {
+    //           const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+    //           return (
+    //             <span
+    //               className={`status-badge  ${getStatusClass(row.pending_on)}`}
+    //             >
+    //               <span className="badge-dot" />
+    //               <span>{getDisplayStatus(row.pending_on || "-")}</span>
+    //             </span>
+    //           );
+    //         },
+    //       },
+    //     ]
+    //   : []),
   ];
 
   const awaitingColumns = [
@@ -309,6 +308,36 @@ export default function BouquetDocuments() {
     },
   };
 
+const handleDeleteDocument = async () => {
+  if (!bouquetId || !documentToDelete) return;
+
+  try {
+    getLoaderControl()?.showLoader();
+
+    await removeDocumentFromBouquet(
+      bouquetId,
+      documentToDelete.document_id
+    );
+
+    notification.success({
+      message: "Document removed from bouquet successfully",
+    });
+
+    // Refresh list
+    fetchBouquetDocuments();
+  } catch (error: any) {
+    notification.error({
+      message:
+        error?.response?.data?.message ||
+        MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+    });
+  } finally {
+    getLoaderControl()?.hideLoader();
+    setShowDeleteModal(false);
+    setDocumentToDelete(null);
+  }
+};
+
   const myDocumentsStatusMenu = {
     selectable: true,
     selectedKeys: [status],
@@ -336,7 +365,7 @@ export default function BouquetDocuments() {
   };
 
   return (
-    <div className="documents-container">
+    <div className="bouquet-documents-container">
       <Header
         breadcrumb={{
           parent: "Bouquet",
@@ -382,12 +411,20 @@ export default function BouquetDocuments() {
               : awaitingColumns
           }
           actions={(row) => (
-            <div
-              className="documents-actions"
-              onClick={() => handleViewDocument(row)}
-            >
-              <img src="/assets/Eye.svg" alt="View" />
-              <span className="spantext">View</span>
+            <div className="Boquet-documents-actions">
+              <img
+                src="/assets/Eye.svg"
+                alt="View"
+                onClick={() => handleViewDocument(row)}
+              />
+              <img
+                src="/assets/trash.svg"
+                alt="Delete"
+                onClick={() => {
+                   setDocumentToDelete(row);
+                    setShowDeleteModal(true);
+                }}
+              />
             </div>
           )}
           actionsTitle="ACTION"
@@ -415,6 +452,20 @@ export default function BouquetDocuments() {
         //   onSuccess={handleAddDocumentSuccess}
         // />
       )} */}
+      <ConfirmModal
+        open={showDeleteModal}
+        onCancel={() => {
+          setShowDeleteModal(false);
+      setDocumentToDelete(null);
+        }}
+        onConfirm={handleDeleteDocument}
+        title="Delete Document?"
+         description={
+    "Deleting this document will permanently remove it from the bouquet.\nThis action cannot be undone."
+  }
+        confirmText="Delete"
+        icon="/assets/trash-hover.svg"
+      />
     </div>
   );
 }

@@ -13,7 +13,8 @@ const Layout: React.FC = () => {
   // Hide sidebar for detail pages
   const isDetailPage =
     /^\/documents\/\d+$/.test(location.pathname) ||
-    /^\/awaitingApproval\/\d+$/.test(location.pathname);
+    /^\/awaitingApproval\/\d+$/.test(location.pathname)||
+  /^\/bouquet\/documents\/\d+$/.test(location.pathname);
 
   const shouldShowSidebar = !isDetailPage;
 

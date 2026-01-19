@@ -342,6 +342,8 @@ export type DocumentStatus =
 export interface DocumentBreadcrumbItem {
   label: string;
   path?: string;
+    onClick?: () => void;
+  isActive?: boolean; // last item
 }
 
 export interface DocumentHeaderProps {

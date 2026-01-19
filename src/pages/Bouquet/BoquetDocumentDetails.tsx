@@ -1,33 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
-import DocumentLayout from "./DocumentLayout";
-import DocumentPreview from "../DocumentPreview";
-import SubmitDocument from "./submitDocument";
-import EditSummary from "./EditSummary";
-import WriteownSummary from "./WriteownSummary";
-import {
-  getDocumentById,
-  startSummary,
-  pollSummaryStatus,
-  saveDocumentMetadata,
-  submitDocumentForReview,
-  getAssignableEmployees,
-  getAiChatResponse,
+import DocumentLayout from "../../pages/Documents/Components/DocumentLayout";
+import DocumentPreview from "../../pages/Documents/DocumentPreview";
+// import SubmitDocument from "./submitDocument";
+// import EditSummary from "./EditSummary";
+// import WriteownSummary from "./WriteownSummary";
 
-} from "../../../services/documents.service";
-import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { getRoleFromToken } from "../../../utils/jwt";
+import { getLoaderControl } from "../../CommonComponents/Loader/loader";
+import { getRoleFromToken } from "../../utils/jwt";
 import type {
   DocumentHeaderProps,
   ApiDocument,
   AssignableEmployee,
   DocumentHeaderAction,
-} from "../../../types/common";
-import "./Styles/DocumentLayout.scss";
-import AddDocument from "./AddDocument";
-import { config } from "../../../config";
-
+} from "../../types/common";
+import ".././Documents/Components/Styles/DocumentLayout.scss";
+// import AddDocument from "./AddDocument";
+// import { config } from "../../../config";
+import {
+  getDocumentById} from "../../services/documents.service";
+import AwaitingApprovalDocumentLayout from "../Company/Awaiting_Approval/Components/AwaitingApprovalDocumentLayout";
 const BoquetDocumentsDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -93,8 +86,14 @@ const BoquetDocumentsDetails: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    navigate("/documents", {
-      state: location.state ?? undefined,
+    const state = location.state as any;
+    navigate("/bouquet/documents", {
+      state: {
+        bouquetId: state?.bouquetId,
+        documentFilter: state?.documentFilter,
+        status: state?.status,
+        page: state?.page,
+      },
     });
   };
 
@@ -146,82 +145,82 @@ const BoquetDocumentsDetails: React.FC = () => {
     fetchDocument(version);
   };
 
-  const handleSubmit = async () => {
-    setIsEmployeeLoading(true);
-    try {
-      const employees = await getAssignableEmployees();
-      setAssignableEmployees(employees);
-      setIsSubmitModalOpen(true);
-    } catch (error: any) {
-      notification.error({
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to fetch employees",
-      });
-    } finally {
-      setIsEmployeeLoading(false);
-    }
-  };
+//   const handleSubmit = async () => {
+//     setIsEmployeeLoading(true);
+//     try {
+//       const employees = await getAssignableEmployees();
+//       setAssignableEmployees(employees);
+//       setIsSubmitModalOpen(true);
+//     } catch (error: any) {
+//       notification.error({
+//         message:
+//           error?.response?.data?.message ||
+//           error?.response?.data?.detail ||
+//           "Failed to fetch employees",
+//       });
+//     } finally {
+//       setIsEmployeeLoading(false);
+//     }
+//   };
 
-  const handleDocumentSubmission = async (selectedReviewers: number[]) => {
-    if (!document) return;
+//   const handleDocumentSubmission = async (selectedReviewers: number[]) => {
+//     if (!document) return;
 
-    try {
-      getLoaderControl()?.showLoader();
+//     try {
+//       getLoaderControl()?.showLoader();
 
-      // ✅ REAL API CALL USING SELECTED EMPLOYEES
-      await submitDocumentForReview(
-        document.document_id,
-        selectedReviewers // ← from hierarchy API
-      );
+//       // ✅ REAL API CALL USING SELECTED EMPLOYEES
+//       await submitDocumentForReview(
+//         document.document_id,
+//         selectedReviewers // ← from hierarchy API
+//       );
 
-      // Update document status
-      setDocument((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          status: "SUBMITTED" as const,
-        };
-      });
+//       // Update document status
+//       setDocument((prev) => {
+//         if (!prev) return prev;
+//         return {
+//           ...prev,
+//           status: "SUBMITTED" as const,
+//         };
+//       });
 
-      notification.success({
-        message: "Document submitted successfully",
-        // description: `Document has been submitted to ${selectedReviewers.length} reviewer(s).`,
-      });
+//       notification.success({
+//         message: "Document submitted successfully",
+//         // description: `Document has been submitted to ${selectedReviewers.length} reviewer(s).`,
+//       });
 
-      setIsSubmitModalOpen(false);
-      fetchDocument();
-    } catch (error: any) {
-      notification.error({
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to submit document",
-      });
-    } finally {
-      getLoaderControl()?.hideLoader();
-    }
-  };
+//       setIsSubmitModalOpen(false);
+//       fetchDocument();
+//     } catch (error: any) {
+//       notification.error({
+//         message:
+//           error?.response?.data?.message ||
+//           error?.response?.data?.detail ||
+//           "Failed to submit document",
+//       });
+//     } finally {
+//       getLoaderControl()?.hideLoader();
+//     }
+//   };
 
-  const handleSummaryChange = (summary: string) => {
-    setIsMetadataSaved(false);
-    setDocument((prev) => {
-      if (!prev) return prev;
+//   const handleSummaryChange = (summary: string) => {
+//     setIsMetadataSaved(false);
+//     setDocument((prev) => {
+//       if (!prev) return prev;
 
-      return {
-        ...prev,
-        summary: {
-          ...prev.summary,
-          text: summary,
-        },
-        version: {
-          ...prev.version,
-          summary,
-        },
-      };
-    });
-  };
+//       return {
+//         ...prev,
+//         summary: {
+//           ...prev.summary,
+//           text: summary,
+//         },
+//         version: {
+//           ...prev.version,
+//           summary,
+//         },
+//       };
+//     });
+//   };
 
   const handleEditSummaryClick = () => {
     setIsEditSummaryOpen(true);
@@ -231,42 +230,42 @@ const BoquetDocumentsDetails: React.FC = () => {
     setIsWriteOwnSummaryOpen(true);
   };
 
-  const handleSummaryUpdate = (updatedSummary: string) => {
-    handleSummaryChange(updatedSummary);
-    setIsMetadataSaved(false);
+//   const handleSummaryUpdate = (updatedSummary: string) => {
+//     handleSummaryChange(updatedSummary);
+//     setIsMetadataSaved(false);
 
-    // Preserve is_self_generated state when updating
-    setDocument((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        summary: {
-          ...prev.summary,
-          text: updatedSummary,
-          is_self_generated: prev.summary?.is_self_generated || false,
-        },
-      };
-    });
-  };
+//     // Preserve is_self_generated state when updating
+//     setDocument((prev) => {
+//       if (!prev) return prev;
+//       return {
+//         ...prev,
+//         summary: {
+//           ...prev.summary,
+//           text: updatedSummary,
+//           is_self_generated: prev.summary?.is_self_generated || false,
+//         },
+//       };
+//     });
+//   };
 
-  const handleSummarySave = (savedSummary: string) => {
-    handleSummaryChange(savedSummary);
-    setIsMetadataSaved(false);
-    setIsUserWrittenSummary(true); // Mark as user-written when saved
+//   const handleSummarySave = (savedSummary: string) => {
+//     handleSummaryChange(savedSummary);
+//     setIsMetadataSaved(false);
+//     setIsUserWrittenSummary(true); // Mark as user-written when saved
 
-    // Update document state to reflect is_self_generated
-    setDocument((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        summary: {
-          ...prev.summary,
-          text: savedSummary,
-          is_self_generated: true,
-        },
-      };
-    });
-  };
+//     // Update document state to reflect is_self_generated
+//     setDocument((prev) => {
+//       if (!prev) return prev;
+//       return {
+//         ...prev,
+//         summary: {
+//           ...prev.summary,
+//           text: savedSummary,
+//           is_self_generated: true,
+//         },
+//       };
+//     });
+//   };
 
 
 
@@ -298,144 +297,144 @@ const BoquetDocumentsDetails: React.FC = () => {
     notification.success({ message: `Tag "${tag}" created` });
   };
 
-  const handleSaveMetadata = async () => {
-    if (!document) return;
+//   const handleSaveMetadata = async () => {
+//     if (!document) return;
 
-    const payload = {
-      summary: document.version?.summary ?? "",
-      tags: activeTags.filter(Boolean),
-      is_self_generated: document.summary?.is_self_generated || false, // Preserve existing state
-    };
+//     const payload = {
+//       summary: document.version?.summary ?? "",
+//       tags: activeTags.filter(Boolean),
+//       is_self_generated: document.summary?.is_self_generated || false, // Preserve existing state
+//     };
 
-    try {
-      getLoaderControl()?.showLoader();
+//     try {
+//       getLoaderControl()?.showLoader();
 
-      await saveDocumentMetadata(document.document_id, payload);
+//       await saveDocumentMetadata(document.document_id, payload);
 
-      notification.success({
-        message: "Metadata saved successfully",
-      });
-      setIsMetadataSaved(true);
-    } catch (error: any) {
-      notification.error({
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.detail ||
-          "Failed to save metadata",
-      });
-    } finally {
-      getLoaderControl()?.hideLoader();
-    }
-  };
+//       notification.success({
+//         message: "Metadata saved successfully",
+//       });
+//       setIsMetadataSaved(true);
+//     } catch (error: any) {
+//       notification.error({
+//         message:
+//           error?.response?.data?.message ||
+//           error?.response?.data?.detail ||
+//           "Failed to save metadata",
+//       });
+//     } finally {
+//       getLoaderControl()?.hideLoader();
+//     }
+//   };
 
-  const handleRegenerate = async (documentId?: number) => {
-    const docId = documentId || document?.document_id;
-    if (!docId) return;
+//   const handleRegenerate = async (documentId?: number) => {
+//     const docId = documentId || document?.document_id;
+//     if (!docId) return;
 
-    // ✅ version from dropdown
-    const version = selectedVersion;
+//     // ✅ version from dropdown
+//     const version = selectedVersion;
 
-    notification.info({
-      message: "Generating summary",
-      description: `AI is analyzing version ${version} of the document...`,
-    });
+//     notification.info({
+//       message: "Generating summary",
+//       description: `AI is analyzing version ${version} of the document...`,
+//     });
 
-    try {
-      const jobId = await startSummary(docId, version);
+//     try {
+//       const jobId = await startSummary(docId, version);
 
-      setIsSummaryGenerating(true);
+//       setIsSummaryGenerating(true);
 
-      pollSummaryStatus(
-        jobId,
-        (result) => {
-          if (
-            result?.status === "processing" ||
-            result?.message?.includes("Chunks not ready")
-          ) {
-            setIsSummaryGenerating(false);
-            notification.error({
-              message: "Summary generation failed",
-              duration: 0,
-            });
-            return;
-          }
+//       pollSummaryStatus(
+//         jobId,
+//         (result) => {
+//           if (
+//             result?.status === "processing" ||
+//             result?.message?.includes("Chunks not ready")
+//           ) {
+//             setIsSummaryGenerating(false);
+//             notification.error({
+//               message: "Summary generation failed",
+//               duration: 0,
+//             });
+//             return;
+//           }
 
-          if (!result?.summary) {
-            setIsSummaryGenerating(false);
-            notification.error({
-              message: "Summary generation failed",
-              duration: 0,
-            });
-            return;
-          }
+//           if (!result?.summary) {
+//             setIsSummaryGenerating(false);
+//             notification.error({
+//               message: "Summary generation failed",
+//               duration: 0,
+//             });
+//             return;
+//           }
 
-          // ✅ Update summary for SAME version (update both summary.text and version.summary)
-          setDocument((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              summary: {
-                ...prev.summary,
-                text: result.summary,
-                is_self_generated: false, // AI-generated
-              },
-              version: {
-                ...prev.version,
-                summary: result.summary,
-              },
-            };
-          });
+//           // ✅ Update summary for SAME version (update both summary.text and version.summary)
+//           setDocument((prev) => {
+//             if (!prev) return prev;
+//             return {
+//               ...prev,
+//               summary: {
+//                 ...prev.summary,
+//                 text: result.summary,
+//                 is_self_generated: false, // AI-generated
+//               },
+//               version: {
+//                 ...prev.version,
+//                 summary: result.summary,
+//               },
+//             };
+//           });
 
-          if (result.tags) {
-            setSuggestedTags(result.tags);
-          }
+//           if (result.tags) {
+//             setSuggestedTags(result.tags);
+//           }
 
-          setIsSummaryGenerating(false);
-          setIsUserWrittenSummary(false); // Mark as AI-generated when regenerated
+//           setIsSummaryGenerating(false);
+//           setIsUserWrittenSummary(false); // Mark as AI-generated when regenerated
 
-          notification.success({
-            message: "Summary generated",
-            description: `Summary generated for version ${version}`,
-            duration: 0,
-          });
-        },
-        (err) => {
-          setIsSummaryGenerating(false);
-          notification.error({
-            message: "Summary failed",
-            description: String(err),
-            duration: 0,
-          });
-        }
-      );
-    } catch (err) {
-      setIsSummaryGenerating(false);
-      notification.error({
-        message: "Failed to start summary",
-      });
-    }
-  };
+//           notification.success({
+//             message: "Summary generated",
+//             description: `Summary generated for version ${version}`,
+//             duration: 0,
+//           });
+//         },
+//         (err) => {
+//           setIsSummaryGenerating(false);
+//           notification.error({
+//             message: "Summary failed",
+//             description: String(err),
+//             duration: 0,
+//           });
+//         }
+//       );
+//     } catch (err) {
+//       setIsSummaryGenerating(false);
+//       notification.error({
+//         message: "Failed to start summary",
+//       });
+//     }
+//   };
 
 
   // Handler for ChatSidebar
-  const handleSendMessage = async (message: string, documentId: number) => {
-    try {
-      const response = await getAiChatResponse(documentId, message);
+//   const handleSendMessage = async (message: string, documentId: number) => {
+//     try {
+//       const response = await getAiChatResponse(documentId, message);
 
-      return {
-        text: response.answer,
-        sessionId: response.session_id,
-        citations: response.citations,
-      };
-    } catch (error: any) {
-      notification.error({
-        message:
-          error?.response?.data?.message || "Unable to get response from AI",
-      });
+//       return {
+//         text: response.answer,
+//         sessionId: response.session_id,
+//         citations: response.citations,
+//       };
+//     } catch (error: any) {
+//       notification.error({
+//         message:
+//           error?.response?.data?.message || "Unable to get response from AI",
+//       });
 
-      throw error;
-    }
-  };
+//       throw error;
+//     }
+//   };
 
   // Handler for Re-Upload button
   const handleReupload = () => {
@@ -443,25 +442,25 @@ const BoquetDocumentsDetails: React.FC = () => {
   };
 
   // MUST be after all other hooks but before any conditional returns
-  useEffect(() => {
-    if (autoSummaryTriggeredRef.current) return;
-    if (!document || isLoading) return;
+//   useEffect(() => {
+//     if (autoSummaryTriggeredRef.current) return;
+//     if (!document || isLoading) return;
 
-    // 🚫 Only for latest version
-    if (selectedVersion !== document.current_version) return;
+//     // 🚫 Only for latest version
+//     if (selectedVersion !== document.current_version) return;
 
-    // Check if summary exists in the API response (data.summary.text)
-    // This prevents auto-regenerating when summary already exists
-    const hasNoSummary =
-      !document.summary?.text ||
-      !document.summary.text.trim() ||
-      document.summary.text.trim() === "";
+//     // Check if summary exists in the API response (data.summary.text)
+//     // This prevents auto-regenerating when summary already exists
+//     const hasNoSummary =
+//       !document.summary?.text ||
+//       !document.summary.text.trim() ||
+//       document.summary.text.trim() === "";
 
-    if (hasNoSummary) {
-      autoSummaryTriggeredRef.current = true;
-      void handleRegenerate(document.document_id);
-    }
-  }, [document, isLoading, selectedVersion]);
+//     if (hasNoSummary) {
+//       autoSummaryTriggeredRef.current = true;
+//       void handleRegenerate(document.document_id);
+//     }
+//   }, [document, isLoading, selectedVersion]);
 
 
   const fileUrl = document?.version?.file_url || "";
@@ -601,7 +600,8 @@ const BoquetDocumentsDetails: React.FC = () => {
 
   const headerProps: DocumentHeaderProps = {
     breadcrumb: [
-      { label: "Documents", path: "/documents" },
+      { label: "Bouquet", path: "/bouquet" },
+      { label: "Documents", path: "/bouquet/documents" },
       { label: fileName },
     ],
     fileName: documentTitle,
@@ -613,102 +613,37 @@ const BoquetDocumentsDetails: React.FC = () => {
     selectedVersion: String(selectedVersion),
     onVersionChange: (value: string) => handleVersionChange(Number(value)),
     // Only show submit button when status is DRAFT (no role restriction)
-    onSubmit: !hideSubmit && status === "DRAFT" ? handleSubmit : undefined,
+    // onSubmit: !hideSubmit && status === "DRAFT" ? handleSubmit : undefined,
     // Disable submit until metadata has been saved at least once
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
   };
   return (
     <>
-      <DocumentLayout
-        headerProps={headerProps}
-        showSummarySidebar={true}
-        showChatSidebar={true}
-        document={document}
-        suggestedTags={suggestedTags}
-        activeTags={activeTags}
-        onSummaryChange={handleSummaryChange}
-        onAddTag={handleAddTag}
-        onRemoveTag={handleRemoveTag}
-        onCreateTag={handleCreateTag}
-        onSaveMetadata={handleSaveMetadata}
-        onRegenerate={handleRegenerate}
-        onSendMessage={handleSendMessage}
-        isSummaryGenerating={isSummaryGenerating}
-        onEditSummaryClick={handleEditSummaryClick}
-        onWriteOwnSummaryClick={handleWriteOwnSummaryClick}
-        isUserWrittenSummary={isUserWrittenSummary}
-      >
-        <div className="document-viewer">
-          {isEditMode && isTextFile ? (
-            isTextLoading ? (
-              <p>Loading text...</p>
-            ) : (
-              <textarea
-                value={textContent}
-                onChange={(e) => setTextContent(e.target.value)}
-                rows={25}
-                style={{
-                  width: "100%",
-                  fontFamily: "monospace",
-                  padding: "12px",
-                  fontSize: "14px",
-                }}
-              />
-            )
-          ) : (
-            <DocumentPreview
-              fileName={document.version?.file_name || "Unknown Document"}
-              fileUrl={document.version?.file_url || ""}
-            />
-          )}
-        </div>
-      </DocumentLayout>
+      <AwaitingApprovalDocumentLayout
+            headerProps={{ ...headerProps,  }}
+            document={document}
+           
+        >
+            <div className="document-viewer">
+                {document.version.file_url ? (
+                    <DocumentPreview
+                        fileName={document.version.file_name}
+                        fileUrl={document.version.file_url}
+                    />
+                ) : (
+                    <div className="document-placeholder">
+                        <span className="document-placeholder-label">
+                            Document preview not available
+                        </span>
+                    </div>
+                )}
+            </div>
+        </AwaitingApprovalDocumentLayout>
 
-      <SubmitDocument
-        open={isSubmitModalOpen}
-        reviewers={assignableEmployees.map((emp) => ({
-          id: emp.user_id,
-          name: emp.name,
-          role: emp.role,
-          self: emp.self,
-        }))}
-        loading={isEmployeeLoading}
-        onClose={() => setIsSubmitModalOpen(false)}
-        onSubmit={handleDocumentSubmission}
-      />
+     
 
-      <AddDocument
-        open={isReuploadOpen}
-        documentId={document.document_id}
-        onClose={() => setIsReuploadOpen(false)}
-        onSuccess={() => {
-          setIsReuploadOpen(false);
-          fetchDocument(); // refresh document + version
-        }}
-      />
-
-      {document && (
-        <>
-          <EditSummary
-            open={isEditSummaryOpen}
-            onClose={() => setIsEditSummaryOpen(false)}
-            summary={document.version?.summary || ""}
-            documentId={document.document_id}
-            activeTags={activeTags}
-            onUpdate={handleSummaryUpdate}
-            isUserWrittenSummary={isUserWrittenSummary}
-          />
-          <WriteownSummary
-            open={isWriteOwnSummaryOpen}
-            onClose={() => setIsWriteOwnSummaryOpen(false)}
-            summary={document.version?.summary || ""}
-            documentId={document.document_id}
-            activeTags={activeTags}
-            onSave={handleSummarySave}
-          />
-        </>
-      )}
+     
     </>
   );
 };

@@ -53,4 +53,10 @@ export const API_URL = {
   addBouquet: "/newdocuments/createBouquet",
   updateBouquet: "/newdocuments/updateBouquet",
   deleteBouquet: "/newdocuments/deleteBouquet",
+  getBouquetDocuments: (boqId: number | string) =>
+  `/newdocuments/boqDocuments/${boqId}`,
+
+removeDocumentFromBouquet: (boqId: number | string) =>
+  `/newdocuments/removeDocuments/${boqId}`,
+
 };

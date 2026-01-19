@@ -1,6 +1,6 @@
 @use "../../../../variables.scss" as *;
 
-.documents-container {
+.bouquet-documents-container {
 
   // ===============================
   // Table
@@ -64,13 +64,14 @@
       }
 
       // Status
-      &:nth-child(6) {
-        min-width: 250px;
-      }
+    //   &:nth-child(6) {
+    //     min-width: 250px;
+    //   }
 
       // Pending On
       &:last-child {
-        width: 100px;
+        width: 100px !important;
+        max-width: 100px !important;
         text-align: center;
         padding: 0;
       }
@@ -102,7 +103,8 @@
 
       // Status
       &:last-child {
-        width: 100px;
+        width: 100px !important;
+        max-width: 100px !important;
         text-align: center;
         padding: 0;
       }
@@ -255,39 +257,9 @@
   // ===============================
   // Actions
   // ===============================
-  .documents-actions {
+  .Boquet-documents-actions {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    .view-icon {
-      width: 77px;
-      height: 32px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      background-color: #ffffff;
-      transition: all 0.2s ease;
-
-      img {
-        width: 16px;
-        height: 16px;
-        display: block;
-        flex-shrink: 0;
-      }
-
-      .spantext {
-        color: #1b3249;
-        font-family: $font-family-main;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 20px;
-        white-space: nowrap;
-      }
-    }
   }
 }

@@ -64,37 +64,15 @@
     .ant-breadcrumb {
       font-family: $font-family-main;
       font-size: 16px;
-      color: $color-gray;
-
-      a {
-        color: $color-gray-table;
-
-        &:hover {
-          color: $color-primary;
-        }
-        
-      }
-
-      nav{
-        margin-top: 2px;
-      }
 
       .filename {
         background-color: #ecf2fe;
         color: #457ce8;
-        font-family: $font-family-main;
-        font-size: 16px;
-        border-radius: 4px;
-        padding: 2px 6px;
+        border-radius: 6px;
+        padding: 4px 8px;
         font-weight: 500;
-      }
-
-      .doc {
-        font-family: $font-family-main;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-     
+        cursor: default;
+        pointer-events: none;
       }
     }
   }
