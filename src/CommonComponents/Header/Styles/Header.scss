@@ -148,3 +148,39 @@
         color: $primary !important;
     }
 }
+
+
+/* breadcrum */
+
+.language-title-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-title {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.breadcrumb-link {
+  color: #9ca3af;
+}
+
+.breadcrumb-link.clickable {
+  cursor: pointer;
+
+  &:hover {
+    color: #1f2937;
+  }
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: #9ca3af;
+}
+
+.breadcrumb-current {
+  color: #111827;
+}

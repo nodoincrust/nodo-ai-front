@@ -88,9 +88,14 @@ export interface DropdownOptionsModalProps {
   maxWidth?: number;
 }
 
+type Breadcrumb = {
+  parent: string;
+  parentPath?: string;
+  current?: string;
+};
+
 // Header.tsx
-export interface HeaderProps {
-  title: string;
+type HeaderCommonProps = {
   description?: string;
   count?: number | string;
   searchValue?: string;
@@ -113,7 +118,15 @@ export interface HeaderProps {
   documentFilterValue?: "MY_DOCUMENTS" | "AWAITING";
   onDocumentFilterChange?: (value: "MY_DOCUMENTS" | "AWAITING") => void;
 }
-
+export type HeaderProps =
+  | (HeaderCommonProps & {
+      title: string;
+      breadcrumb?: never;
+    })
+  | (HeaderCommonProps & {
+      breadcrumb: Breadcrumb;
+      title?: never;
+    });
 export type StatusType = "all" | "active" | "inactive";
 
 // Sidebar.tsx
@@ -316,7 +329,15 @@ export interface ApiDocumentDetailResponse {
   };
 }
 
-export type DocumentStatus = "IN_REVIEW" | "APPROVED" | "REJECTED" | "DRAFT" | "SUBMITTED" | "all" | "PENDING" | "REUPLOADED";
+export type DocumentStatus =
+  | "IN_REVIEW"
+  | "APPROVED"
+  | "REJECTED"
+  | "DRAFT"
+  | "SUBMITTED"
+  | "all"
+  | "PENDING"
+  | "REUPLOADED";
 
 export interface DocumentBreadcrumbItem {
   label: string;

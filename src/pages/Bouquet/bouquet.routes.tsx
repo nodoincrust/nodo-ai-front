@@ -1,5 +1,6 @@
 import type { RouteObject } from "react-router-dom";
 import Bouquets from "./Components/Bouquets";
+import BouquetDocuments from "./BouquetDocuments";
 
 export const bouquetsRoutes: RouteObject[] = [
     {
