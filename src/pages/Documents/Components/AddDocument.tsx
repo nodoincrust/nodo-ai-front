@@ -25,7 +25,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx", ".txt"];
+  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx", ".txt", ".jpeg", ".jpg", ".doc"];
   const acceptedMimeTypes = [
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
