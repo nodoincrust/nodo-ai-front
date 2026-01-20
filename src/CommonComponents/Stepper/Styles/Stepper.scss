@@ -1,7 +1,11 @@
 @use "../../../variables.scss" as *;
 
+// .ant-popover {
+//   inset: 60px 222px auto auto !important;
+// }
+
 .ant-popover-inner {
-  padding: 0 !important;
+  padding: 12px 22px 12px 12px !important;
 }
 
 @keyframes flowDownOnce {
@@ -18,7 +22,7 @@
 
 .approval-stepper {
   background: $color-white;
-  padding: 16px;
+  // padding: 16px;
   border-radius: $border-radius-lg;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 
@@ -31,13 +35,17 @@
   .ant-steps-item-tail {
     position: absolute;
     top: 11px !important;
-    padding: 0px !important;
+    padding: 0 !important;
+
+    &::after {
+      width: 2px !important;
+      height: 100%;
+      background: $status-submitted-bg;
+    }
   }
 
-  .ant-steps-item-tail::after {
-    width: 2px !important;
-    height: 100%;
-    background: $status-submitted-bg;
+  /* Animate only 2nd last step tail */
+  .ant-steps-item:nth-last-child(2) .ant-steps-item-tail::after {
     animation: flowDownOnce 1.6s linear forwards;
   }
 
@@ -52,16 +60,17 @@
     padding: 0;
   }
 
+  /* Tail colors based on next step status */
   .ant-steps-item.next-approved .ant-steps-item-tail::after {
-    background: $color-status-bg-active;
+    background: $color-status-text-active;
   }
 
   .ant-steps-item.next-rejected .ant-steps-item-tail::after {
-    background: $status-rejected-bg;
+    background: $status-rejected-text;
   }
 
   .ant-steps-item.next-pending .ant-steps-item-tail::after {
-    background: $status-submitted-bg;
+    background: $status-pending-text;
   }
 
   .step-header {
@@ -86,16 +95,21 @@
     align-items: center;
     justify-content: center;
     border: none;
+
+    &::before {
+      content: "•";
+      margin-right: 4px;
+      display: inline-block;
+      font-size: 15px;
+    }
   }
 
-  .status-pill::before {
-    content: "•";
-    margin-right: 4px;
-    display: inline-block;
+  .ant-steps-item-description {
+    padding-bottom: 4px !important;
   }
 
   .step-description {
-    margin-top: 6px;
+    // margin-top: 6px;
 
     .status-text {
       font-size: 13px;

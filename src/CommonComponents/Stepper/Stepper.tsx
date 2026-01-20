@@ -76,9 +76,9 @@ const Stepper = ({ steps }: Props) => {
                             title={
                                 <div className={`step-header ${statusClass}`}>
                                     <span className="step-role">{step.role}</span>
-                                    <Tag className={`status-pill ${statusClass}`}>
+                                    {/* <Tag className={`status-pill ${statusClass}`}>
                                         {formatStatusLabel(step.status)}
-                                    </Tag>
+                                    </Tag> */}
                                 </div>
                             }
                             description={
