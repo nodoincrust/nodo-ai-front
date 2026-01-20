@@ -15,7 +15,7 @@ import {
 } from "../../utils/utilFunctions";
 import { ApiDocument, Document, DocumentStatus } from "../../types/common";
 import { getBouquetDocuments, removeDocumentFromBouquet } from "../../services/bouquets.services";
-// import AddDocument from "../";
+import AddBoquetDocuments from "./AddBoquetDocuments";
 import { useParams } from "react-router-dom";
 import "./Components/Styles/BouquetDocuments.scss";
 
@@ -157,9 +157,9 @@ const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
   // --- Handlers ---
   const openAddDocument = () => setIsAddDocumentOpen(true);
 
-  //   const handleAddDocumentSuccess = () => {
-  //     fetchMyDocuments();
-  //   };
+  const handleAddDocumentSuccess = () => {
+    fetchBouquetDocuments();
+  };
 
   const handleViewDocument = (document: Document) => {
     navigate(`/bouquet/documents/${document.document_id}`, {
@@ -445,13 +445,14 @@ const handleDeleteDocument = async () => {
         />
       </div>
 
-      {/* {documentFilter === "MY_DOCUMENTS" && (
-        // <AddDocument
-        //   open={isAddDocumentOpen}
-        //   onClose={() => setIsAddDocumentOpen(false)}
-        //   onSuccess={handleAddDocumentSuccess}
-        // />
-      )} */}
+      {bouquetId && (
+        <AddBoquetDocuments
+          open={isAddDocumentOpen}
+          onClose={() => setIsAddDocumentOpen(false)}
+          onSuccess={handleAddDocumentSuccess}
+          bouquetId={bouquetId}
+        />
+      )}
       <ConfirmModal
         open={showDeleteModal}
         onCancel={() => {

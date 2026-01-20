@@ -61,21 +61,10 @@
       }
     }
 
-    .ant-breadcrumb {
-      font-family: $font-family-main;
-      font-size: 16px;
-
-      .filename {
-        background-color: #ecf2fe;
-        color: #457ce8;
-        border-radius: 6px;
-        padding: 4px 8px;
-        font-weight: 500;
-        cursor: default;
-        pointer-events: none;
-      }
-    }
+   
   }
+
+  
 
   .approve-btn {
     background-color: #16a34a;

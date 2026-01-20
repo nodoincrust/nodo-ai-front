@@ -167,7 +167,7 @@ export default function Bouquets() {
                 emptyText="No bouquets found"
             />
 
-            { {isAddEditOpen && (
+             {isAddEditOpen && (
                 <AddEditBouquet
                     open={isAddEditOpen}
                     initialData={selectedBouquet}

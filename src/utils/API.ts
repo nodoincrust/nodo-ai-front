@@ -59,4 +59,9 @@ export const API_URL = {
 removeDocumentFromBouquet: (boqId: number | string) =>
   `/newdocuments/removeDocuments/${boqId}`,
 
+addDocumentsToBouquet: (boqId: number | string) =>
+  `/newdocuments/appendDocuments/${boqId}`,
+
+
+getApprovedDocuments: "/newdocuments/getApprovedDocs",
 };

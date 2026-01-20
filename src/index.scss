@@ -11,22 +11,22 @@
 
 // Base
 @font-face {
-  font-family: 'Inter';
-  src: url('/assets/fonts/static/Inter_18pt-Regular.ttf') format('truetype');
+  font-family: "Inter";
+  src: url("/assets/fonts/static/Inter_18pt-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Inter';
-  src: url('/assets/fonts/static/Inter_18pt-Medium.ttf') format('truetype');
+  font-family: "Inter";
+  src: url("/assets/fonts/static/Inter_18pt-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Inter';
-  src: url('/assets/fonts/static/Inter_18pt-Bold.ttf') format('truetype');
+  font-family: "Inter";
+  src: url("/assets/fonts/static/Inter_18pt-Bold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
 }
@@ -49,7 +49,6 @@
 //   font-weight: 600;
 
 // }
-
 
 // @font-face {
 //   font-family: 'Inter-regular';
@@ -548,7 +547,8 @@ p {
   box-shadow: none !important;
 }
 
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   font-family: $font-family-main !important;
   background-color: $menu-active-bg !important;
 }
@@ -570,16 +570,19 @@ p {
 }
 
 .ant-picker-dropdown {
-  .ant-picker-cell-in-view.ant-picker-cell-selected:not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
+  .ant-picker-cell-in-view.ant-picker-cell-selected:not(
+      .ant-picker-cell-disabled
+    )
+    .ant-picker-cell-inner {
     background-color: $color-primary;
   }
 
-  .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  .ant-picker-cell-in-view.ant-picker-cell-today
+    .ant-picker-cell-inner::before {
     border: 1px solid $color-border;
   }
 
   .ant-picker-header-view {
-
     .ant-picker-year-btn:hover,
     .ant-picker-month-btn:hover {
       color: $color-primary !important;
@@ -606,7 +609,6 @@ p {
 
 .ant-picker-outlined,
 .ant-input-outlined {
-
   &:focus,
   // &:hover,
   &:focus-within {
@@ -670,13 +672,19 @@ p {
 }
 
 // Scrollbar Styling
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   color: rgba(0, 0, 0, 0.88);
   font-weight: 600;
   background-color: #e2eeff;
 }
 
-.ant-select-focused:where(.css-dev-only-do-not-override-kbg4zp).ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+.ant-select-focused:where(
+    .css-dev-only-do-not-override-kbg4zp
+  ).ant-select-outlined:not(.ant-select-disabled):not(
+    .ant-select-customize-input
+  ):not(.ant-pagination-size-changer)
+  .ant-select-selector {
   border-color: #90bdff;
   box-shadow: none;
   outline: 0;
@@ -686,7 +694,11 @@ p {
   border: none !important;
 }
 
-.ant-select-show-search:where(.css-dev-only-do-not-override-mncuj7).ant-select:not(.ant-select-customize-input) .ant-select-selector input {
+.ant-select-show-search:where(
+    .css-dev-only-do-not-override-mncuj7
+  ).ant-select:not(.ant-select-customize-input)
+  .ant-select-selector
+  input {
   height: 100% !important;
 }
 
@@ -750,7 +762,9 @@ p {
 
 // Card
 .card {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 
   &:hover {
     transform: translateY(-2px);
@@ -811,7 +825,7 @@ input {
   background: #ffffff;
   font-family: "Outfit", sans-serif;
   font-size: 14px;
-  color: #292D32;
+  color: #292d32;
 }
 
 .ant-select-placeholder {
@@ -856,7 +870,7 @@ input {
   &.approved {
     background-color: #d9fde8;
     color: #027a48;
-    // max-width: 100px; 
+    // max-width: 100px;
 
     .badge-div,
     .badge-dot {
@@ -951,7 +965,6 @@ input {
     background-color: $status-rejected-bg;
     color: $status-rejected-text;
     // max-width: 129px;
-
 
     .badge-div {
       background-color: $status-rejected-text;
@@ -1059,7 +1072,6 @@ input {
 }
 
 .document-viewer {
-
   tbody,
   td,
   tfoot,
@@ -1075,5 +1087,18 @@ input {
     max-height: none;
     margin: 0;
   }
-
 }
+
+.ant-breadcrumb.doc {
+  .filename {
+    background-color: #ecf2fe;
+    color: #457ce8;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: 500;
+    display: inline-block;
+  }
+}
+
+
+

@@ -51,7 +51,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
     if (!statusToDisplay) return null;
 
     const label =
-      displayStatus || (status ? statusLabelMap[status] ?? status : "");
+      displayStatus || (status ? (statusLabelMap[status] ?? status) : "");
 
     const baseStatus = normalizeStatus(statusToDisplay);
 
@@ -87,6 +87,29 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
     return statusTag;
   };
 
+  const breadcrumbItems =
+    breadcrumb && breadcrumb.length > 0
+      ? breadcrumb.map((item, index) => {
+          const isLast = index === breadcrumb.length - 1;
+
+          return {
+            key: index,
+            title: (
+              <span className={isLast ? "filename" : ""} onClick={item.onClick}>
+                {item.label}
+              </span>
+            ),
+          };
+        })
+      : [
+          {
+            title: <span onClick={onBackClick}>Documents</span>,
+          },
+          {
+            title: <span className="filename">{fileName}</span>,
+          },
+        ];
+
   return (
     <>
       <div className="document-header">
@@ -109,28 +132,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
               </button>
             )}
 
-            <Breadcrumb separator="/" className="doc">
-              {breadcrumb && breadcrumb.length > 0 ? (
-                breadcrumb.map((item, index) => (
-                  <Breadcrumb.Item
-                    key={index}
-                    className={item.isActive ? "filename" : ""}
-                    onClick={item.onClick}
-                  >
-                    {item.label}
-                  </Breadcrumb.Item>
-                ))
-              ) : (
-                <>
-                  <Breadcrumb.Item onClick={onBackClick}>
-                    Documents
-                  </Breadcrumb.Item>
-                  <Breadcrumb.Item className="filename">
-                    {fileName}
-                  </Breadcrumb.Item>
-                </>
-              )}
-            </Breadcrumb>
+            <Breadcrumb separator="/" className="doc" items={breadcrumbItems} />
           </div>
 
           {renderStatus()}
@@ -174,7 +176,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
                     a.label === "Reject" ||
                     a.label === "Reupload" ||
                     a.label === "Edit" ||
-                    a.label === "Save"
+                    a.label === "Save",
                 )
                 .map((a) => (
                   <PrimaryButton
