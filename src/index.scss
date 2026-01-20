@@ -558,6 +558,7 @@ p {
   justify-content: center !important;
   align-items: center !important;
   background-color: #00000052 !important;
+  backdrop-filter: blur(6px);
 }
 
 .ant-modal-body {

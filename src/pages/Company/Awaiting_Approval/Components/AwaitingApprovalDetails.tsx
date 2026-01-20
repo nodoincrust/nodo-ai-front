@@ -31,6 +31,7 @@ const AwaitingApprovalDetails = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [reloadKey, setReloadKey] = useState(0);
     const [selectedVersion, setSelectedVersion] = useState<number>();
+    const [tracking, setTracking] = useState<any>(null);
 
     /* ------------------------------ Fetch Document ------------------------------ */
     useEffect(() => {
@@ -90,6 +91,7 @@ const AwaitingApprovalDetails = () => {
                 is_actionable: data.document.is_actionable,
                 version: docVersion,
             });
+            setTracking(data.tracking);
         } catch (error: any) {
             notification.error({
                 message:
@@ -196,6 +198,7 @@ const AwaitingApprovalDetails = () => {
         selectedVersion,
         onVersionChange: (val: number) => setSelectedVersion(val),
         extraActions,
+        tracking,
     };
 
     /* ------------------------------ Render ------------------------------ */

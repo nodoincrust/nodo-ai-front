@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, data } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
 import DocumentPreview from "../DocumentPreview";
@@ -55,6 +55,8 @@ const DocumentDetail: React.FC = () => {
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
   const [isWriteOwnSummaryOpen, setIsWriteOwnSummaryOpen] = useState(false);
   const [isUserWrittenSummary, setIsUserWrittenSummary] = useState(false);
+  const [tracking, setTracking] = useState<any>(null);
+
   useEffect(() => {
     if (id) {
       fetchDocument();
@@ -78,6 +80,9 @@ const DocumentDetail: React.FC = () => {
       setIsUserWrittenSummary(doc.summary?.is_self_generated === true);
 
       setSelectedVersion(version ?? doc.version?.version_number ?? doc.current_version);
+      setTracking(doc.tracking);
+      console.log("Tracking", doc.tracking);
+
 
     } catch (error: any) {
       notification.error({
@@ -267,10 +272,6 @@ const DocumentDetail: React.FC = () => {
       };
     });
   };
-
-
-
-
 
   const handleAddTag = (tag: string) => {
     setIsMetadataSaved(false);
@@ -617,6 +618,7 @@ const DocumentDetail: React.FC = () => {
     // Disable submit until metadata has been saved at least once
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
+    tracking,
   };
   return (
     <>
