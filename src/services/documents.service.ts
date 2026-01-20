@@ -104,6 +104,7 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
       tags: apiData.summary?.tags || [],  // ✅ required by ApiDocumentVersion
       summary: apiData.summary?.text || "",  // ✅ Map summary text to version.summary
     },
+    tracking: (apiData as any).tracking,
   };
 };
 

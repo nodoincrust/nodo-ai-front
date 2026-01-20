@@ -9,7 +9,8 @@ import { scrollLayoutToTop } from "../../../utils/utilFunctions";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import AddEditBouquet from "./AddEditBouquet";
-import { getBouquetsList } from "../../../services/bouquets.services";
+import { deleteBouquet, getBouquetsList } from "../../../services/bouquets.services";
+import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 
 export default function Bouquets() {
     const [count, setCount] = useState(0);
@@ -84,6 +85,46 @@ export default function Bouquets() {
     const openEditBouquet = (bouquet: any) => {
         setSelectedBouquet(bouquet);
         setIsAddEditOpen(true);
+    };
+
+    // Delete
+    const handleDeleteBouquet = async () => {
+        if (!bouquetToDelete) return;
+
+        getLoaderControl()?.showLoader();
+        try {
+            const res: any = await deleteBouquet(bouquetToDelete);
+
+            if (res?.statusCode === 200) {
+                notification.success({
+                    message:
+                        res?.message ||
+                        MESSAGES.SUCCESS.BOUQUET_DELETED_SUCCESSFULLY,
+                });
+
+                if (bouquetList.length === 1 && currentPage > 1) {
+                    setCurrentPage((prev) => prev - 1);
+                } else {
+                    fetchBouquets();
+                }
+            } else {
+                notification.error({
+                    message:
+                        res?.message ||
+                        MESSAGES.ERRORS.BOUQUET_DELETE_FAILED,
+                });
+            }
+        } catch (error: any) {
+            notification.error({
+                message:
+                    error?.response?.data?.message ||
+                    MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+            });
+        } finally {
+            setShowDeleteModal(false);
+            setBouquetToDelete(null);
+            getLoaderControl()?.hideLoader();
+        }
     };
 
     return (
@@ -182,6 +223,19 @@ export default function Bouquets() {
                     }}
                 />
             )}
+
+            <ConfirmModal
+                open={showDeleteModal}
+                onCancel={() => {
+                    setShowDeleteModal(false);
+                    setBouquetToDelete(null);
+                }}
+                onConfirm={handleDeleteBouquet}
+                title="Delete Bouquet?"
+                description={"Deleting this bouquet will remove all associated documents.\nThis action cannot be undone."}
+                confirmText="Delete"
+                icon="/assets/trash-hover.svg"
+            />
         </div>
     );
 }

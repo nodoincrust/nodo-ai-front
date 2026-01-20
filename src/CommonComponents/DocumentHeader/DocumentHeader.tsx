@@ -5,7 +5,10 @@ import ConfirmModal from "../Confirm Modal/ConfirmModal";
 import "./DocumentHeader.scss";
 import type { DocumentHeaderProps } from "../../types/common";
 import RejectConfirmModal from "../RejectConfirmModal/RejectConfirmModal";
-
+import { Steps } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import Stepper from "../Stepper/Stepper";
 const statusLabelMap: any = {
   APPROVED: "Approved",
   REJECTED: "Rejected",
@@ -28,6 +31,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   submitDisabled,
   extraActions = [],
   onReject,
+  tracking,
 }) => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -109,6 +113,11 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             title: <span className="filename">{fileName}</span>,
           },
         ];
+  const renderTrackingContent = () => {
+    if (!tracking) return null;
+
+    return <Stepper steps={tracking.steps} />;
+  };
 
   return (
     <>
@@ -139,6 +148,16 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         </div>
 
         <div className="document-header-right">
+          {tracking && (
+            <Popover
+              content={renderTrackingContent()}
+              trigger={["hover", "click"]}
+              placement="bottomRight"
+              overlayClassName="tracking-popover-wrapper"
+            >
+              <InfoCircleOutlined className="tracking-info-icon" />
+            </Popover>
+          )}  
           {/* Version selector (when options are provided) */}
           {versionOptions && versionOptions.length > 0 && (
             <div className="document-header-version-select">

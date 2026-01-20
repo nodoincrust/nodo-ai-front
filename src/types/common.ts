@@ -360,6 +360,15 @@ export interface DocumentHeaderProps {
   submitDisabled?: boolean;
   extraActions?: DocumentHeaderAction[];
   onReject?: (reason: string) => void;
+  tracking?: {
+    final_status: string;
+    steps: {
+      role: string;
+      status: "APPROVED" | "REJECTED" | "PENDING";
+      display: string;
+      timestamp?: string;
+    }[];
+  };
 }
 
 // Awaiting header props
@@ -381,6 +390,15 @@ export interface ApiDocument {
     tags?: string[];
     citations?: any[];
     is_self_generated?: boolean;
+  };
+  tracking?: {
+    final_status: string;
+    steps: {
+      role: string;
+      status: "APPROVED" | "REJECTED" | "PENDING";
+      display: string;
+      timestamp?: string;
+    }[];
   };
 }
 

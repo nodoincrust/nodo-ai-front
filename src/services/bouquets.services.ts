@@ -50,8 +50,7 @@ export const updateBouquet = async (bouquetId: number, payload: any) => {
 };
 
 export const deleteBouquet = async (bouquetId: number) => {
-    const response = await axios.delete(
-        `${API_URL.deleteBouquet}/${bouquetId}`
+    const response = await axios.delete(`${API_URL.deleteBouquet}/${bouquetId}`
     );
     return response.data;
 };
