@@ -109,8 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
   // CLEAR FILTER SESSION
   const clearFilterSession = () => {
-    sessionStorage.removeItem("appliedFilters");
-    sessionStorage.removeItem("apiAppliedFilters");
+    sessionStorage.clear();
   };
 
 

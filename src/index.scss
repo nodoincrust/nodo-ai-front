@@ -1030,6 +1030,21 @@ input {
   font-size: 12px;
 }
 
+/* INPUT error */
+.ant-form-item-has-error .ant-input {
+  border-color: #ff4d4f !important;
+}
+
+/* TEXTAREA error — THIS IS THE FIX */
+.ant-form-item-has-error .ant-input-textarea-affix-wrapper {
+  border-color: #ff4d4f !important;
+}
+
+/* Remove inner textarea border so wrapper controls it */
+.ant-input-textarea-affix-wrapper textarea {
+  border: none !important;
+}
+
 .ant-form-item {
   margin-bottom: 5px !important;
 }
@@ -1053,11 +1068,12 @@ input {
   tr {
     border-width: 1px !important;
   }
- pre {
-  height: none !important;
-  min-height: 0;
-  max-height: none;
-  margin: 0;
-}
+
+  pre {
+    height: none !important;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+  }
 
 }
