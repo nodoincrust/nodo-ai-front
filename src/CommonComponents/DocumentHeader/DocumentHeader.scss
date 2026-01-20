@@ -72,10 +72,10 @@
         &:hover {
           color: $color-primary;
         }
-        
+
       }
 
-      nav{
+      nav {
         margin-top: 2px;
       }
 
@@ -94,7 +94,7 @@
         font-size: 16px;
         font-weight: 500;
         cursor: pointer;
-     
+
       }
     }
   }
@@ -181,6 +181,18 @@
     display: flex;
     align-items: center;
     gap: 12px;
+
+    .tracking-info-trigger {
+      display: inline-flex;
+      cursor: pointer;
+    }
+
+    .tracking-info-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    
   }
 
   .document-header-version-select {
@@ -326,6 +338,7 @@
       }
     }
   }
+
   .rejection-popover {
     max-width: 260px;
     font-size: 16px;

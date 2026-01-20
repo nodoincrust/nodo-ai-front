@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Breadcrumb, Select, Tag, Popover } from "antd";
 import PrimaryButton from "../Buttons/PrimaryButton";
 import ConfirmModal from "../Confirm Modal/ConfirmModal";
@@ -36,6 +36,8 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveAction, setApproveAction] = useState<(() => void) | null>(null);
+  const [hoverOpen, setHoverOpen] = useState(false);
+  const [clickOpen, setClickOpen] = useState(false);
 
   const normalizeStatus = (status?: string) => {
     if (!status) return "draft";
@@ -97,6 +99,21 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
     return <Stepper steps={tracking.steps} />;
   };
 
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setClickOpen(false);
+      setHoverOpen(false);
+    };
+
+    if (clickOpen) {
+      document.addEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [clickOpen]);
+
   return (
     <>
       <div className="document-header">
@@ -132,13 +149,31 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           {tracking && (
             <Popover
               content={renderTrackingContent()}
-              trigger={["hover", "click"]}
-              placement="bottomRight"
+              placement="bottom"
+              // arrow={{ pointAtCenter: true }}
+              open={hoverOpen || clickOpen}
+              trigger={[]}
               overlayClassName="tracking-popover-wrapper"
+              getPopupContainer={(triggerNode) => triggerNode.parentElement!}
             >
-              <InfoCircleOutlined className="tracking-info-icon" />
+              <span
+                className="tracking-info-trigger"
+                onMouseEnter={() => {
+                  if (!clickOpen) setHoverOpen(true);
+                }}
+                onMouseLeave={() => {
+                  if (!clickOpen) setHoverOpen(false);
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setClickOpen((prev) => !prev);
+                  setHoverOpen(false);
+                }}
+              >
+                <InfoCircleOutlined className="tracking-info-icon" />
+              </span>
             </Popover>
-          )}  
+          )}
           {/* Version selector (when options are provided) */}
           {versionOptions && versionOptions.length > 0 && (
             <div className="document-header-version-select">
