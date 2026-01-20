@@ -1091,6 +1091,19 @@ input {
 }
 
 .ant-breadcrumb.doc {
+  font-family: $font-family-main;
+  color: #6D7C8B;
+  font-size: 16px;
+  
+  .breadcrumb-link {
+  color: #1677ff;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
   .filename {
     background-color: #ecf2fe;
     color: #457ce8;
