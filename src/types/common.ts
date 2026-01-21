@@ -120,13 +120,13 @@ type HeaderCommonProps = {
 }
 export type HeaderProps =
   | (HeaderCommonProps & {
-      title: string;
-      breadcrumb?: never;
-    })
+    title: string;
+    breadcrumb?: never;
+  })
   | (HeaderCommonProps & {
-      breadcrumb: Breadcrumb;
-      title?: never;
-    });
+    breadcrumb: Breadcrumb;
+    title?: never;
+  });
 export type StatusType = "all" | "active" | "inactive";
 
 // Sidebar.tsx
@@ -342,7 +342,7 @@ export type DocumentStatus =
 export interface DocumentBreadcrumbItem {
   label: string;
   path?: string;
-    onClick?: () => void;
+  onClick?: () => void;
   isActive?: boolean; // last item
 }
 
@@ -465,4 +465,15 @@ export interface AddEditBouquetProps {
   initialData?: any;
   onClose: () => void;
   onSave: () => void;
+}
+
+//Template Fields
+export interface FieldConfig {
+  id: string;
+  type: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: string[];
+  value?: string;
 }

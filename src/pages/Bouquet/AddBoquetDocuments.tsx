@@ -25,7 +25,7 @@ const AddBoquetDocuments: React.FC<AddBoquetDocumentsProps> = ({
   bouquetId,
 }) => {
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search,900);
+  const debouncedSearch = useDebounce(search, 900);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,9 +58,9 @@ const AddBoquetDocuments: React.FC<AddBoquetDocumentsProps> = ({
 
       if (Array.isArray(res?.data)) {
         const normalizedDocuments: Document[] = res.data
-          // ❌ Remove already selected documents
+          // Remove already selected documents
           .filter((doc: any) => doc.is_selected_doc !== true)
-          // ✅ Normalize for UI
+          // Normalize for UI
           .map((doc: any) => ({
             document_id: doc.document_id,
             name: doc.file_name ?? "Unknown Document",
@@ -204,7 +204,11 @@ const AddBoquetDocuments: React.FC<AddBoquetDocumentsProps> = ({
                   <input
                     type="checkbox"
                     checked={selectedDocuments.includes(doc.document_id)}
-                    onChange={() => handleToggleDocument(doc.document_id)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      handleToggleDocument(doc.document_id);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                     className="document-checkbox"
                   />
                   <div className="document-icon">
