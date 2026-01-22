@@ -1,5 +1,6 @@
 import SubmitDocument from "../pages/Documents/Components/submitDocument";
 import { rejectDocumentByID } from "../services/awaitingApproval.services";
+import { getEmployeesList } from "../services/employees.services";
 
 export const API_URL = {
   // Auth
@@ -18,9 +19,11 @@ export const API_URL = {
   addDepartment: "/company/addDepartments",
   updateDepartment: "/company/updateDepartment",
   deleteDepartment: "/company/deleteDepartment",
+  getDepartemetsEmployeeListForShare: "/department/getDeptEmployees",
 
   // Employees
   getEmployeesList: "/company/getEmployees",
+  getEmployeesListForShare: "/company/getEmployeeList",
   addEmployee: "/company/addEmployee",
   updateEmployee: "/company/updateEmployee",
   deleteEmployee: "/company/deleteEmployee",
@@ -48,6 +51,8 @@ export const API_URL = {
   startSummary: (id: number | string) => `/ai/summary/start/${id}`,
   sumarryStatus: (id: number | string) => `/ai/summary/status/${id}`,
 
+   shareDocument: "/newdocuments/share",
+
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",
   addBouquet: "/newdocuments/createBouquet",
@@ -64,4 +69,7 @@ addDocumentsToBouquet: (boqId: number | string) =>
 
 
 getApprovedDocuments: "/newdocuments/getApprovedDocs",
+
+  // Shared Workspace
+  getSharedDocuments: "/newdocuments/sharedDocument",
 };

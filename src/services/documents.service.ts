@@ -223,6 +223,20 @@ export function pollSummaryStatus(
   return () => clearInterval(interval); // optional cancel
 }
 
+export const shareDocument = async (payload: {
+  document_id: number|null;
+  bouquet_id: number|null;
+  users: number[];
+  departments: number[];
+  company: boolean;
+}) => {
+  const response = await axios.post(
+    API_URL.shareDocument,
+    payload
+  );
+
+  return response.data;
+};
 
 
 

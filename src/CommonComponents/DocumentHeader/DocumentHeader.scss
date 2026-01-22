@@ -131,7 +131,7 @@
     margin-top: 12px;
     height: 24px; // ✅ exact height
     min-width: 79px; // ✅ exact width (use min-width for dynamic text)
-    padding: 4px 6px; // ✅ exact padding
+    padding: 4px 6px 4px 6px; // ✅ exact padding
     border-radius: 6px;
     border: none;
 

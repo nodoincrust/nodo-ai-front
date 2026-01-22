@@ -162,12 +162,19 @@ const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
   };
 
   const handleViewDocument = (document: Document) => {
+    // Check if coming from shared workspace
+    const fromSharedWorkspace = location.state?.fromSharedWorkspace;
+    const sharedFilter = location.state?.sharedFilter;
+    const sharedPage = location.state?.page;
+
     navigate(`/bouquet/documents/${document.document_id}`, {
       state: {
         bouquetId,
         documentFilter,
         status,
-        page: currentPage,
+        page: fromSharedWorkspace ? sharedPage : currentPage,
+        fromSharedWorkspace, // Pass along the flag
+        sharedFilter,
       },
     });
   };
@@ -364,13 +371,21 @@ const handleDeleteDocument = async () => {
     },
   };
 
+  // Check if coming from shared workspace
+  const fromSharedWorkspace = location.state?.fromSharedWorkspace;
+  const sharedFilter = location.state?.sharedFilter;
+  const sharedPage = location.state?.page;
+
   return (
     <div className="bouquet-documents-container">
       <Header
         breadcrumb={{
-          parent: "Bouquet",
-          parentPath: "/bouquet",
+          parent: fromSharedWorkspace ? "Shared Workspace" : "Bouquet",
+          parentPath: fromSharedWorkspace ? "/sharedworkspace" : "/bouquet",
           current: "Documents",
+          parentState: fromSharedWorkspace
+            ? { sharedFilter: sharedFilter || "BOUQUETS", page: sharedPage || 1 }
+            : undefined,
         }}
         count={`${count} Documents`}
         searchValue={search}

@@ -1,7 +1,6 @@
 @use "../../../../variables.scss" as *;
 
 .documents-container {
-
   // ===============================
   // Table
   // ===============================
@@ -243,11 +242,11 @@
     }
 
     &.reuploaded {
-      background-color:#F3E8FF;
-      color: #8A38F5;
+      background-color: #f3e8ff;
+      color: #8a38f5;
 
       .badge-dot {
-        background-color: #8A38F5;
+        background-color: #8a38f5;
       }
     }
   }
@@ -259,35 +258,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    border: none !important;
 
-    .view-icon {
-      width: 77px;
-      height: 32px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      background-color: #ffffff;
-      transition: all 0.2s ease;
+    // .view-icon {
+    //   width: 77px;
+    //   height: 32px;
+    //   cursor: pointer;
+    //   display: flex;
+    //   align-items: center;
+    //   justify-content: center;
+    //   padding: 8px 12px;
+    //   border-radius: 10px;
+    //   // border: 1px solid #e5e7eb;
+    //   background-color: #ffffff;
+    //   transition: all 0.2s ease;
 
-      img {
-        width: 16px;
-        height: 16px;
-        display: block;
-        flex-shrink: 0;
-      }
-
-      .spantext {
-        color: #1b3249;
-        font-family: $font-family-main;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 20px;
-        white-space: nowrap;
-      }
+    img {
+      width: 22px;
+      height: 22px;
+      display: block;
+      flex-shrink: 0;
     }
   }
 }

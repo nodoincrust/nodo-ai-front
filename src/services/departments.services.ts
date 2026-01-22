@@ -35,3 +35,9 @@ export const deleteDepartment = async (departmentId: number) => {
     );
     return response.data;
 };
+
+
+export const getDepartmentEmployees = async (payload: ApiPayload = {}) => {
+    const response = await axios.post(API_URL.getDepartemetsEmployeeListForShare, payload);
+    return response.data;
+};

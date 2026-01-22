@@ -86,15 +86,28 @@ const BoquetDocumentsDetails: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    const state = location.state as any;
-    navigate("/bouquet/documents", {
-      state: {
-        bouquetId: state?.bouquetId,
-        documentFilter: state?.documentFilter,
-        status: state?.status,
-        page: state?.page,
-      },
-    });
+    const navState = location.state as any;
+    const fromSharedWorkspace = navState?.fromSharedWorkspace;
+    
+    if (fromSharedWorkspace) {
+      // Navigate back to shared workspace bouquets
+      navigate("/sharedworkspace", {
+        state: {
+          sharedFilter: navState?.sharedFilter || "BOUQUETS",
+          page: navState?.page || 1,
+        },
+      });
+    } else {
+      // Navigate back to regular bouquet documents
+      navigate("/bouquet/documents", {
+        state: {
+          bouquetId: navState?.bouquetId,
+          documentFilter: navState?.documentFilter,
+          status: navState?.status,
+          page: navState?.page,
+        },
+      });
+    }
   };
 
   const handleEdit = () => {
@@ -598,12 +611,22 @@ const BoquetDocumentsDetails: React.FC = () => {
   // }
   const hideSubmit = status === "REUPLOADED";
 
+  // Check if coming from shared workspace (reuse state from handleBackClick)
+  const navState = location.state as any;
+  const fromSharedWorkspace = navState?.fromSharedWorkspace;
+
   const headerProps: DocumentHeaderProps = {
-    breadcrumb: [
-      { label: "Bouquet", path: "/bouquet" },
-      { label: "Documents", path: "/bouquet/documents" },
-      { label: fileName },
-    ],
+    breadcrumb: fromSharedWorkspace
+      ? [
+          { label: "Shared Workspace", path: "/sharedworkspace" },
+          { label: "Documents", path: "/bouquet/documents" },
+          { label: fileName },
+        ]
+      : [
+          { label: "Bouquet", path: "/bouquet" },
+          { label: "Documents", path: "/bouquet/documents" },
+          { label: fileName },
+        ],
     fileName: documentTitle,
     status,
     displayStatus: document.display_status,

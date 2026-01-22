@@ -245,47 +245,53 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                   </p>
                 )}
 
-                <div className="summary-actions">
-                  <button
-                    type="button"
-                    className="summary-action-btn"
-                    onClick={handleEditSummary}
-                  >
-                    <svg
-                      className="action-icon"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M5.53999 21.0938C4.92999 21.0938 4.35999 20.8838 3.94999 20.4938C3.42999 20.0038 3.17999 19.2638 3.26999 18.4638L3.63999 15.2238C3.70999 14.6138 4.07999 13.8038 4.50999 13.3638L12.72 4.67378C14.77 2.50378 16.91 2.44378 19.08 4.49378C21.25 6.54378 21.31 8.68378 19.26 10.8538L11.05 19.5438C10.63 19.9938 9.84999 20.4138 9.23999 20.5138L6.01999 21.0638C5.84999 21.0738 5.69999 21.0938 5.53999 21.0938ZM15.93 4.48378C15.16 4.48378 14.49 4.96378 13.81 5.68378L5.59999 14.3838C5.39999 14.5938 5.16999 15.0938 5.12999 15.3838L4.75999 18.6238C4.71999 18.9538 4.79999 19.2238 4.97999 19.3938C5.15999 19.5638 5.42999 19.6238 5.75999 19.5738L8.97999 19.0238C9.26999 18.9738 9.74999 18.7138 9.94999 18.5038L18.16 9.81378C19.4 8.49378 19.85 7.27378 18.04 5.57378C17.24 4.80378 16.55 4.48378 15.93 4.48378Z" />
-                    </svg>
-
-                    <span>Edit Summary</span>
-                  </button>
-                  {!isUserWrittenSummary && (
-                    <button
-                      type="button"
-                      className="summary-action-btn"
-                      onClick={handleRegenerate}
-                      disabled={isSummaryGenerating}
-                    >
-                      <svg
-                        className="action-icon"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
+                {/* Only show action buttons if handlers are provided (not read-only mode) */}
+                {(onEditSummaryClick || onWriteOwnSummaryClick || onRegenerate) && (
+                  <div className="summary-actions">
+                    {onEditSummaryClick && (
+                      <button
+                        type="button"
+                        className="summary-action-btn"
+                        onClick={handleEditSummary}
                       >
-                        <path d="M1.67511 11.3318C1.41526 11.4567 1.25 11.7195 1.25 12.0078C1.25 12.7431 1.32394 13.462 1.46503 14.157C2.46112 19.0641 6.79837 22.7578 12 22.7578C17.9371 22.7578 22.75 17.9449 22.75 12.0078C22.75 6.07075 17.9371 1.25781 12 1.25781C7.59065 1.25781 3.80298 3.9124 2.14482 7.70753C1.97898 8.0871 2.15224 8.52924 2.53181 8.69508C2.91137 8.86091 3.35351 8.68765 3.51935 8.30809C4.94742 5.0396 8.20808 2.75781 12 2.75781C17.1086 2.75781 21.25 6.89918 21.25 12.0078C21.25 17.1164 17.1086 21.2578 12 21.2578C7.84953 21.2578 4.33622 18.5236 3.16544 14.7578H4.5C4.81852 14.7578 5.10229 14.5566 5.20772 14.2561C5.31315 13.9555 5.21724 13.6211 4.96852 13.4222L2.46852 11.4222C2.24339 11.2421 1.93496 11.2069 1.67511 11.3318Z" />
-                      </svg>
-                      <span>Regenerate</span>
-                    </button>
-                  )}
-                </div>
+                        <svg
+                          className="action-icon"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M5.53999 21.0938C4.92999 21.0938 4.35999 20.8838 3.94999 20.4938C3.42999 20.0038 3.17999 19.2638 3.26999 18.4638L3.63999 15.2238C3.70999 14.6138 4.07999 13.8038 4.50999 13.3638L12.72 4.67378C14.77 2.50378 16.91 2.44378 19.08 4.49378C21.25 6.54378 21.31 8.68378 19.26 10.8538L11.05 19.5438C10.63 19.9938 9.84999 20.4138 9.23999 20.5138L6.01999 21.0638C5.84999 21.0738 5.69999 21.0938 5.53999 21.0938ZM15.93 4.48378C15.16 4.48378 14.49 4.96378 13.81 5.68378L5.59999 14.3838C5.39999 14.5938 5.16999 15.0938 5.12999 15.3838L4.75999 18.6238C4.71999 18.9538 4.79999 19.2238 4.97999 19.3938C5.15999 19.5638 5.42999 19.6238 5.75999 19.5738L8.97999 19.0238C9.26999 18.9738 9.74999 18.7138 9.94999 18.5038L18.16 9.81378C19.4 8.49378 19.85 7.27378 18.04 5.57378C17.24 4.80378 16.55 4.48378 15.93 4.48378Z" />
+                        </svg>
+
+                        <span>Edit Summary</span>
+                      </button>
+                    )}
+                    {!isUserWrittenSummary && onRegenerate && (
+                      <button
+                        type="button"
+                        className="summary-action-btn"
+                        onClick={handleRegenerate}
+                        disabled={isSummaryGenerating}
+                      >
+                        <svg
+                          className="action-icon"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M1.67511 11.3318C1.41526 11.4567 1.25 11.7195 1.25 12.0078C1.25 12.7431 1.32394 13.462 1.46503 14.157C2.46112 19.0641 6.79837 22.7578 12 22.7578C17.9371 22.7578 22.75 17.9449 22.75 12.0078C22.75 6.07075 17.9371 1.25781 12 1.25781C7.59065 1.25781 3.80298 3.9124 2.14482 7.70753C1.97898 8.0871 2.15224 8.52924 2.53181 8.69508C2.91137 8.86091 3.35351 8.68765 3.51935 8.30809C4.94742 5.0396 8.20808 2.75781 12 2.75781C17.1086 2.75781 21.25 6.89918 21.25 12.0078C21.25 17.1164 17.1086 21.2578 12 21.2578C7.84953 21.2578 4.33622 18.5236 3.16544 14.7578H4.5C4.81852 14.7578 5.10229 14.5566 5.20772 14.2561C5.31315 13.9555 5.21724 13.6211 4.96852 13.4222L2.46852 11.4222C2.24339 11.2421 1.93496 11.2069 1.67511 11.3318Z" />
+                        </svg>
+                        <span>Regenerate</span>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {!isUserWrittenSummary && (
+              {/* Only show write own/generate AI buttons if handlers are provided */}
+              {!isUserWrittenSummary && onWriteOwnSummaryClick && (
                 <button
                   type="button"
                   className="summary-write-own-btn"
@@ -295,7 +301,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                 </button>
               )}
 
-              {isUserWrittenSummary && (
+              {isUserWrittenSummary && onRegenerate && (
                 <button
                   type="button"
                   className="summary-generate-ai-btn"

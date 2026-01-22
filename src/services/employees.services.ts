@@ -8,6 +8,12 @@ export const getEmployeesList = async (payload: ApiPayload = {}) => {
     return response.data;
 };
 
+export const getEmployeesListForShare = async (payload: ApiPayload = {}) => {
+    const response = await axios.post(API_URL.getEmployeesListForShare, payload);
+    return response.data;
+};
+
+
 
 // Add employee
 export const addEmployee = async (payload: any) => {

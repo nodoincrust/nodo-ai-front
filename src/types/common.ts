@@ -92,6 +92,7 @@ type Breadcrumb = {
   parent: string;
   parentPath?: string;
   current?: string;
+  parentState?: any; // Optional state to pass when navigating to parent
 };
 
 // Header.tsx

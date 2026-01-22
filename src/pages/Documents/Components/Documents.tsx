@@ -6,14 +6,20 @@ import { MESSAGES } from "../../../utils/Messages";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { getDisplayStatus, getStatusClass, scrollLayoutToTop, toCamelCase } from "../../../utils/utilFunctions";
+import {
+  getDisplayStatus,
+  getStatusClass,
+  scrollLayoutToTop,
+  toCamelCase,
+} from "../../../utils/utilFunctions";
 import { ApiDocument, Document, DocumentStatus } from "../../../types/common";
 import { getDocumentsList } from "../../../services/documents.service";
 import { getApprovalList } from "../../../services/awaitingApproval.services";
 import AddDocument from "./AddDocument";
 import "./Styles/Documents.scss";
 import "../../Company/Awaiting_Approval/Components/Styles/AwaitingApproval.scss";
-
+import { Tooltip } from "antd";
+import ShareDocuments from "./ShareDocuments";
 type DocumentFilter = "MY_DOCUMENTS" | "AWAITING";
 
 export default function DocumentsCombined() {
@@ -27,6 +33,8 @@ export default function DocumentsCombined() {
   const [pageSize, setPageSize] = useState(10);
   // const [status, setStatus] = useState<any>("all");
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [documentToShare, setDocumentToShare] = useState<Document | null>(null);
   const authData: any = JSON.parse(localStorage.getItem("authData") || "{}");
   const userRole = authData.user?.role || "";
 
@@ -39,15 +47,25 @@ export default function DocumentsCombined() {
 
   // Lazy initialize from location.state, then sessionStorage, then default
   const [documentFilter, setDocumentFilter] = useState<DocumentFilter>(
-    () => state?.documentFilter || (sessionStorage.getItem("documentFilter") as DocumentFilter) || "MY_DOCUMENTS"
+    () =>
+      state?.documentFilter ||
+      (sessionStorage.getItem("documentFilter") as DocumentFilter) ||
+      "MY_DOCUMENTS",
   );
 
   const [status, setStatus] = useState<DocumentStatus>(
-    () => state?.status || (sessionStorage.getItem("documentStatus") as DocumentStatus) || "all"
+    () =>
+      state?.status ||
+      (sessionStorage.getItem("documentStatus") as DocumentStatus) ||
+      "all",
   );
 
   const [currentPage, setCurrentPage] = useState<number>(
-    () => state?.page || (sessionStorage.getItem("documentPage") ? Number(sessionStorage.getItem("documentPage")) : 1)
+    () =>
+      state?.page ||
+      (sessionStorage.getItem("documentPage")
+        ? Number(sessionStorage.getItem("documentPage"))
+        : 1),
   );
 
   useEffect(() => {
@@ -102,7 +120,14 @@ export default function DocumentsCombined() {
         page: currentPage,
         size: pageSize,
         search: debouncedSearch || undefined,
-        ...(status && status !== "all" ? { status: status as Exclude<DocumentStatus, "all" | "PENDING" | "REUPLOADED"> } : {}),
+        ...(status && status !== "all"
+          ? {
+              status: status as Exclude<
+                DocumentStatus,
+                "all" | "PENDING" | "REUPLOADED"
+              >,
+            }
+          : {}),
       });
 
       if (res?.data) {
@@ -195,6 +220,11 @@ export default function DocumentsCombined() {
     fetchMyDocuments();
   };
 
+  const handleOpenShare = (document: Document) => {
+    setDocumentToShare(document);
+    setIsShareModalOpen(true);
+  };
+
   const handleViewDocument = (document: Document) => {
     if (documentFilter === "MY_DOCUMENTS")
       navigate(`/documents/${document.document_id}`);
@@ -268,18 +298,22 @@ export default function DocumentsCombined() {
     },
     // Only show "PENDING ON" if not COMPANY_ADMIN
     ...(userRole !== "COMPANY_ADMIN"
-      ? [{
-        title: "PENDING ON",
-        render: (row: any) => {
-          const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
-          return (
-            <span className={`status-badge  ${getStatusClass(row.pending_on)}`}>
-              <span className="badge-dot" />
-              <span>{getDisplayStatus(row.pending_on || "-")}</span>
-            </span>
-          );
-        },
-      }]
+      ? [
+          {
+            title: "PENDING ON",
+            render: (row: any) => {
+              const statusClass = row.status?.toLowerCase().replace(/\s/g, "-");
+              return (
+                <span
+                  className={`status-badge  ${getStatusClass(row.pending_on)}`}
+                >
+                  <span className="badge-dot" />
+                  <span>{getDisplayStatus(row.pending_on || "-")}</span>
+                </span>
+              );
+            },
+          },
+        ]
       : []),
   ];
 
@@ -338,21 +372,22 @@ export default function DocumentsCombined() {
   const myDocumentsStatusMenu = {
     selectable: true,
     selectedKeys: [status],
-    items: userRole === "COMPANY_ADMIN"
-      ? [
-        { key: "all", label: "All" },
-        { key: "APPROVED", label: "Approved" },
-        { key: "DRAFT", label: "Draft" },
-      ]
-      : [
-        { key: "all", label: "All" },
-        { key: "APPROVED", label: "Approved" },
-        { key: "DRAFT", label: "Draft" },
-        { key: "REJECTED", label: "Rejected" },
-        { key: "SUBMITTED", label: "Submitted" },
-        { key: "PENDING", label: "Pending" },
-        { key: "REUPLOADED", label: "Reuploaded" },
-      ],
+    items:
+      userRole === "COMPANY_ADMIN"
+        ? [
+            { key: "all", label: "All" },
+            { key: "APPROVED", label: "Approved" },
+            { key: "DRAFT", label: "Draft" },
+          ]
+        : [
+            { key: "all", label: "All" },
+            { key: "APPROVED", label: "Approved" },
+            { key: "DRAFT", label: "Draft" },
+            { key: "REJECTED", label: "Rejected" },
+            { key: "SUBMITTED", label: "Submitted" },
+            { key: "PENDING", label: "Pending" },
+            { key: "REUPLOADED", label: "Reuploaded" },
+          ],
     onClick: ({ key }: { key: string }) => {
       // setStatus(key === "all" ? "all" : key);
       setStatus(key as DocumentStatus);
@@ -376,8 +411,9 @@ export default function DocumentsCombined() {
         addButtonText="Add Document"
         documentFilterValue={documentFilter}
         onDocumentFilterChange={(val: DocumentFilter) => setDocumentFilter(val)}
-        categoryButtonText={`Status: ${status === "all" ? "All" : getDisplayStatus(status)
-          }`}
+        categoryButtonText={`Status: ${
+          status === "all" ? "All" : getDisplayStatus(status)
+        }`}
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-title"
         categoryMenu={
@@ -388,18 +424,42 @@ export default function DocumentsCombined() {
       />
 
       <div
-        className={`language-table ${documentFilter === "MY_DOCUMENTS" && userRole !== "COMPANY_ADMIN"
-          ? "with-pending"
-          : "without-pending"
-          }`}
+        className={`language-table ${
+          documentFilter === "MY_DOCUMENTS" && userRole !== "COMPANY_ADMIN"
+            ? "with-pending"
+            : "without-pending"
+        }`}
       >
         <Table
           data={documentList}
-          columns={documentFilter === "MY_DOCUMENTS" ? myDocumentsColumns : awaitingColumns}
+          columns={
+            documentFilter === "MY_DOCUMENTS"
+              ? myDocumentsColumns
+              : awaitingColumns
+          }
           actions={(row) => (
-            <div className="documents-actions" onClick={() => handleViewDocument(row)}>
-              <img src="/assets/Eye.svg" alt="View" />
-              <span className="spantext">View</span>
+            <div className="documents-actions">
+              {/* View */}
+              <Tooltip title="View Document" placement="top">
+                <img
+                  src="/assets/Eye.svg"
+                  alt="View"
+                  onClick={() => handleViewDocument(row)}
+                  style={{ cursor: "pointer" }}
+                />
+              </Tooltip>
+
+              {/* Share (only approved) */}
+              {row.status === "APPROVED" && (
+                <Tooltip title="Share Document" placement="top">
+                  <img
+                    src="/assets/Share.svg"
+                    alt="Share"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleOpenShare(row)}
+                  />
+                </Tooltip>
+              )}
             </div>
           )}
           actionsTitle="ACTION"
@@ -427,6 +487,15 @@ export default function DocumentsCombined() {
           onSuccess={handleAddDocumentSuccess}
         />
       )}
+
+      <ShareDocuments
+        open={isShareModalOpen}
+        onClose={() => {
+          setIsShareModalOpen(false);
+          setDocumentToShare(null);
+        }}
+        documentId={documentToShare?.document_id || 0}
+      />
     </div>
   );
 }

@@ -70,7 +70,9 @@ breadcrumb,
                     breadcrumb.parentPath ? "clickable" : ""
                   }`}
                   onClick={() =>
-                    breadcrumb.parentPath && navigate(breadcrumb.parentPath)
+                    breadcrumb.parentPath && navigate(breadcrumb.parentPath, {
+                      state: breadcrumb.parentState,
+                    })
                   }
                 >
                   {breadcrumb.parent}

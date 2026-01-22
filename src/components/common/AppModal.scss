@@ -26,6 +26,29 @@ max-height: 92vh;
   display: flex;
   flex-direction: column;
   animation: modalFadeIn 0.2s ease;
+
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+    scrollbar-width: none;
+
+      -ms-overflow-style: none;
+    &::-webkit-scrollbar-track {
+      background: #f9fafb;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 4px;
+
+      &:hover {
+        background: #9ca3af;
+      }
+    }
 }
 
 @keyframes modalFadeIn {
@@ -70,7 +93,7 @@ max-height: 92vh;
 
 .app-modal-body {
   padding: 20px;
-  overflow-y: auto;
+  // overflow-y: auto;
 }
 
 .app-modal-footer {
