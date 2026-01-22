@@ -1,23 +1,33 @@
 import React from "react";
-import { templateComponents } from "./templateComponents";
+import { FieldType } from "../../../../types/common";
+
+const COMPONENTS: { type: FieldType; label: string }[] = [
+    { type: "header", label: "Header / Template Name" },
+    { type: "input", label: "Text Input" },
+    { type: "textarea", label: "Textarea" },
+    { type: "select", label: "Dropdown" },
+    { type: "checkbox", label: "Checkbox" },
+];
 
 const CreateTemplateSidebar = () => {
-    const onDragStart = (e: any, component: any) => {
-        e.dataTransfer.setData("type", component.elementType);
-        e.dataTransfer.setData("label", component.label);
+    const onDragStart = (
+        e: React.DragEvent<HTMLDivElement>,
+        item: typeof COMPONENTS[number]
+    ) => {
+        e.dataTransfer.setData("type", item.type);
+        e.dataTransfer.setData("label", item.label);
     };
 
     return (
         <div className="sidebar-panel">
-            {templateComponents.map((item) => (
+            {COMPONENTS.map((item) => (
                 <div
-                    key={item.id}
+                    key={item.type}
                     draggable
                     onDragStart={(e) => onDragStart(e, item)}
                     className="sidebar-item"
                 >
-                    <img src={item.icon} alt="" />
-                    <span>{item.label}</span>
+                    {item.label}
                 </div>
             ))}
         </div>
