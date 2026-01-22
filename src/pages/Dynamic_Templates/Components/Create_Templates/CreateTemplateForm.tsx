@@ -1,179 +1,327 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { CreateTemplateFormProps, FieldType, FormField } from "../../../../types/common";
+import { uid } from "../../../../utils/utilFunctions";
+import EditFieldModal from "./EditFieldModal";
 
-interface DroppedItem {
-    type: string;
-    label: string;
-}
+const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate }) => {
+    const [fields, setFields] = useState<FormField[]>([]);
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [editField, setEditField] = useState<FormField | null>(null);
 
-const CreateTemplateForm = () => {
-    const [fields, setFields] = useState<DroppedItem[]>([]);
+    const dragIndex = useRef<number | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    const allowDrop = (e: any) => e.preventDefault();
-
-    const onDrop = (e: any) => {
+    /* ================= DROP NEW FIELD ================= */
+    const onDropNewField = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
-        const type = e.dataTransfer.getData("type");
+        const type = e.dataTransfer.getData("type") as FieldType;
         const label = e.dataTransfer.getData("label");
 
-        setFields((prev) => [...prev, { type, label }]);
+        setFields((prev) => [
+            ...prev,
+            {
+                id: uid(),
+                type,
+                label,
+                placeholder: `Enter ${label}`,
+                required: false,
+                options:
+                    type === "select" || type === "radio" || type === "checkbox"
+                        ? ["Option 1"]
+                        : undefined,
+            },
+        ]);
     };
 
-    const renderField = (field: DroppedItem, index: number) => {
-        switch (field.type) {
-            case "label":
-                return <label key={index}>{field.label}</label>;
-
-            case "input":
-            case "search-input":
-                return <input key={index} type="text" placeholder={field.label} />;
-
-            case "email-input":
-                return <input key={index} type="email" placeholder={field.label} />;
-
-            case "password-input":
-                return <input key={index} type="password" placeholder={field.label} />;
-
-            case "number-input":
-            case "counter":
-                return <input key={index} type="number" placeholder={field.label} />;
-
-            case "phone-input":
-                return <input key={index} type="tel" placeholder={field.label} />;
-
-            case "textarea":
-                return <textarea key={index} placeholder={field.label} />;
-
-            case "select":
-            case "dropdown":
-            case "country-select":
-            case "state-select":
-            case "combobox":
-            case "autocomplete":
-                return (
-                    <select key={index}>
-                        <option value="">{field.label}</option>
-                        <option>Option 1</option>
-                        <option>Option 2</option>
-                    </select>
-                );
-
-            case "multi-select":
-                return (
-                    <select key={index} multiple>
-                        <option>Option 1</option>
-                        <option>Option 2</option>
-                    </select>
-                );
-
-            case "checkbox":
-                return (
-                    <label key={index}>
-                        <input type="checkbox" /> {field.label}
-                    </label>
-                );
-
-            case "radio":
-                return (
-                    <div key={index}>
-                        <label><input type="radio" name={`r-${index}`} /> Option 1</label>
-                        <label><input type="radio" name={`r-${index}`} /> Option 2</label>
-                    </div>
-                );
-
-            case "switch":
-            case "toggle":
-                return (
-                    <label key={index} className="switch">
-                        <input type="checkbox" />
-                        <span className="slider round"></span>
-                    </label>
-                );
-
-            case "date-picker":
-                return <input key={index} type="date" />;
-
-            case "time-picker":
-                return <input key={index} type="time" />;
-
-            case "datetime-picker":
-                return <input key={index} type="datetime-local" />;
-
-            case "month-picker":
-                return <input key={index} type="month" />;
-
-            case "year-picker":
-                return <input key={index} type="number" placeholder="YYYY" />;
-
-            case "range-picker":
-            case "slider":
-                return <input key={index} type="range" min={0} max={100} />;
-
-            case "rating":
-                return (
-                    <div key={index} className="rating">
-                        {[1, 2, 3, 4, 5].map(i => <span key={i}>★</span>)}
-                    </div>
-                );
-
-            case "tags-input":
-            case "chips":
-                return <input key={index} type="text" placeholder="Enter tags" />;
-
-            case "file-upload":
-            case "document-upload":
-                return <input key={index} type="file" />;
-
-            case "image-upload":
-                return <input key={index} type="file" accept="image/*" />;
-
-            case "file-dropzone":
-                return (
-                    <div key={index} style={{ border: "2px dashed #ccc", padding: 20 }}>
-                        Drag & Drop Files
-                    </div>
-                );
-
-            case "button":
-            case "submit":
-            case "reset":
-            case "icon-button":
-                return <button key={index}>{field.label}</button>;
-
-            case "tooltip":
-            case "helper-text":
-            case "error-message":
-            case "info-icon":
-                return <small key={index}>{field.label}</small>;
-
-            case "divider":
-                return <hr key={index} />;
-
-            case "fieldset":
-                return <fieldset key={index}><legend>{field.label}</legend></fieldset>;
-
-            case "legend":
-                return <legend key={index}>{field.label}</legend>;
-
-            case "form":
-                return <form key={index}></form>;
-
-            default:
-                return null;
-        }
+    /* ================= UPDATE / REMOVE FIELD ================= */
+    const updateField = (id: string, data: Partial<FormField>) => {
+        setFields((prev) => prev.map((f) => (f.id === id ? { ...f, ...data } : f)));
     };
+
+    const removeField = (id: string) => {
+        setFields((prev) => prev.filter((f) => f.id !== id));
+        setActiveId(null);
+    };
+
+    /* ================= REORDER ================= */
+    const onDragStart = (index: number) => {
+        dragIndex.current = index;
+    };
+
+    const onDropReorder = (draggedIndex: number, targetIndex: number, insertAfter: boolean = false) => {
+        setFields((prev) => {
+            const updated = [...prev];
+            const [moved] = updated.splice(draggedIndex, 1);
+
+            let newIndex = targetIndex;
+            if (insertAfter) newIndex = targetIndex + 1;
+
+            updated.splice(newIndex, 0, moved);
+            return updated;
+        });
+        dragIndex.current = null;
+    };
+
+    /* ================= CLICK OUTSIDE ================= */
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            const target = e.target as Node;
+            if (!containerRef.current?.contains(target)) {
+                setActiveId(null);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    /* ================= SAVE TEMPLATE ================= */
+    const handleSaveTemplate = () => {
+        const headerField = fields.find((field) => field.type === "header");
+
+        const payload = {
+            templateName: headerField?.label || "Untitled Template",
+            fields: fields.map((field, index) => ({
+                id: field.id,
+                type: field.type,
+                label: field.label,
+                placeholder: field.placeholder,
+                required: field.required,
+                options: field.options,
+                order: index + 1,
+            })),
+        };
+
+        console.log("SAVE TEMPLATE PAYLOAD 👉", payload);
+    };
+
+    useEffect(() => {
+        (window as any).__saveTemplate = handleSaveTemplate;
+    }, [fields]);
 
     return (
-        <div className="template-form-container">
-            <div className="drop-zone" onDragOver={allowDrop} onDrop={onDrop}>
-                {fields.length === 0 && <p className="drop-placeholder">Drag fields here</p>}
+        <>
+            <div className="template-form-container" ref={containerRef}>
+                <div
+                    className="drop-zone"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        if (dragIndex.current !== null) {
+                            // Drop dragged field in empty space → bottom
+                            onDropReorder(dragIndex.current, fields.length - 1, true);
+                        } else {
+                            // Drop new field
+                            onDropNewField(e);
+                        }
+                    }}
+                >
+                    {fields.length === 0 && <p className="drop-placeholder">Drag & Drop fields here</p>}
 
-                {fields.map((field, i) => (
-                    <div className="form-field" key={i}>
-                        {renderField(field, i)}
-                    </div>
-                ))}
+                    {fields
+                        .filter(f => f.label && f.label.trim() !== "")
+                        .map((field, index) => {
+                            const isActive = field.id === activeId;
+
+                            return (
+                                <div
+                                    key={field.id}
+                                    draggable
+                                    onDragStart={() => onDragStart(index)}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={() => {
+                                        if (dragIndex.current === null) return;
+                                        onDropReorder(dragIndex.current, index);
+                                        dragIndex.current = null;
+                                    }}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        setActiveId(field.id);
+                                    }}
+                                    className={`form-field ${isActive ? "active" : ""}`}
+                                >
+                                    {/* ===== HEADER + NORMAL FIELDS ===== */}
+                                    {field.label && field.type !== "horizontal_line" &&
+                                        field.type !== "primary_button" &&
+                                        field.type !== "secondary_button" && (
+                                            <div className="label-with-action">
+                                                <label className={field.type === "header" ? "header-label" : ""}>
+                                                    {field.label}
+                                                    {field.required && field.type !== "header" && <span className="star"> *</span>}
+                                                </label>
+
+                                                <div className="field-actions">
+                                                    <img
+                                                        src="/assets/edit.svg"
+                                                        alt="edit"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setActiveId(field.id);
+                                                            setEditField(field);
+                                                        }}
+                                                    />
+                                                    <img
+                                                        src="/assets/trash.svg"
+                                                        alt="delete"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            removeField(field.id);
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+
+                                    {/* ===== HORIZONTAL LINE ===== */}
+                                    {field.type === "horizontal_line" && (
+                                        <div className="hr-with-action">
+                                            <hr className="form-hr" />
+                                            <img
+                                                src="/assets/trash.svg"
+                                                alt="delete"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    removeField(field.id);
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* ===== BUTTONS INLINE ===== */}
+                                    {(field.type === "primary_button" || field.type === "secondary_button") && (
+                                        <div className="button-field-with-action">
+                                            {field.type === "primary_button" ? (
+                                                <button className="primary-button" type="button" disabled>
+                                                    {field.label || "Primary Button"}
+                                                </button>
+                                            ) : (
+                                                <button className="secondary-button" type="button" disabled>
+                                                    {field.label || "Secondary Button"}
+                                                </button>
+                                            )}
+
+                                            <div className="field-actions">
+                                                <img
+                                                    src="/assets/edit.svg"
+                                                    alt="edit"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setActiveId(field.id);
+                                                        setEditField(field);
+                                                    }}
+                                                />
+                                                <img
+                                                    src="/assets/trash.svg"
+                                                    alt="delete"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removeField(field.id);
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* ===== FIELD PREVIEW ===== */}
+                                    {(() => {
+                                        switch (field.type) {
+                                            case "input":
+                                                return <input readOnly placeholder={field.placeholder} />;
+                                            case "textarea":
+                                                return <textarea readOnly placeholder={field.placeholder} />;
+                                            case "number":
+                                                return <input readOnly type="number" placeholder={field.placeholder} />;
+                                            case "date":
+                                                return <input type="date" placeholder={field.placeholder} />;
+                                            case "checkbox":
+                                                return (
+                                                    <div className="checkbox-group">
+                                                        {field.options?.map((opt, i) => (
+                                                            <label key={i} className="checkbox-wrapper">
+                                                                <input type="checkbox" className="custom-checkbox" disabled />
+                                                                <span>{opt}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            case "switch":
+                                                return (
+                                                    <label className="switch">
+                                                        <input type="checkbox" disabled />
+                                                        <span className="slider" />
+                                                    </label>
+                                                );
+                                            case "select":
+                                                const isDisabled = true;
+                                                return (
+                                                    <div
+                                                        className={`custom-select-wrapper ${isDisabled ? "disabled" : ""}`}
+                                                        onClick={(e) => {
+                                                            if (isDisabled) return;
+                                                            e.stopPropagation();
+                                                            updateField(field.id, { isOpen: !field.isOpen });
+                                                        }}
+                                                    >
+                                                        <div className={`custom-select-display ${field.isOpen ? "open" : ""}`}>
+                                                            {field.selectedValue || `Select ${field.label}`}
+                                                            <span className="arrow" />
+                                                        </div>
+
+                                                        {!isDisabled && field.isOpen && (
+                                                            <div className="custom-select-options">
+                                                                {field.options?.map((opt: string, i: number) => (
+                                                                    <div
+                                                                        key={i}
+                                                                        className="custom-select-option"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            updateField(field.id, { selectedValue: opt, isOpen: false });
+                                                                        }}
+                                                                    >
+                                                                        {opt}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            case "radio":
+                                                return (
+                                                    <div className="radio-group">
+                                                        {field.options?.map((opt: string, i: number) => (
+                                                            <label key={i} className="radio-wrapper">
+                                                                <input type="radio" name={field.id} />
+                                                                <span>{opt}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            default:
+                                                return null;
+                                        }
+                                    })()}
+                                </div>
+                            );
+                        })}
+                </div>
             </div>
-        </div>
+
+            {editField && (
+                <EditFieldModal
+                    open={!!editField}
+                    field={editField}
+                    onClose={() => {
+                        setEditField(null);
+                        setActiveId(null);
+                    }}
+                    onSave={(data) => {
+                        updateField(editField.id, data);
+                        setEditField(null);
+                        setActiveId(null);
+                    }}
+                />
+            )}
+        </>
     );
 };
 
