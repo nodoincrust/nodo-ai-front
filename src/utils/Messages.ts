@@ -29,6 +29,11 @@ export const MESSAGES = {
         BOUQUET_ADDED_SUCCESSFULLY: "Bouquet added successfully.",
         BOUQUET_UPDATED_SUCCESSFULLY: "Bouquet updated successfully.",
         BOUQUET_DELETED_SUCCESSFULLY: "Bouquet deleted successfully.",
+
+        //Templates
+        TEMPLATE_ADDED_SUCCESSFULLY: "Template added successfully.",
+        TEMPLATE_UPDATED_SUCCESSFULLY: "Template updated successfully.",
+        TEMPLATE_DELETED_SUCCESSFULLY: "Template deleted successfully.",
     },
 
     ERRORS: {
@@ -97,5 +102,13 @@ export const MESSAGES = {
         BOUQUET_DESCRIPTION_REQUIRED: "Bouquet description is required.",
         BOUQUET_STORAGE_REQUIRED: "Bouquet storage is required.",
         BOUQUET_PRICE_REQUIRED: "Bouquet price is required.",
+
+        //Templates
+        TEMPLATE_FETCH_FAILED: "Failed to fetch templates.",
+        TEMPLATE_DELETE_FAILED: "Failed to delete template.",
+        TEMPLATE_ADD_FAILED: "Failed to add template.",
+        TEMPLATE_UPDATE_FAILED: "Failed to update template.",
+        TEMPLATE_NAME_REQUIRED: "Template name is required.",
+        TEMPLATE_DESCRIPTION_REQUIRED: "Template description is required.",
     },
 };

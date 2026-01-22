@@ -1,0 +1,88 @@
+@use "../../../../variables.scss" as *;
+
+// Scoped styles for Templates
+.templates-container {
+
+    /* ---------- Table ---------- */
+    .language-table {
+        table {
+            border-collapse: separate;
+
+            thead th {
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-size: 12px;
+                line-height: 18px;
+                color: $table-head-bg;
+                padding: 12px 16px;
+                text-align: left;
+            }
+
+            tbody td {
+                padding: 16px;
+                font-family: $font-family-main;
+                font-weight: 500;
+                font-size: 14px;
+                line-height: 24px;
+                color: $label-color;
+            }
+
+            th:nth-child(1),
+            td:nth-child(1) {
+                width: 240px;
+                min-width: 240px;
+            }
+
+            th:nth-child(2),
+            td:nth-child(2) {
+                width: 180px;
+                min-width: 180px;
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                width: 200px;
+                min-width: 200px;
+                text-align: center;
+            }
+
+            th:nth-child(4),
+            td:nth-child(4) {
+                width: 120px;
+                min-width: 120px;
+            }
+
+            th:last-child,
+            td:last-child {
+                text-align: center;
+                padding: 0;
+            }
+        }
+    }
+
+    /* ---------- Template Cell ---------- */
+    .template-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .template-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* ---------- Actions ---------- */
+    .templates-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+
+        img {
+            cursor: pointer;
+        }
+    }
+}

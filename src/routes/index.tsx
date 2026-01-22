@@ -9,6 +9,7 @@ import { employeesRoutes } from "../pages/Company/Employees/employees.routes";
 import { awaitingApprovalRoutes } from "../pages/Company/Awaiting_Approval/awaitingApproval.routes";
 import { bouquetsRoutes } from "../pages/Bouquet/bouquet.routes";
 import { sharedWorkspaceRoutes } from "../pages/shared-workspace/sharedWorkspace.routes";
+import { templatesRoutes } from "../pages/Dynamic_Templates/templates.routes";
 const router = createBrowserRouter([
   ...authRoutes,
   {
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
       ...awaitingApprovalRoutes,
       ...bouquetsRoutes,
       ...sharedWorkspaceRoutes,
+      ...templatesRoutes
     ],
   },
 ]);
