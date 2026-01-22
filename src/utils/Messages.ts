@@ -110,5 +110,8 @@ export const MESSAGES = {
         TEMPLATE_UPDATE_FAILED: "Failed to update template.",
         TEMPLATE_NAME_REQUIRED: "Template name is required.",
         TEMPLATE_DESCRIPTION_REQUIRED: "Template description is required.",
+        LABEL_NAME_REQUIRED: "Label name is required",
+        PLACEHOLDER_NAME_REQUIRED: "Placeholder name is required",
+        OPTIONS_REQUIRED: "Options are required",
     },
 };

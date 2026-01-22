@@ -127,3 +127,5 @@ export const getStatusClass = (status?: string) => {
 
   return "";
 };
+
+export const uid = () => crypto.randomUUID();

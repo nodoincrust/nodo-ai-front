@@ -477,3 +477,34 @@ export interface FieldConfig {
   options?: string[];
   value?: string;
 }
+
+export type FieldType =
+  | "header"
+  | "input"
+  | "textarea"
+  | "number"
+  | "date"
+  | "checkbox"
+  | "radio"
+  | "select"
+  | "switch"
+  | "horizontal_line"
+  | "primary_button"
+  | "secondary_button";
+
+
+export interface FormField {
+  id: string;
+  type: FieldType;
+  label: string;
+  placeholder?: string;
+  options?: string[];
+  required?: boolean;
+  helpText?: string;
+  isOpen?: boolean;
+  selectedValue?: string;
+}
+
+export interface CreateTemplateFormProps {
+  onSaveTemplate?: () => void;
+}
