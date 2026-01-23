@@ -490,7 +490,8 @@ export type FieldType =
   | "switch"
   | "horizontal_line"
   | "primary_button"
-  | "secondary_button";
+  | "secondary_button"
+  | "file";
 
 
 export interface FormField {
@@ -503,8 +504,24 @@ export interface FormField {
   helpText?: string;
   isOpen?: boolean;
   selectedValue?: string;
+  rowId?: string;
+  colSpan?: number;
+  hasUserEdited?: boolean;
+  requiredErrorMessage?: string;
+  allowedFileTypes?: string[];
 }
 
 export interface CreateTemplateFormProps {
   onSaveTemplate?: () => void;
+}
+
+export interface FormRow {
+  id: string;
+  columns: FormColumn[];
+}
+
+export interface FormColumn {
+  id: string;
+  span: number;
+  field: FormField;
 }

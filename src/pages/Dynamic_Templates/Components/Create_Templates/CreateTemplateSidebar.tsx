@@ -7,6 +7,14 @@ const COMPONENTS: { type: FieldType; label: string }[] = [
     { type: "textarea", label: "Textarea" },
     { type: "select", label: "Dropdown" },
     { type: "checkbox", label: "Checkbox" },
+    { type: "radio", label: "Radio" },
+    { type: "switch", label: "Switch" },
+    { type: "date", label: "Date" },
+    { type: "number", label: "Number" },
+    { type: "horizontal_line", label: "Horizontal Line" },
+    { type: "secondary_button", label: "Secondary Button" },
+    { type: "primary_button", label: "Primary Button" },
+    { type: "file", label: "File Upload" },
 ];
 
 const CreateTemplateSidebar = () => {

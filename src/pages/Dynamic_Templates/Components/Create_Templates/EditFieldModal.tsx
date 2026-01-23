@@ -3,6 +3,7 @@ import { Modal, Form, Input, Button, Checkbox } from "antd";
 import { FormField } from "../../../../types/common";
 import "../Styles/EditFieldModal.scss";
 import { MESSAGES } from "../../../../utils/Messages";
+import { FILE_TYPE_REGEX } from "../../../../utils/utilFunctions";
 
 interface Props {
     open: boolean;
@@ -17,9 +18,29 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
     const [showModal, setShowModal] = useState(open);
     const [animateClose, setAnimateClose] = useState(false);
     const [isLabelRequired, setIsLabelRequired] = useState(field.required || false);
-    // Fields that should NOT show the "Required" checkbox
+    const [initialValues, setInitialValues] = useState<{
+        label: string;
+        placeholder?: string;
+        required?: boolean;
+        requiredErrorMessage?: string;
+        options: string[];
+    } | null>(null);
+    const [hasChanges, setHasChanges] = useState(false);
+
+    // Options state
+    const [options, setOptions] = useState<string[]>(field.options || []);
+    const [newOptionText, setNewOptionText] = useState("");
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [optionError, setOptionError] = useState("");
+    const [isFirstOpen, setIsFirstOpen] = useState(true);
+    const [lastRequiredErrorMessage, setLastRequiredErrorMessage] = useState(field.requiredErrorMessage || "");
+    const [newFileType, setNewFileType] = useState("");
     const hideRequiredCheckbox = ["header", "horizontal_line", "primary_button", "secondary_button"];
-    /* ================= OPEN / CLOSE ================= */
+
+    // Refs for editable options to autofocus
+    const editableRefs = useRef<(HTMLSpanElement | null)[]>([]);
+
+    // Initialize modal values when opened
     useEffect(() => {
         if (!open) {
             setAnimateClose(true);
@@ -30,40 +51,171 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
         setShowModal(true);
         setAnimateClose(false);
 
+        const initLabel = field.hasUserEdited ? field.label || "" : "";
+        const initPlaceholder = field.hasUserEdited ? field.placeholder || "" : "";
+        const initOptions =
+            field.type === "file"
+                ? field.allowedFileTypes || []
+                : field.hasUserEdited
+                    ? field.options || []
+                    : [];
+        const initRequiredErrorMessage =
+            field.requiredErrorMessage || lastRequiredErrorMessage || "";
+
+        // Set form values once on open
         form.setFieldsValue({
-            ...field,
-            options: field.options?.join(", "),
+            label: initLabel,
+            placeholder: initPlaceholder,
             required: field.required || false,
+            requiredErrorMessage: field.required ? initRequiredErrorMessage : "",
         });
 
+        setOptions(initOptions);
+        setNewOptionText("");
         setIsLabelRequired(field.required || false);
+        setOptionError("");
+        setLastRequiredErrorMessage(initRequiredErrorMessage);
+
+        setInitialValues({
+            label: initLabel,
+            placeholder: initPlaceholder,
+            required: field.required || false,
+            requiredErrorMessage: field.required ? initRequiredErrorMessage : "",
+            options: initOptions,
+        });
+
+        if (!field.hasUserEdited) {
+            setHasChanges(true); // first-time open
+            setIsFirstOpen(true);
+        } else {
+            setHasChanges(false);
+            setIsFirstOpen(false);
+        }
     }, [open, field, form]);
 
-    /* ================= CLOSE ================= */
+    // Autofocus editable option
+    useEffect(() => {
+        if (editingIndex !== null) {
+            const el = editableRefs.current[editingIndex];
+            if (el) {
+                el.focus();
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel?.removeAllRanges();
+                sel?.addRange(range);
+            }
+        }
+    }, [editingIndex]);
+
+    // Check for changes whenever options or form values change
+    const checkForChanges = (formValues?: any) => {
+        if (!initialValues) return;
+
+        const currentFormValues = formValues || form.getFieldsValue();
+
+        const labelChanged = currentFormValues.label?.trim() !== initialValues.label;
+        const placeholderChanged = (currentFormValues.placeholder?.trim() || "") !== (initialValues.placeholder || "");
+        const requiredChanged = currentFormValues.required !== initialValues.required;
+        const errorMessageChanged = (currentFormValues.requiredErrorMessage?.trim() || "") !== (initialValues.requiredErrorMessage || "");
+        const optionsChanged = JSON.stringify(options) !== JSON.stringify(initialValues.options);
+
+        const hasAnyChanges = labelChanged || placeholderChanged || requiredChanged || errorMessageChanged || optionsChanged;
+
+        if (isFirstOpen) {
+            setHasChanges(true);
+        } else {
+            setHasChanges(hasAnyChanges);
+        }
+    };
+
+    // Check for changes when options change
+    useEffect(() => {
+        if (initialValues) {
+            checkForChanges();
+        }
+    }, [options]);
+
+    const startEditOption = (index: number) => {
+        setEditingIndex(index);
+    };
+
+    const saveEditedOption = (index: number, value: string) => {
+        const trimmed = value.trim();
+        if (!trimmed) return;
+
+        // If field is file type, validate format
+        if (field.type === "file" && !FILE_TYPE_REGEX.test(trimmed)) {
+            setOptionError(MESSAGES.ERRORS.INVALID_FILE_TYPE_FORMAT);
+            return;
+        }
+
+        const updated = [...options];
+        updated[index] = trimmed;
+
+        setOptions(updated);
+        setEditingIndex(null);
+        setOptionError("");
+    };
+
     const handleClose = () => {
         setAnimateClose(true);
         onClose();
     };
 
-    /* ================= SUBMIT ================= */
+    const addOption = () => {
+        const trimmed = newOptionText.trim();
+        if (!trimmed) return;
+
+        // If field is file type, validate format
+        if (field.type === "file" && !FILE_TYPE_REGEX.test(trimmed)) {
+            setOptionError(MESSAGES.ERRORS.INVALID_FILE_TYPE_FORMAT);
+            return;
+        }
+
+        const updated = [...options, trimmed];
+        setOptions(updated);
+        setNewOptionText("");
+        setOptionError("");
+    };
+
+    const removeOption = (index: number) => {
+        const updated = options.filter((_, i) => i !== index);
+        setOptions(updated);
+        if (updated.length === 0) setOptionError(MESSAGES.ERRORS.AT_LEAST_ONE_OPTION_REQUIRED);
+    };
+
     const handleSubmit = async () => {
         const values = await form.validateFields();
+        if (
+            ["select", "radio", "checkbox", "file"].includes(field.type) &&
+            options.length === 0
+        ) {
+            setOptionError(MESSAGES.ERRORS.AT_LEAST_ONE_OPTION_REQUIRED);
+            return;
+        }
 
-        let sanitizedOptions: string[] | undefined;
+        setOptionError("");
 
-        if (values.options && typeof values.options === "string") {
-            sanitizedOptions = values.options
-                .replace(/,+/g, ",")
-                .split(",")
-                .map((opt: string) => opt.trim())
-                .filter(Boolean);
+        // Save last required error message
+        if (values.required) {
+            setLastRequiredErrorMessage(values.requiredErrorMessage || "");
         }
 
         onSave({
             label: values.label.trim(),
             placeholder: values.placeholder?.trim(),
             required: values.required,
-            options: sanitizedOptions,
+            requiredErrorMessage: values.required
+                ? values.requiredErrorMessage?.trim()
+                : undefined,
+
+            ...(field.type === "file"
+                ? { allowedFileTypes: options }
+                : { options }),
+
+            hasUserEdited: true,
         });
     };
 
@@ -80,9 +232,11 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
             getContainer={false}
             transitionName=""
             zIndex={3000}
+            maskClosable={true}
+            onCancel={handleClose}
         >
             <div className="edit-field-wrapper" ref={modalRef}>
-                {/* ================= HEADER ================= */}
+                {/* HEADER */}
                 <div className="edit-field-header">
                     <h2>Edit Field</h2>
                     <div className="close-icon" onClick={handleClose}>
@@ -90,18 +244,27 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                     </div>
                 </div>
 
-                {/* ================= FORM ================= */}
+                {/* FORM */}
                 <Form
                     layout="vertical"
                     form={form}
                     className="edit-field-form"
                     autoComplete="off"
                     validateTrigger="onChange"
-                    onValuesChange={(_, allValues) =>
-                        setIsLabelRequired(!!allValues.required)
-                    }
+                    onValuesChange={(_, allValues) => {
+                        setIsLabelRequired(!!allValues.required);
+
+                        if (!initialValues) return;
+
+                        if (isFirstOpen) {
+                            setHasChanges(true);
+                            setIsFirstOpen(false);
+                        } else {
+                            checkForChanges(allValues);
+                        }
+                    }}
                 >
-                    {/* ===== LABEL ===== */}
+                    {/* LABEL */}
                     <Form.Item
                         label={
                             <span>
@@ -111,7 +274,6 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                         }
                         name="label"
                         rules={[
-                            { required: false },
                             {
                                 validator: (_, value) =>
                                     value && value.trim()
@@ -123,77 +285,171 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                         <Input placeholder="Enter label name" />
                     </Form.Item>
 
-                    {/* ===== PLACEHOLDER ===== */}
-                    {(field.type === "input" ||
-                        field.type === "textarea" ||
-                        field.type === "number") && (
-                            <Form.Item
-                                label="Placeholder Name"
-                                name="placeholder"
-                                rules={[
-                                    { required: false },
-                                    {
-                                        validator: (_, value) =>
-                                            value && value.trim()
-                                                ? Promise.resolve()
-                                                : Promise.reject(MESSAGES.ERRORS.PLACEHOLDER_NAME_REQUIRED),
-                                    },
-                                ]}
-                            >
-                                <Input placeholder="Enter placeholder name" />
-                            </Form.Item>
-                        )}
-
-                    {/* ===== OPTIONS ===== */}
-                    {(field.type === "select" ||
-                        field.type === "radio" ||
-                        field.type === "checkbox") && (
-                            <Form.Item
-                                label="Enter options separated by commas"
-                                name="options"
-                                rules={[
-                                    { required: false },
-                                    {
-                                        validator: (_, value) => {
-                                            if (!value || !value.trim()) {
-                                                return Promise.reject(MESSAGES.ERRORS.OPTIONS_REQUIRED);
-                                            }
-
-                                            const validOptions = value
-                                                .split(",")
-                                                .map((v: string) => v.trim())
-                                                .filter(Boolean);
-
-                                            return validOptions.length
-                                                ? Promise.resolve()
-                                                : Promise.reject(
-                                                    "Enter at least one valid option"
-                                                );
-                                        },
-                                    },
-                                ]}
-                            >
-                                <Input.TextArea
-                                    placeholder="e.g. Option1, Option2"
-                                    className="textarea"
-                                />
-                            </Form.Item>
-                        )}
-
-                    {/* ===== REQUIRED ===== */}
-                    {!hideRequiredCheckbox.includes(field.type) && (
-                        <Form.Item name="required" valuePropName="checked">
-                            <Checkbox>Required</Checkbox>
+                    {/* PLACEHOLDER */}
+                    {(field.type === "input" || field.type === "textarea" || field.type === "number") && (
+                        <Form.Item
+                            label="Placeholder Name"
+                            name="placeholder"
+                            rules={[
+                                {
+                                    validator: (_, value) =>
+                                        value && value.trim()
+                                            ? Promise.resolve()
+                                            : Promise.reject(MESSAGES.ERRORS.PLACEHOLDER_NAME_REQUIRED),
+                                },
+                            ]}
+                        >
+                            <Input placeholder="Enter placeholder name" />
                         </Form.Item>
+                    )}
+
+                    {/* OPTIONS */}
+                    {(field.type === "select" || field.type === "radio" || field.type === "checkbox" || field.type === "file") && (
+                        <div className="dynamic-options-wrapper">
+                            <label>
+                                {field.type === "file" ? "Allowed File Types" : "Enter Options"}
+                            </label>
+
+                            {/* Add option input */}
+                            <div className="add-option-row">
+                                <Input
+                                    placeholder={field.type === "file" ? "e.g. .jpg, .png" : "Enter option"}
+                                    value={newOptionText}
+                                    onChange={(e) => setNewOptionText(e.target.value)}
+                                    onPressEnter={addOption}
+                                />
+                                <Button type="primary" onClick={addOption}>
+                                    Add
+                                </Button>
+                            </div>
+
+                            {/* Options list */}
+                            {options.length > 0 && (
+                                <div className="options-list">
+                                    {options.map((opt, i) => (
+                                        <div key={i} className="option-item">
+                                            <div className="option-text-container">
+                                                <span
+                                                    ref={(el) => (editableRefs.current[i] = el)}
+                                                    contentEditable={editingIndex === i}
+                                                    suppressContentEditableWarning
+                                                    className={editingIndex === i ? "editable-option" : ""}
+                                                    onClick={() => startEditOption(i)}
+                                                    onBlur={(e) => saveEditedOption(i, e.currentTarget.innerText)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") {
+                                                            e.preventDefault();
+                                                            saveEditedOption(i, e.currentTarget.innerText);
+                                                        }
+                                                    }}
+                                                >
+                                                    {opt}
+                                                </span>
+                                            </div>
+
+                                            <div className="option-actions">
+                                                {editingIndex === i ? (
+                                                    <button
+                                                        type="button"
+                                                        className="edit-option-btn save-btn"
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault();
+                                                            const el = editableRefs.current[i];
+                                                            if (el) saveEditedOption(i, el.textContent || "");
+                                                        }}
+                                                    >
+                                                        <img src="/assets/save.svg" alt="save" />
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        className="edit-option-btn edit-btn"
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault();
+                                                            startEditOption(i);
+                                                        }}
+                                                    >
+                                                        <img src="/assets/edit.svg" alt="edit" />
+                                                    </button>
+                                                )}
+
+                                                <button type="button" className="remove-option-btn" onClick={() => removeOption(i)}>
+                                                    <img src="/assets/trash.svg" alt="delete" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Inline error message for options */}
+                            {optionError && <div className="star">{optionError}</div>}
+                        </div>
+                    )}
+
+                    {/* PLACEHOLDER for file */}
+                    {/* {field.type === "file" && (
+                        <Form.Item
+                            label="Placeholder / Button Text"
+                            name="placeholder"
+                            rules={[
+                                {
+                                    validator: (_, value) =>
+                                        value && value.trim()
+                                            ? Promise.resolve()
+                                            : Promise.reject(MESSAGES.ERRORS.PLACEHOLDER_NAME_REQUIRED),
+                                },
+                            ]}
+                        >
+                            <Input placeholder="Enter placeholder/button text" />
+                        </Form.Item>
+                    )} */}
+
+                    {/* REQUIRED */}
+                    {!hideRequiredCheckbox.includes(field.type) && (
+                        <>
+                            <Form.Item name="required" valuePropName="checked">
+                                <Checkbox>Required</Checkbox>
+                            </Form.Item>
+
+                            {/* Only show error message input if required is checked */}
+                            <Form.Item
+                                noStyle
+                                shouldUpdate={(prevValues, currentValues) => prevValues.required !== currentValues.required}
+                            >
+                                {({ getFieldValue }) => {
+                                    const requiredChecked = getFieldValue("required");
+
+                                    return requiredChecked ? (
+                                        <Form.Item
+                                            label="Required Error Message"
+                                            name="requiredErrorMessage"
+                                            rules={[
+                                                {
+                                                    validator: (_, value) => {
+                                                        if (!value || !value.trim()) {
+                                                            return Promise.reject(MESSAGES.ERRORS.PLEASE_ENTER_ERROR_MESSAGE);
+                                                        }
+                                                        return Promise.resolve();
+                                                    },
+                                                },
+                                            ]}
+                                        >
+                                            <Input placeholder="Enter error message to show if field is left empty" />
+                                        </Form.Item>
+                                    ) : null;
+                                }}
+                            </Form.Item>
+                        </>
                     )}
                 </Form>
 
-                {/* ================= FOOTER ================= */}
+                {/* FOOTER */}
                 <div className="edit-field-footer">
                     <Button className="cancel-btn" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button className="save-btn" onClick={handleSubmit}>
+                    <Button className="save-btn" onClick={handleSubmit} disabled={!hasChanges}>
                         Save
                     </Button>
                 </div>

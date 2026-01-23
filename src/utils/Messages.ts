@@ -112,6 +112,8 @@ export const MESSAGES = {
         TEMPLATE_DESCRIPTION_REQUIRED: "Template description is required.",
         LABEL_NAME_REQUIRED: "Label name is required",
         PLACEHOLDER_NAME_REQUIRED: "Placeholder name is required",
-        OPTIONS_REQUIRED: "Options are required",
+        AT_LEAST_ONE_OPTION_REQUIRED: "At least one option is required",
+        PLEASE_ENTER_ERROR_MESSAGE: "Please enter the error message",
+        INVALID_FILE_TYPE_FORMAT: "Invalid file type format. Example: .jpg, .png",
     },
 };
