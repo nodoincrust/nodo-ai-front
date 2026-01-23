@@ -92,6 +92,7 @@ const SharedDocumentDetail: React.FC = () => {
       document={document}
       suggestedTags={[]}
       activeTags={activeTags}
+      readOnlySummary={true}
       // Remove all edit/save/regenerate handlers - read-only mode
       onSummaryChange={undefined}
       onAddTag={undefined}

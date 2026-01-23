@@ -28,6 +28,8 @@ interface SummarySidebarProps {
   onEditSummaryClick?: () => void;
   onWriteOwnSummaryClick?: () => void;
   isUserWrittenSummary?: boolean;
+  /** When true, hide save button and suggested/creation tags section (read-only mode) */
+  readOnlySummary?: boolean;
 }
 
 const SummarySidebar: React.FC<SummarySidebarProps> = ({
@@ -49,6 +51,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   onEditSummaryClick,
   onWriteOwnSummaryClick,
   isUserWrittenSummary = false,
+  readOnlySummary = false,
 }) => {
   const [summary, setSummary] = useState(propSummary);
   const [suggestedTags] = useState<string[]>(propSuggestedTags);
@@ -316,56 +319,58 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
               )}
             </div>
 
-            {/* Suggested Tags Section */}
-            <div className="summary-tags-section">
-              <div className="summary-tags-header">
-                <span className="summary-label">Suggested Tags</span>
-                <span className="summary-tags-sparkle">
-                  <img src="/assets/sparklestar.svg" alt="sparkle" />
-                </span>
-              </div>
-              <div className="summary-tags-list">
-                {suggestedTags.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    className="summary-tag-btn"
-                    onClick={() => handleAddTag(tag)}
-                  >
-                    {/* {tag} */}
-                    v10
-                    <span className="tag-plus">+</span>
-                  </button>
-                ))}
-              </div>
+            {/* Suggested Tags Section (hidden in read-only mode) */}
+            {!readOnlySummary && (
+              <div className="summary-tags-section">
+                <div className="summary-tags-header">
+                  <span className="summary-label">Suggested Tags</span>
+                  <span className="summary-tags-sparkle">
+                    <img src="/assets/sparklestar.svg" alt="sparkle" />
+                  </span>
+                </div>
+                <div className="summary-tags-list">
+                  {suggestedTags.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className="summary-tag-btn"
+                      onClick={() => handleAddTag(tag)}
+                    >
+                      {/* {tag} */}
+                      v10
+                      <span className="tag-plus">+</span>
+                    </button>
+                  ))}
+                </div>
 
-              <span className="summary-tag">Create New Tag</span>
-              <div className="summary-create-tag">
-                <div className="">
-                  <input
-                    type="text"
-                    className="summary-tag-input"
-                    placeholder="Enter tag name"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleCreateTag();
-                      }
-                    }}
-                  />
-                </div>
-                <div className="summary-button">
-                  <button
-                    type="button"
-                    className="tag-add-button"
-                    onClick={handleCreateTag}
-                  >
-                    <span className="tag-plus">Add</span>
-                  </button>
+                <span className="summary-tag">Create New Tag</span>
+                <div className="summary-create-tag">
+                  <div className="">
+                    <input
+                      type="text"
+                      className="summary-tag-input"
+                      placeholder="Enter tag name"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleCreateTag();
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="summary-button">
+                    <button
+                      type="button"
+                      className="tag-add-button"
+                      onClick={handleCreateTag}
+                    >
+                      <span className="tag-plus">Add</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="summary-active-tags">
               <span className="summary-tag-label">
@@ -398,16 +403,18 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
             </div>
           </div>
 
-          <div className="summary-footer">
-            <button
-              type="button"
-              className="summary-save-btn"
-              onClick={handleSaveMetadata}
-            >
-              <img src="/assets/save.svg" alt="" />
-              <span>Save Metadata</span>
-            </button>
-          </div>
+          {!readOnlySummary && (
+            <div className="summary-footer">
+              <button
+                type="button"
+                className="summary-save-btn"
+                onClick={handleSaveMetadata}
+              >
+                <img src="/assets/save.svg" alt="" />
+                <span>Save Metadata</span>
+              </button>
+            </div>
+          )}
         </>
       )}
     </aside>

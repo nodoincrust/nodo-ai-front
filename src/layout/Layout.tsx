@@ -15,7 +15,8 @@ const Layout: React.FC = () => {
     /^\/documents\/\d+$/.test(location.pathname) ||
     /^\/awaitingApproval\/\d+$/.test(location.pathname)||
   /^\/bouquet\/documents\/\d+$/.test(location.pathname)||
-    /^\/sharedworkspace\/documents\/\d+$/.test(location.pathname);
+    /^\/sharedworkspace\/documents\/\d+$/.test(location.pathname)||
+   /^\/sharedworkspace\/bouquets\/\d+\/documents\/\d+$/.test(location.pathname);
 
   const shouldShowSidebar = !isDetailPage;
 

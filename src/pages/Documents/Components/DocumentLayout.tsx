@@ -33,6 +33,8 @@ interface DocumentLayoutProps {
   onEditSummaryClick?: () => void;
   onWriteOwnSummaryClick?: () => void;
   isUserWrittenSummary?: boolean;
+   /** When true, summary sidebar is read-only (no save / suggested tags UI) */
+   readOnlySummary?: boolean;
 }
 
 const DocumentLayout: React.FC<DocumentLayoutProps> = ({
@@ -54,6 +56,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
   onEditSummaryClick,
   onWriteOwnSummaryClick,
   isUserWrittenSummary = false,
+  readOnlySummary = false,
 }) => {
   const [isSummaryOpen, setIsSummaryOpen] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -137,6 +140,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
               onEditSummaryClick={onEditSummaryClick}
               onWriteOwnSummaryClick={onWriteOwnSummaryClick}
               isUserWrittenSummary={isUserWrittenSummary}
+              readOnlySummary={readOnlySummary}
             />
           </div>
         )}

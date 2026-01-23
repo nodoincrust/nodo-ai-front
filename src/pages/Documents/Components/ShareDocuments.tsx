@@ -42,6 +42,9 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
   const [activeTab, setActiveTab] = useState<"User" | "department">("User");
   const isDocumentShare = !!documentId;
   const isBouquetShare = !!bouquetId;
+  const [selectedDepartmentsList, setSelectedDepartmentsList] = useState<
+    Department[]
+  >([]);
 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -54,6 +57,7 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
   const [selectedEmployeesList, setSelectedEmployeesList] = useState<
     Employee[]
   >([]);
+  const selectedEmployees = selectedEmployeesList;
 
   const [isCompanySelected, setIsCompanySelected] = useState(false);
 
@@ -111,9 +115,6 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
           size: 100,
           search: search.trim() || undefined,
         });
-
-        // `getEmployeesListForShare` already returns the response body:
-        // { statusCode, message, total, data: [...] }
         if (res?.statusCode === 200 && Array.isArray(res.data)) {
           setEmployees(res.data as Employee[]);
         } else {
@@ -146,7 +147,7 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
         if (res?.data) {
           setDepartments(res.data.filter((d: any) => d.is_active));
         } else {
-          // setDepartments([]);
+          
         }
       } catch (err) {
         console.error("Failed to fetch departments", err);
@@ -185,26 +186,7 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
 
     return list;
   }, [departments, search, selectedDepartmentIds]);
-
-  // Get selected departments for display
-  const selectedDepartments = useMemo(() => {
-    return departments.filter((d) => selectedDepartmentIds.includes(d.id));
-  }, [departments, selectedDepartmentIds]);
-
-  // Get selected employees for display - prioritize stored list to ensure we have the data
-const selectedEmployees = selectedEmployeesList;
-
-  useEffect(() => {
-    if (activeTab !== "User") return;
-
-    if (isCompanySelected) {
-      // Select all employees
-      const allIds = employees.map((e) => e.id);
-      setSelectedEmployeeIds(allIds);
-      // Store all employees in list
-      setSelectedEmployeesList([...employees]);
-    } 
-  }, [isCompanySelected, employees, activeTab]);
+  const selectedDepartments = selectedDepartmentsList;
 
   const toggleEmployee = (id: number, employeeData?: Employee) => {
     // Try to get employee from passed data, then from employees array, then from stored list
@@ -257,22 +239,18 @@ const selectedEmployees = selectedEmployeesList;
   const toggleDepartment = (id: number, departmentData?: Department) => {
     const department =
       departmentData ||
-      departments.find((d) => d.id === id);
-
-    if (!department) {
-      console.warn(`Department with id ${id} not found`);
-      return;
-    }
+      departments.find((d) => d.id === id) ||
+      selectedDepartmentsList.find((d) => d.id === id);
+    if (!department) return;
 
     if (selectedDepartmentIds.includes(id)) {
       // Remove department
       setSelectedDepartmentIds((prev) => prev.filter((did) => did !== id));
+      setSelectedDepartmentsList((prev) => prev.filter((d) => d.id !== id));
     } else {
       // Add department
-      setSelectedDepartmentIds((prev) => {
-        if (prev.includes(id)) return prev;
-        return [...prev, id];
-      });
+      setSelectedDepartmentIds((prev) => [...prev, id]);
+      setSelectedDepartmentsList((prev) => [...prev, department]);
     }
     setSearch(""); // Clear search after selection
     setTimeout(() => {
@@ -283,6 +261,7 @@ const selectedEmployees = selectedEmployeesList;
 
   const removeDepartment = (id: number) => {
     setSelectedDepartmentIds((prev) => prev.filter((did) => did !== id));
+    setSelectedDepartmentsList((prev) => prev.filter((d) => d.id !== id));
   };
 
   const handleSubmit = async () => {
@@ -341,7 +320,7 @@ const selectedEmployees = selectedEmployeesList;
         disabled={
           activeTab === "User"
             ? !isCompanySelected && selectedEmployees.length === 0
-            : selectedDepartmentIds.length === 0
+            : selectedDepartments.length === 0
         }
       >
         Share
@@ -387,40 +366,74 @@ const selectedEmployees = selectedEmployeesList;
                 className="share-input-wrapper"
                 onClick={() => searchInputRef.current?.focus()}
               >
-                {selectedEmployees.map((emp) => (
-                  <div key={emp.id} className="share-chip">
-                    <div
-                      className={`avatar color-${getAvatarColorIndex(emp.email)}`}
-                    >
-                      {getInitials(emp.name)}
-                    </div>
-
-                    <span className="chip-text">{emp.name}</span>
-
+                {isCompanySelected ? (
+                  <div className="share-chip company-chip">
+                    <span className="chip-text">All users</span>
                     <button
                       className="chip-remove"
                       onClick={(e) => {
                         e.stopPropagation();
-                        removeEmployee(emp.id);
+                        setIsCompanySelected(false);
                       }}
                     >
                       ×
                     </button>
                   </div>
-                ))}
+                ) : (
+                  selectedEmployees.map((emp) => (
+                    <div key={emp.id} className="share-chip">
+                      <div
+                        className={`avatar color-${getAvatarColorIndex(emp.email)}`}
+                      >
+                        {getInitials(emp.name)}
+                      </div>
+                      <span className="chip-text">{emp.name}</span>
+                      <button
+                        className="chip-remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeEmployee(emp.id);
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))
+                )}
 
                 <input
                   ref={searchInputRef}
                   className="share-input"
                   placeholder={
-                    selectedEmployees.length === 0 ? "Add peoples" : ""
+                    isCompanySelected
+                      ? ""
+                      : selectedEmployees.length === 0
+                        ? "Search and add people"
+                        : ""
                   }
                   value={search}
+                  disabled={isCompanySelected}
                   onChange={(e) => setSearch(e.target.value)}
                   onFocus={() => setInputFocused(true)}
-                  // onBlur={() => setTimeout(() => setInputFocused(false), 150)}
                 />
               </div>
+              {!isCompanySelected && selectedEmployees.length === 0 && (
+                <div className="select-all-wrapper">
+                  <a
+                    href="#"
+                    className="select-all-link"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsCompanySelected(true);
+                      setSelectedEmployeeIds([]);
+                      setSelectedEmployeesList([]);
+                      setSearch("");
+                    }}
+                  >
+                    Select all users
+                  </a>
+                </div>
+              )}
 
               {inputFocused && search && filteredEmployees.length > 0 && (
                 <div className="suggestions-dropdown">
@@ -475,7 +488,9 @@ const selectedEmployees = selectedEmployeesList;
                   ref={searchInputRef}
                   className="share-input"
                   placeholder={
-                    selectedDepartments.length === 0 ? "Add departments" : ""
+                    selectedDepartments.length === 0
+                      ? "Search and add departments"
+                      : ""
                   }
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}

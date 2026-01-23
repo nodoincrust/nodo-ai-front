@@ -208,10 +208,9 @@ export default function SharedWorkspace() {
   };
 
   const handleViewBouquet = (bouquet: SharedBouquet) => {
-    navigate(`/bouquet/documents`, {
+    navigate(`/sharedworkspace/bouquets/documents`, {
       state: {
         bouquetId: bouquet.id,
-        fromSharedWorkspace: true, // Flag to indicate coming from shared workspace
         sharedFilter,
         page: currentPageState,
       },
@@ -240,12 +239,12 @@ export default function SharedWorkspace() {
         </div>
       ),
     },
-    {
-      title: "VERSION",
-      render: (row: SharedDocument) => (
-        <span className="document-version">v{row.status}</span>
-      ),
-    },
+    // {
+    //   title: "VERSION",
+    //   render: (row: SharedDocument) => (
+    //     <span className="document-version">v{row.status}</span>
+    //   ),
+    // },
     {
       title: "TAGS",
       render: (row: SharedDocument) => (
