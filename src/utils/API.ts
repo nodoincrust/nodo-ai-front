@@ -48,20 +48,26 @@ export const API_URL = {
   startSummary: (id: number | string) => `/ai/summary/start/${id}`,
   sumarryStatus: (id: number | string) => `/ai/summary/status/${id}`,
 
+  // Templates
+  getTemplatesList: "/newdocuments/templates",
+  saveTemplate: "/newdocuments/savetemplate",
+  getTemplateById: "/newdocuments/templatesFeilds",
+  deleteTemplate: "/newdocuments/deletetemplate",
+
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",
   addBouquet: "/newdocuments/createBouquet",
   updateBouquet: "/newdocuments/updateBouquet",
   deleteBouquet: "/newdocuments/deleteBouquet",
   getBouquetDocuments: (boqId: number | string) =>
-  `/newdocuments/boqDocuments/${boqId}`,
+    `/newdocuments/boqDocuments/${boqId}`,
 
-removeDocumentFromBouquet: (boqId: number | string) =>
-  `/newdocuments/removeDocuments/${boqId}`,
+  removeDocumentFromBouquet: (boqId: number | string) =>
+    `/newdocuments/removeDocuments/${boqId}`,
 
-addDocumentsToBouquet: (boqId: number | string) =>
-  `/newdocuments/appendDocuments/${boqId}`,
+  addDocumentsToBouquet: (boqId: number | string) =>
+    `/newdocuments/appendDocuments/${boqId}`,
 
 
-getApprovedDocuments: "/newdocuments/getApprovedDocs",
+  getApprovedDocuments: "/newdocuments/getApprovedDocs",
 };

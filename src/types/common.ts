@@ -509,10 +509,14 @@ export interface FormField {
   hasUserEdited?: boolean;
   requiredErrorMessage?: string;
   allowedFileTypes?: string[];
+  className?: string;
+  orderInRow?: number;
 }
 
 export interface CreateTemplateFormProps {
   onSaveTemplate?: () => void;
+  templateId?: string;
+  mode?: "create" | "edit" | "view";
 }
 
 export interface FormRow {

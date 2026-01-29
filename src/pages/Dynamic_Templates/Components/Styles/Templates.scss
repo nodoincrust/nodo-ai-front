@@ -29,28 +29,28 @@
 
             th:nth-child(1),
             td:nth-child(1) {
-                width: 240px;
-                min-width: 240px;
+                width: 440px;
+                min-width: 440px;
             }
 
             th:nth-child(2),
             td:nth-child(2) {
-                width: 180px;
-                min-width: 180px;
+                width: 280px;
+                min-width: 280px;
             }
 
-            th:nth-child(3),
-            td:nth-child(3) {
-                width: 200px;
-                min-width: 200px;
-                text-align: center;
-            }
+            // th:nth-child(3),
+            // td:nth-child(3) {
+            //     width: 200px;
+            //     min-width: 200px;
+            //     text-align: center;
+            // }
 
-            th:nth-child(4),
-            td:nth-child(4) {
-                width: 120px;
-                min-width: 120px;
-            }
+            // th:nth-child(4),
+            // td:nth-child(4) {
+            //     width: 120px;
+            //     min-width: 120px;
+            // }
 
             th:last-child,
             td:last-child {

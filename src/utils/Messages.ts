@@ -34,6 +34,7 @@ export const MESSAGES = {
         TEMPLATE_ADDED_SUCCESSFULLY: "Template added successfully.",
         TEMPLATE_UPDATED_SUCCESSFULLY: "Template updated successfully.",
         TEMPLATE_DELETED_SUCCESSFULLY: "Template deleted successfully.",
+        TEMPLATE_SAVED_SUCCESSFULLY: "Template saved successfully.",
     },
 
     ERRORS: {
@@ -115,5 +116,6 @@ export const MESSAGES = {
         AT_LEAST_ONE_OPTION_REQUIRED: "At least one option is required",
         PLEASE_ENTER_ERROR_MESSAGE: "Please enter the error message",
         INVALID_FILE_TYPE_FORMAT: "Invalid file type format. Example: .jpg, .png",
+        FAILED_TO_SAVE_TEMPLATE: "Failed to save template"
     },
 };

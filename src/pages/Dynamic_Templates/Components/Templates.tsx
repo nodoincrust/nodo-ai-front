@@ -10,6 +10,7 @@ import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 import CreateTemplate from "./Create_Templates/CreateTemplate";
+import { getTemplatesList } from "../../../services/templates.services";
 
 export default function Templates() {
     const [count, setCount] = useState(0);
@@ -110,86 +111,96 @@ export default function Templates() {
     ];
 
     /* ---------- Fetch Templates ---------- */
-    // const fetchTemplates = async () => {
-    //     getLoaderControl()?.showLoader();
-    //     try {
-    //         const payload = {
-    //             page: currentPage,
-    //             pagelimit: pageSize,
-    //             search,
-    //             status: status === "all" ? undefined : status,
-    //         };
-
-    //         const res: any = await getTemplatesList(payload);
-
-    //         if (res?.statusCode === 200) {
-    //             setTemplateList(res?.data || []);
-    //             setCount(res?.total || 0);
-    //         } else {
-    //             setTemplateList([]);
-    //             setCount(0);
-    //             notification.error({
-    //                 message:
-    //                     res?.message ||
-    //                     MESSAGES.ERRORS.TEMPLATE_FETCH_FAILED,
-    //             });
-    //         }
-    //     } catch (error: any) {
-    //         setTemplateList([]);
-    //         setCount(0);
-    //         notification.error({
-    //             message:
-    //                 error?.response?.data?.message ||
-    //                 MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
-    //         });
-    //     } finally {
-    //         getLoaderControl()?.hideLoader();
-    //     }
-    // };
-
     const fetchTemplates = async () => {
         getLoaderControl()?.showLoader();
-
         try {
-            await new Promise((res) => setTimeout(res, 400)); // simulate API delay
+            const payload = {
+                page: currentPage,
+                pagelimit: pageSize,
+                search,
+                status: status === "all" ? undefined : status,
+            };
 
-            let filteredData = [...DUMMY_TEMPLATES];
+            const res: any = await getTemplatesList(payload);
 
-            // Search filter
-            if (search) {
-                filteredData = filteredData.filter((item) =>
-                    item.name.toLowerCase().includes(search.toLowerCase())
-                );
+            if (res?.statusCode === 200) {
+                const formattedData = (res.data || []).map((item: any) => ({
+                    id: item.id,
+                    name: item.templateName,
+                    type: "Template",
+                    category: "—",
+                    is_active: true,
+                    thumbnail: null,
+                    createdAt: item.createdAt,
+                }));
+
+                setTemplateList(formattedData);
+                setCount(res?.data?.length || 0);
+            } else {
+                setTemplateList([]);
+                setCount(0);
+                notification.error({
+                    message:
+                        res?.message ||
+                        MESSAGES.ERRORS.TEMPLATE_FETCH_FAILED,
+                });
             }
-
-            // Status filter
-            if (status !== "all") {
-                filteredData = filteredData.filter(
-                    (item) => item.is_active === (status === "active")
-                );
-            }
-
-            const total = filteredData.length;
-
-            // Pagination
-            const startIndex = (currentPage - 1) * pageSize;
-            const paginatedData = filteredData.slice(
-                startIndex,
-                startIndex + pageSize
-            );
-
-            setTemplateList(paginatedData);
-            setCount(total);
-        } catch (error) {
+        } catch (error: any) {
             setTemplateList([]);
             setCount(0);
             notification.error({
-                message: MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+                message:
+                    error?.response?.data?.message ||
+                    MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
             });
         } finally {
             getLoaderControl()?.hideLoader();
         }
     };
+
+    // const fetchTemplates = async () => {
+    //     getLoaderControl()?.showLoader();
+
+    //     try {
+    //         await new Promise((res) => setTimeout(res, 400)); // simulate API delay
+
+    //         let filteredData = [...DUMMY_TEMPLATES];
+
+    //         // Search filter
+    //         if (search) {
+    //             filteredData = filteredData.filter((item) =>
+    //                 item.name.toLowerCase().includes(search.toLowerCase())
+    //             );
+    //         }
+
+    //         // Status filter
+    //         if (status !== "all") {
+    //             filteredData = filteredData.filter(
+    //                 (item) => item.is_active === (status === "active")
+    //             );
+    //         }
+
+    //         const total = filteredData.length;
+
+    //         // Pagination
+    //         const startIndex = (currentPage - 1) * pageSize;
+    //         const paginatedData = filteredData.slice(
+    //             startIndex,
+    //             startIndex + pageSize
+    //         );
+
+    //         setTemplateList(paginatedData);
+    //         setCount(total);
+    //     } catch (error) {
+    //         setTemplateList([]);
+    //         setCount(0);
+    //         notification.error({
+    //             message: MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+    //         });
+    //     } finally {
+    //         getLoaderControl()?.hideLoader();
+    //     }
+    // };
 
     useEffect(() => {
         fetchTemplates();
@@ -205,8 +216,7 @@ export default function Templates() {
     };
 
     const openEditTemplate = (template: any) => {
-        setSelectedTemplate(template);
-        setIsAddEditOpen(true);
+        navigate(`/templates/edit/${template.id}`);
     };
 
     /* ---------- Delete ---------- */
@@ -299,28 +309,28 @@ export default function Templates() {
                         title: "Type",
                         render: (row: any) => <span>{row.type || "—"}</span>,
                     },
-                    {
-                        title: "Category",
-                        render: (row: any) => (
-                            <div className="category-badge">
-                                <span className="category-pill">
-                                    {row.category || "—"}
-                                </span>
-                            </div>
-                        ),
-                    },
-                    {
-                        title: "Status",
-                        render: (row: any) => (
-                            <span
-                                className={`status-badge ${row.is_active ? "active" : "inactive"
-                                    }`}
-                            >
-                                <span className="badge-div" />
-                                {row.is_active ? "Active" : "Inactive"}
-                            </span>
-                        ),
-                    },
+                    // {
+                    //     title: "Category",
+                    //     render: (row: any) => (
+                    //         <div className="category-badge">
+                    //             <span className="category-pill">
+                    //                 {row.category || "—"}
+                    //             </span>
+                    //         </div>
+                    //     ),
+                    // },
+                    // {
+                    //     title: "Status",
+                    //     render: (row: any) => (
+                    //         <span
+                    //             className={`status-badge ${row.is_active ? "active" : "inactive"
+                    //                 }`}
+                    //         >
+                    //             <span className="badge-div" />
+                    //             {row.is_active ? "Active" : "Inactive"}
+                    //         </span>
+                    //     ),
+                    // },
                 ]}
                 actions={(row: any) => (
                     <div className="templates-actions">

@@ -51,18 +51,11 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
         setShowModal(true);
         setAnimateClose(false);
 
-        const initLabel = field.hasUserEdited ? field.label || "" : "";
-        const initPlaceholder = field.hasUserEdited ? field.placeholder || "" : "";
-        const initOptions =
-            field.type === "file"
-                ? field.allowedFileTypes || []
-                : field.hasUserEdited
-                    ? field.options || []
-                    : [];
-        const initRequiredErrorMessage =
-            field.requiredErrorMessage || lastRequiredErrorMessage || "";
+        const initLabel = field.label || "";
+        const initPlaceholder = field.placeholder || "";
+        const initOptions = field.type === "file" ? field.allowedFileTypes || [] : field.options || [];
+        const initRequiredErrorMessage = field.requiredErrorMessage || lastRequiredErrorMessage || "";
 
-        // Set form values once on open
         form.setFieldsValue({
             label: initLabel,
             placeholder: initPlaceholder,
@@ -84,13 +77,8 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
             options: initOptions,
         });
 
-        if (!field.hasUserEdited) {
-            setHasChanges(true); // first-time open
-            setIsFirstOpen(true);
-        } else {
-            setHasChanges(false);
-            setIsFirstOpen(false);
-        }
+        setHasChanges(false);
+        setIsFirstOpen(true);
     }, [open, field, form]);
 
     // Autofocus editable option
@@ -188,6 +176,8 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
 
     const handleSubmit = async () => {
         const values = await form.validateFields();
+
+        // Validate options for select / checkbox / radio / file
         if (
             ["select", "radio", "checkbox", "file"].includes(field.type) &&
             options.length === 0
@@ -198,25 +188,31 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
 
         setOptionError("");
 
-        // Save last required error message
-        if (values.required) {
-            setLastRequiredErrorMessage(values.requiredErrorMessage || "");
-        }
-
-        onSave({
+        // Always include requiredErrorMessage if required is true
+        const payload: Partial<FormField> = {
             label: values.label.trim(),
             placeholder: values.placeholder?.trim(),
-            required: values.required,
+            required: values.required || false,
             requiredErrorMessage: values.required
-                ? values.requiredErrorMessage?.trim()
+                ? values.requiredErrorMessage?.trim() || lastRequiredErrorMessage || ""
                 : undefined,
-
-            ...(field.type === "file"
-                ? { allowedFileTypes: options }
-                : { options }),
-
             hasUserEdited: true,
-        });
+        };
+
+        // Include options / allowedFileTypes
+        if (["select", "radio", "checkbox"].includes(field.type)) {
+            payload.options = options;
+        }
+        if (field.type === "file") {
+            payload.allowedFileTypes = options;
+        }
+
+        // Save last required error message
+        if (values.required) {
+            setLastRequiredErrorMessage(values.requiredErrorMessage?.trim() || "");
+        }
+
+        onSave(payload);
     };
 
     if (!showModal) return null;
