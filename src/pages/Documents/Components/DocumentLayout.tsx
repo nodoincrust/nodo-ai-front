@@ -11,6 +11,15 @@ interface AiChatResult {
   sessionId: string;
   citations: any[];
 }
+
+interface ChatMessage {
+  id: number;
+  sender: "assistant" | "user";
+  text?: string;
+  time?: string;
+  senderName?: string;
+  isTyping?: boolean;
+}
 interface DocumentLayoutProps {
   headerProps: DocumentHeaderProps;
   showSummarySidebar?: boolean;
@@ -30,6 +39,7 @@ interface DocumentLayoutProps {
     message: string,
     documentId: number
   ) => Promise<AiChatResult>;
+  chatInitialMessages?: ChatMessage[];
   onEditSummaryClick?: () => void;
   onWriteOwnSummaryClick?: () => void;
   isUserWrittenSummary?: boolean;
@@ -53,6 +63,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
   onSaveMetadata,
   onRegenerate,
   onSendMessage,
+  chatInitialMessages = [],
   onEditSummaryClick,
   onWriteOwnSummaryClick,
   isUserWrittenSummary = false,
@@ -168,6 +179,7 @@ const DocumentLayout: React.FC<DocumentLayoutProps> = ({
               onToggle={toggleChatSidebar}
               contextValue={document?.version?.file_name || ""}
               documentId={document?.document_id}
+              initialMessages={chatInitialMessages}
               onSendMessage={onSendMessage}
             />
           </div>

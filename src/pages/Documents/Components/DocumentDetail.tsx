@@ -14,6 +14,7 @@ import {
   submitDocumentForReview,
   getAssignableEmployees,
   getAiChatResponse,
+  getAiChatHistory,
 
 } from "../../../services/documents.service";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
@@ -28,6 +29,15 @@ import "./Styles/DocumentLayout.scss";
 import AddDocument from "./AddDocument";
 import { config } from "../../../config";
 
+interface ChatMessage {
+  id: number;
+  sender: "assistant" | "user";
+  text?: string;
+  time?: string;
+  senderName?: string;
+  isTyping?: boolean;
+}
+
 const DocumentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -35,6 +45,9 @@ const DocumentDetail: React.FC = () => {
   const [isSummaryGenerating, setIsSummaryGenerating] = useState(false);
 
   const [document, setDocument] = useState<ApiDocument | null>(null);
+  const [chatInitialMessages, setChatInitialMessages] = useState<ChatMessage[]>(
+    []
+  );
   const [selectedVersion, setSelectedVersion] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
@@ -62,6 +75,50 @@ const DocumentDetail: React.FC = () => {
       fetchDocument();
     }
   }, [id]);
+
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (!document?.document_id) return;
+      // Clear previous document chat while loading new history
+      setChatInitialMessages([]);
+      try {
+        const res = await getAiChatHistory(document.document_id);
+        if (res?.status !== "success" || !Array.isArray(res?.messages)) {
+          setChatInitialMessages([]);
+          return;
+        }
+
+        const mapped: ChatMessage[] = res.messages.map((m, idx) => {
+          const createdAt = m?.created_at ? new Date(m.created_at) : null;
+          const time = createdAt
+            ? createdAt.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })
+            : undefined;
+
+          return {
+            id:
+              (createdAt ? createdAt.getTime() : Date.now()) +
+              idx +
+              1,
+            sender: m.role === "assistant" ? "assistant" : "user",
+            text: m.content,
+            time,
+            senderName: m.role === "assistant" ? "NODO AI" : undefined,
+          };
+        });
+
+        setChatInitialMessages(mapped);
+      } catch {
+        // If history API fails, treat as no history (don’t block the page)
+        setChatInitialMessages([]);
+      }
+    };
+
+    void loadChatHistory();
+  }, [document?.document_id]);
 
   const fetchDocument = async (version?: number) => {
     if (!id) return;
@@ -274,29 +331,37 @@ const DocumentDetail: React.FC = () => {
   };
 
   const handleAddTag = (tag: string) => {
+    const value = tag.trim();
+    if (!value) return;
     setIsMetadataSaved(false);
     // Add to active tags if not already present
     setActiveTags((prev) => {
-      if (prev.includes(tag)) return prev;
-      return [...prev, tag];
+      const prevSet = new Set(prev.map((t) => t.trim().toLowerCase()));
+      if (prevSet.has(value.toLowerCase())) return prev;
+      return [...prev, value];
     });
   };
 
   const handleRemoveTag = (tag: string) => {
+    const value = tag.trim();
+    if (!value) return;
     setIsMetadataSaved(false);
     // Remove from active tags
-    setActiveTags((prev) => prev.filter((t) => t !== tag));
+    setActiveTags((prev) => prev.filter((t) => t.trim() !== value));
   };
 
   const handleCreateTag = (tag: string) => {
+    const value = tag.trim();
+    if (!value) return;
     setIsMetadataSaved(false);
     // Add newly created tag to active tags
     setActiveTags((prev) => {
-      if (prev.includes(tag)) return prev;
-      return [...prev, tag];
+      const prevSet = new Set(prev.map((t) => t.trim().toLowerCase()));
+      if (prevSet.has(value.toLowerCase())) return prev;
+      return [...prev, value];
     });
 
-    notification.success({ message: `Tag "${tag}" created` });
+    notification.success({ message: `Tag "${value}" created` });
   };
 
   const handleSaveMetadata = async () => {
@@ -388,7 +453,10 @@ const DocumentDetail: React.FC = () => {
           });
 
           if (result.tags) {
-            setSuggestedTags(result.tags);
+            const nextSuggested = Array.isArray(result.tags)
+              ? result.tags.filter((t: any) => typeof t === "string" && t.trim())
+              : [];
+            setSuggestedTags(nextSuggested);
           }
 
           setIsSummaryGenerating(false);
@@ -627,6 +695,7 @@ const DocumentDetail: React.FC = () => {
         showSummarySidebar={true}
         showChatSidebar={true}
         document={document}
+        chatInitialMessages={chatInitialMessages}
         suggestedTags={suggestedTags}
         activeTags={activeTags}
         onSummaryChange={handleSummaryChange}

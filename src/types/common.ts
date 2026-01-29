@@ -478,3 +478,18 @@ export interface FieldConfig {
   options?: string[];
   value?: string;
 }
+
+//AI Chat History Response
+export interface AiChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
+
+export interface AiChatHistoryResponse {
+  status: "success" | "error";
+  documentId: number;
+  sessionId: string;
+  messages: AiChatMessage[];
+  error: string | null;
+}

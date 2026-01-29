@@ -10,12 +10,12 @@
   max-height: 100%;
 
   .chat-sidebar-header {
-    padding: 16px 20px;
+    padding: 10px 20px;
     border-bottom: 1px solid $color-border;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 8px;
+    // gap: 8px;
     position: relative;
   }
 
@@ -173,18 +173,18 @@
     }
 
     .bubble {
-      max-width: 75%; 
-       width: fit-content;
+      max-width: 100%;
+      width: fit-content;
       padding: 10px 12px;
-      border-radius: 12px;
+
       font-family: $font-family-main;
       font-size: 13px;
       line-height: 20px;
-      margin-top: 4px;
-       white-space: pre-wrap; 
-    word-wrap: break-word;   
-    overflow-wrap: break-word; 
-    word-break: break-word;
+      // margin-top: 4px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     &.chat-message--assistant {
@@ -198,6 +198,8 @@
         background-color: #ffffff;
         border: 1px solid $color-border;
         color: $color-text;
+        border-radius: 6px 12px 12px 12px;
+        margin-left: 40px;
       }
     }
 
@@ -205,7 +207,7 @@
       align-items: flex-end;
 
       .chat-message-header {
-        flex-direction: row-reverse;
+        // flex-direction: row-reverse;
       }
 
       .chat-sender-info {
@@ -215,6 +217,8 @@
       .bubble {
         background-color: #4580f7;
         color: #ffffff;
+        border-radius: 12px 6px 12px 12px;
+        margin-right: 33px;
       }
     }
   }
@@ -241,7 +245,7 @@
     background-color: #f9fafb;
     border-radius: 12px;
     border: 1px solid $color-border;
-    padding: 8px 8px 8px 12px;
+    padding: 6px 7px 6px 12px;
 
     textarea {
       flex: 1;
@@ -260,6 +264,12 @@
       &:focus {
         outline: none;
       }
+         &::placeholder {
+      color: #949CA9; // gray-400 (example)
+      opacity: 1;     // important for Firefox
+      font-weight: 500;
+      font-size: 14px;
+    }
     }
   }
 
@@ -289,7 +299,7 @@
 
   .chat-input-hint {
     margin: 6px 4px 0 4px;
-     font-family: $font-family-main;
+    font-family: $font-family-main;
     font-size: 12px;
     font-weight: 400;
     color: #1b3249;

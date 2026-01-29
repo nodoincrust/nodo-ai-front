@@ -124,8 +124,8 @@
     font-weight: 500;
 
     &.user-writeup {
-      background-color: #ECECFF;
-      color: #4F4FFF;
+      background-color: #ececff;
+      color: #4f4fff;
     }
   }
 
@@ -149,7 +149,9 @@
     color: $color-gray-table;
     border-radius: 12px;
 
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
 
     .icon-filled {
       display: none; // ❌ hidden by default
@@ -175,8 +177,32 @@
     border-radius: 8px;
     padding: 12px;
     min-height: 120px;
-  }
+  
+    .ant-skeleton-title,
+    .ant-skeleton-paragraph 
 
+    > li {
+      width: 100%;
+       margin-bottom: 6px !important;
+      border-radius: 6px;
+      height: 14px;
+      background: linear-gradient(90deg, #ecf2fe 20%, #d8e5ff 40%, #f5f9ff 63%);
+      background-size: 300% 100%;
+      animation: skeleton-loading 3.2s ease-in-out infinite;
+    }
+    > li:last-child {
+        margin-bottom: 0;
+      }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -120% 0;
+      }
+    }
+  }
   .summary-text {
     margin: 0;
     font-family: $font-family-main;
@@ -260,10 +286,10 @@
   .summary-generate-ai-btn {
     width: 100%;
     padding: 10px 16px;
-    border: 1px solid #FF95003D;
+    border: 1px solid #ff95003d;
     border-radius: 8px;
-    background-color: #FFECC8;
-    color: #FF9500;
+    background-color: #ffecc8;
+    color: #ff9500;
     font-family: $font-family-main;
     font-size: 16px;
     font-weight: 600;
@@ -287,7 +313,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       img {
         width: 16px;
         height: 16px;
@@ -462,7 +488,7 @@
     padding: 10px 16px;
     border-radius: 32px;
     border: none;
-    background-color: #4580F7;
+    background-color: #4580f7;
     color: $color-white;
     font-family: $font-family-main;
     font-size: 16px;
@@ -472,7 +498,7 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: #4580F7;
+      background-color: #4580f7;
       color: $color-white;
     }
 

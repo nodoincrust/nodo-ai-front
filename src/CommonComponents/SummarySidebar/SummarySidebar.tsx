@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import { notification, Spin } from "antd";
 import "./SummarySidebar.scss";
+import { Skeleton } from "antd";
 
 interface SummarySidebarProps {
   title?: string;
@@ -54,10 +55,11 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   readOnlySummary = false,
 }) => {
   const [summary, setSummary] = useState(propSummary);
-  const [suggestedTags] = useState<string[]>(propSuggestedTags);
+  const suggestedTags = propSuggestedTags ?? [];
   const activeTags = propActiveTags ?? [];
   const [newTag, setNewTag] = useState("");
   const [isEditingSummary, setIsEditingSummary] = useState(false);
+const isLoadingSummary = Boolean(isSummaryGenerating);
 
   // Update local state when props change
   useEffect(() => {
@@ -108,8 +110,13 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
   };
 
   const handleAddTag = (tag: string) => {
-    if (!activeTags.includes(tag)) {
-      onAddTag?.(tag);
+    const value = tag.trim();
+    if (!value) return;
+
+    // case-insensitive de-dupe vs active
+    const activeSet = new Set(activeTags.map((t) => t.trim().toLowerCase()));
+    if (!activeSet.has(value.toLowerCase())) {
+      onAddTag?.(value);
     }
   };
 
@@ -202,6 +209,8 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                     type="button"
                     className="summary-copy-btn"
                     onClick={handleCopySummary}
+                      disabled={isLoadingSummary}
+                      style={{ opacity: isLoadingSummary ? 0.5 : 1 }}
                     title="Copy summary"
                   >
                     <svg
@@ -235,7 +244,9 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                     </svg>
                   </button>
                 </div>
-                {isEditingSummary ? (
+                {isSummaryGenerating ? (
+                  <Skeleton active paragraph={{ rows: 3 }} title={false} />
+                ) : isEditingSummary ? (
                   <textarea
                     value={summary}
                     onChange={(e) => handleSummaryChange(e.target.value)}
@@ -249,7 +260,9 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                 )}
 
                 {/* Only show action buttons if handlers are provided (not read-only mode) */}
-                {(onEditSummaryClick || onWriteOwnSummaryClick || onRegenerate) && (
+                {!isLoadingSummary &&(onEditSummaryClick ||
+                  onWriteOwnSummaryClick ||
+                  onRegenerate) && (
                   <div className="summary-actions">
                     {onEditSummaryClick && (
                       <button
@@ -270,7 +283,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                         <span>Edit Summary</span>
                       </button>
                     )}
-                    {!isUserWrittenSummary && onRegenerate && (
+                    {!isLoadingSummary &&!isUserWrittenSummary && onRegenerate && (
                       <button
                         type="button"
                         className="summary-action-btn"
@@ -294,7 +307,7 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
               </div>
 
               {/* Only show write own/generate AI buttons if handlers are provided */}
-              {!isUserWrittenSummary && onWriteOwnSummaryClick && (
+              {!isLoadingSummary &&!isUserWrittenSummary && onWriteOwnSummaryClick && (
                 <button
                   type="button"
                   className="summary-write-own-btn"
@@ -329,18 +342,26 @@ const SummarySidebar: React.FC<SummarySidebarProps> = ({
                   </span>
                 </div>
                 <div className="summary-tags-list">
-                  {suggestedTags.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className="summary-tag-btn"
-                      onClick={() => handleAddTag(tag)}
-                    >
-                      {/* {tag} */}
-                      v10
-                      <span className="tag-plus">+</span>
-                    </button>
-                  ))}
+                  {suggestedTags
+                    .filter((tag) => {
+                      const value = tag?.trim();
+                      if (!value) return false;
+                      const activeSet = new Set(
+                        activeTags.map((t) => t.trim().toLowerCase()),
+                      );
+                      return !activeSet.has(value.toLowerCase());
+                    })
+                    .map((tag, idx) => (
+                      <button
+                        key={`${tag}-${idx}`}
+                        type="button"
+                        className="summary-tag-btn"
+                        onClick={() => handleAddTag(tag)}
+                      >
+                        {tag}
+                        <span className="tag-plus">+</span>
+                      </button>
+                    ))}
                 </div>
 
                 <span className="summary-tag">Create New Tag</span>

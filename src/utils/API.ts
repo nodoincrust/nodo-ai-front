@@ -42,16 +42,17 @@ export const API_URL = {
   reuploadDocument: (id: number) => `/newdocuments/reupload/${id}`,
   getEmployeeList: "/employee/assignable-hierarchy",
   getDocumentById: (id: number | string) => `/newdocuments/${id}/details`,
+
   // regenarateSummary: (id: number | string) => `ai/summary/${id}`,
   saveMetaData: (id: number | string) => `newdocuments/${id}/save`,
   submitDocumentForReview: (id: number | string) => `/employee/${id}/assign`,
+  shareDocument: "/newdocuments/share",
 
+  // AI
   getaichat: "/ai/chat",
-
+  getaicharhistory: (id: number | string) => `/ai/chat/history/${id}`,
   startSummary: (id: number | string) => `/ai/summary/start/${id}`,
   sumarryStatus: (id: number | string) => `/ai/summary/status/${id}`,
-
-   shareDocument: "/newdocuments/share",
 
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",
@@ -59,16 +60,12 @@ export const API_URL = {
   updateBouquet: "/newdocuments/updateBouquet",
   deleteBouquet: "/newdocuments/deleteBouquet",
   getBouquetDocuments: (boqId: number | string) =>
-  `/newdocuments/boqDocuments/${boqId}`,
+    `/newdocuments/boqDocuments/${boqId}`,
 
-removeDocumentFromBouquet: (boqId: number | string) =>
-  `/newdocuments/removeDocuments/${boqId}`,
+  addDocumentsToBouquet: (boqId: number | string) =>
+    `/newdocuments/appendDocuments/${boqId}`,
 
-addDocumentsToBouquet: (boqId: number | string) =>
-  `/newdocuments/appendDocuments/${boqId}`,
-
-
-getApprovedDocuments: "/newdocuments/getApprovedDocs",
+  getApprovedDocuments: "/newdocuments/getApprovedDocs",
 
   // Shared Workspace
   getSharedDocuments: "/newdocuments/sharedDocument",

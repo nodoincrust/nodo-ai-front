@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { notification } from "antd";
 import "./chatSidebar.scss";
 import { AuthData } from "../../types/common";
 import TypingDots from "../Threedots/TypingDots";
-import { scrollLayoutToBottom } from "../../utils/utilFunctions";
 
 interface ChatMessage {
   id: number;
@@ -67,10 +66,24 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   // Update messages when initialMessages prop changes
   useEffect(() => {
-    if (initialMessages.length > 0) {
-      setMessages(initialMessages);
-    }
-  }, [initialMessages]);
+    setMessages(initialMessages);
+    setInput("");
+  }, [initialMessages, documentId]);
+
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const autoScrollEnabledRef = useRef(true);
+
+  const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  };
+
+  const isEffectivelyAtBottom = (el: HTMLDivElement) => {
+    const thresholdPx = 40; // WhatsApp-like: near bottom still counts
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    return distanceFromBottom <= thresholdPx;
+  };
 
  const handleSend = async () => {
   const trimmed = input.trim();
@@ -134,9 +147,26 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   }
 };
 
-useEffect(() => {
-  scrollLayoutToBottom();
-}, [messages]);
+  const messagesSignature = useMemo(() => {
+    const last = messages[messages.length - 1];
+    return `${messages.length}:${last?.id ?? "none"}`;
+  }, [messages]);
+
+  useEffect(() => {
+    // When sidebar opens, always jump to the latest message
+    if (isOpen) {
+      // allow DOM to paint first
+      requestAnimationFrame(() => scrollToBottom("auto"));
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    // Auto-scroll only if the user is already near the bottom (so they can scroll up)
+    if (!isOpen) return;
+    if (!autoScrollEnabledRef.current) return;
+    requestAnimationFrame(() => scrollToBottom("auto"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messagesSignature, isOpen]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (
     e
@@ -188,7 +218,15 @@ useEffect(() => {
 
       {isOpen && (
         <>
-          <div className="chat-messages">
+          <div
+            className="chat-messages"
+            ref={messagesContainerRef}
+            onScroll={() => {
+              const el = messagesContainerRef.current;
+              if (!el) return;
+              autoScrollEnabledRef.current = isEffectivelyAtBottom(el);
+            }}
+          >
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -214,12 +252,13 @@ useEffect(() => {
                   ) : (
                     <>
                       <div className="chat-sender-info">
+                       <span className="chat-sender-name">
+                          {msg.senderName || loggedInUserName}
+                        </span>
                         {msg.time && (
                           <span className="chat-time">{msg.time}</span>
                         )}
-                        <span className="chat-sender-name">
-                          {msg.senderName || loggedInUserName}
-                        </span>
+                       
                       </div>
                       <div className="chat-avatar chat-avatar--user">
                         {userInitials}

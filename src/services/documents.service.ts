@@ -7,7 +7,9 @@ import type {
   ApiDocumentDetailResponse,
   AssignableEmployee,
   AssignableEmployeeResponse,
-  AiChatResponse
+  AiChatResponse,
+  AiChatHistoryResponse,
+
 } from "../types/common";
 import { API_URL } from "../utils/API";
 import { config } from "../config";
@@ -238,6 +240,12 @@ export const shareDocument = async (payload: {
   return response.data;
 };
 
+export const getAiChatHistory = async (
+  documentId: number | string
+): Promise<AiChatHistoryResponse> => {
+  const response = await axios.get<AiChatHistoryResponse>(
+    API_URL.getaicharhistory(documentId)
+  );
 
-
-
+  return response.data;
+};
