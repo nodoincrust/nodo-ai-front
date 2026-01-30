@@ -54,6 +54,12 @@ export const API_URL = {
   startSummary: (id: number | string) => `/ai/summary/start/${id}`,
   sumarryStatus: (id: number | string) => `/ai/summary/status/${id}`,
 
+  // Templates
+  getTemplatesList: "/newdocuments/templates",
+  saveTemplate: "/newdocuments/savetemplate",
+  getTemplateById: "/newdocuments/templatesFeilds",
+  deleteTemplate: "/newdocuments/deletetemplate",
+
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",
   addBouquet: "/newdocuments/createBouquet",
@@ -69,4 +75,8 @@ export const API_URL = {
 
   // Shared Workspace
   getSharedDocuments: "/newdocuments/sharedDocument",
+  removeDocumentFromBouquet: (boqId: number | string) =>
+    `/newdocuments/removeDocuments/${boqId}`,
+
+ 
 };

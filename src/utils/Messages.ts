@@ -34,6 +34,7 @@ export const MESSAGES = {
         TEMPLATE_ADDED_SUCCESSFULLY: "Template added successfully.",
         TEMPLATE_UPDATED_SUCCESSFULLY: "Template updated successfully.",
         TEMPLATE_DELETED_SUCCESSFULLY: "Template deleted successfully.",
+        TEMPLATE_SAVED_SUCCESSFULLY: "Template saved successfully.",
     },
 
     ERRORS: {
@@ -110,5 +111,15 @@ export const MESSAGES = {
         TEMPLATE_UPDATE_FAILED: "Failed to update template.",
         TEMPLATE_NAME_REQUIRED: "Template name is required.",
         TEMPLATE_DESCRIPTION_REQUIRED: "Template description is required.",
+        LABEL_NAME_REQUIRED: "Label name is required",
+        PLACEHOLDER_NAME_REQUIRED: "Placeholder name is required",
+        AT_LEAST_ONE_OPTION_REQUIRED: "At least one option is required",
+        PLEASE_ENTER_ERROR_MESSAGE: "Please enter the error message",
+        INVALID_FILE_TYPE_FORMAT: "Invalid file type format. Example: .jpg, .png",
+        FAILED_TO_SAVE_TEMPLATE: "Failed to save template",
+        FAILED_TO_UPDATE_TEMPLATE: "Failed to update template",
+        PLEASE_ADD_AT_LEAST_ONE_FIELD_BEFORE_SAVING_THE_FORM: "Please add at least one field before saving the form",
+        FORM_NAME_REQUIRED: "Form name is required",
+        AT_LEAST_ONE_BUTTON_REQUIRED: "At least one button is required in the Form"
     },
 };

@@ -1,3 +1,4 @@
+import { FormField } from "../types/common";
 import { MESSAGES } from "./Messages";
 
 // --- Scroll to Top ---
@@ -127,3 +128,40 @@ export const getStatusClass = (status?: string) => {
 
   return "";
 };
+
+export const uid = () => crypto.randomUUID();
+export const groupFieldsIntoRows = (fields: FormField[]) => {
+  const rows: FormField[][] = [];
+  let currentRow: FormField[] = [];
+
+  fields.forEach((field) => {
+    if (currentRow.length === 4) {
+      rows.push(currentRow);
+      currentRow = [];
+    }
+    currentRow.push(field);
+  });
+
+  if (currentRow.length) {
+    rows.push(currentRow);
+  }
+
+  return rows;
+};
+
+export const getSpanByCount = (count: number) => {
+  switch (count) {
+    case 1:
+      return 12;
+    case 2:
+      return 6;
+    case 3:
+      return 4;
+    case 4:
+      return 3;
+    default:
+      return 12;
+  }
+};
+
+export const FILE_TYPE_REGEX = /^\.[a-zA-Z0-9]+$/;

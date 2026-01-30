@@ -1,23 +1,47 @@
 import React from "react";
-import { templateComponents } from "./templateComponents";
+import { FieldType } from "../../../../types/common";
 
-const CreateTemplateSidebar = () => {
-    const onDragStart = (e: any, component: any) => {
-        e.dataTransfer.setData("type", component.elementType);
-        e.dataTransfer.setData("label", component.label);
+const COMPONENTS: { type: FieldType; label: string }[] = [
+    { type: "header", label: "Header / Template Name" },
+    { type: "input", label: "Text Input" },
+    { type: "textarea", label: "Textarea" },
+    { type: "select", label: "Dropdown" },
+    { type: "checkbox", label: "Checkbox" },
+    { type: "radio", label: "Radio" },
+    { type: "switch", label: "Switch" },
+    { type: "date", label: "Date" },
+    { type: "number", label: "Number" },
+    { type: "horizontal_line", label: "Horizontal Line" },
+    { type: "secondary_button", label: "Secondary Button" },
+    { type: "primary_button", label: "Primary Button" },
+    { type: "file", label: "File Upload" },
+];
+
+interface CreateTemplateSidebarProps {
+    isViewMode?: boolean;
+}
+
+const CreateTemplateSidebar: React.FC<CreateTemplateSidebarProps> = ({ isViewMode }) => {
+    const onDragStart = (
+        e: React.DragEvent<HTMLDivElement>,
+        item: typeof COMPONENTS[number]
+    ) => {
+        if (isViewMode) return;
+
+        e.dataTransfer.setData("type", item.type);
+        e.dataTransfer.setData("label", item.label);
     };
 
     return (
-        <div className="sidebar-panel">
-            {templateComponents.map((item) => (
+        <div className={`sidebar-panel ${isViewMode ? "view-mode" : ""}`}>
+            {COMPONENTS.map((item) => (
                 <div
-                    key={item.id}
-                    draggable
+                    key={item.type}
+                    {...(!isViewMode && { draggable: true })}
                     onDragStart={(e) => onDragStart(e, item)}
-                    className="sidebar-item"
+                    className={`sidebar-item ${isViewMode ? "view-mode" : ""}`}
                 >
-                    <img src={item.icon} alt="" />
-                    <span>{item.label}</span>
+                    {item.label}
                 </div>
             ))}
         </div>

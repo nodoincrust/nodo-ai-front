@@ -493,3 +493,85 @@ export interface AiChatHistoryResponse {
   messages: AiChatMessage[];
   error: string | null;
 }
+export type FieldType =
+  | "header"
+  | "input"
+  | "textarea"
+  | "number"
+  | "date"
+  | "checkbox"
+  | "radio"
+  | "select"
+  | "switch"
+  | "horizontal_line"
+  | "primary_button"
+  | "secondary_button"
+  | "file";
+
+
+export interface FormField {
+  id: string;
+  type: FieldType;
+  label: string;
+  placeholder?: string;
+  options?: string[];
+  required?: boolean;
+  helpText?: string;
+  isOpen?: boolean;
+  selectedValue?: string;
+  rowId?: string;
+  colSpan?: number;
+  hasUserEdited?: boolean;
+  requiredErrorMessage?: string;
+  allowedFileTypes?: string[];
+  className?: string;
+  orderInRow?: number;
+}
+
+export interface CreateTemplateFormProps {
+  onSaveTemplate?: () => void;
+  templateId?: string;
+  mode?: "create" | "edit" | "view";
+}
+
+export interface FormRow {
+  id: string;
+  columns: FormColumn[];
+}
+
+export interface FormColumn {
+  id: string;
+  span: number;
+  field: FormField;
+}
+
+export interface TemplateFieldPayload {
+  id: string;
+  type: FieldType;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  requiredErrorMessage?: string;
+  options?: string[];
+  allowedFileTypes?: string[];
+  fieldOrder: number;
+  className: string;
+}
+
+export interface TemplateRowPayload {
+  rowId: string;
+  rowOrder: number;
+  fields: TemplateFieldPayload[];
+}
+
+export interface SaveTemplatePayload {
+  templateId?: string;
+  templateName: string;
+  rows: TemplateRowPayload[];
+}
+
+export interface CreateEditTemplateFormProps {
+  templateId?: string;
+  isViewMode?: boolean;
+  onFieldsChange?: (changed: boolean) => void;
+}
