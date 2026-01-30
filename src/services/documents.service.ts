@@ -228,6 +228,7 @@ export function pollSummaryStatus(
 export const shareDocument = async (payload: {
   document_id: number|null;
   bouquet_id: number|null;
+  template_id: number|null;
   users: number[];
   departments: number[];
   company: boolean;

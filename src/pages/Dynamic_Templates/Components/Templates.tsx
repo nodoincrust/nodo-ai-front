@@ -11,6 +11,7 @@ import Table from "../../../CommonComponents/Table/Components/Table";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 import CreateTemplate from "./Create_Templates/TemplateLayout";
 import { getTemplatesList } from "../../../services/templates.services";
+import ShareDocuments from "../../Documents/Components/ShareDocuments";
 
 export default function Templates() {
     const [count, setCount] = useState(0);
@@ -24,6 +25,8 @@ export default function Templates() {
     const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
+    const [isShareOpen, setIsShareOpen] = useState(false);
+    const [templateToShare, setTemplateToShare] = useState<number | null>(null);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -224,10 +227,8 @@ export default function Templates() {
     };
 
     const handleShareTemplate = (row: any) => {
-        // Example: copy link to clipboard
-        const link = `${window.location.origin}/templates/view/${row.id}`;
-        navigator.clipboard.writeText(link);
-        notification.success({ message: "Template link copied to clipboard!" });
+        setTemplateToShare(row.id);
+        setIsShareOpen(true);
     };
     /* ---------- Delete ---------- */
     // const handleDeleteTemplate = async () => {
@@ -391,6 +392,15 @@ export default function Templates() {
                     setCurrentPage(1);
                 }}
                 emptyText="No templates found"
+            />
+
+            <ShareDocuments
+                open={isShareOpen}
+                onClose={() => {
+                    setIsShareOpen(false);
+                    setTemplateToShare(null);
+                }}
+                templateId={templateToShare}
             />
 
             {/* {isAddEditOpen && (

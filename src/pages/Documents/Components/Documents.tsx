@@ -453,7 +453,7 @@ export default function DocumentsCombined() {
               {row.status === "APPROVED" && (
                 <Tooltip title="Share Document" placement="top">
                   <img
-                    src="/assets/Share.svg"
+                    src="/assets/share.svg"
                     alt="Share"
                     style={{ cursor: "pointer" }}
                     onClick={() => handleOpenShare(row)}

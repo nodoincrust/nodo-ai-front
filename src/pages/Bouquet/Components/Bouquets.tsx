@@ -203,7 +203,7 @@ export default function Bouquets() {
 
             <Tooltip title="Share bouquet">
               <img
-                src="/assets/Share.svg"
+                src="/assets/share.svg"
                 alt="Share"
                 style={{ cursor: "pointer" }}
                 onClick={() => handleOpenShare(row)}

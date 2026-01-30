@@ -31,6 +31,7 @@ interface ShareDocumentsProp {
   onClose: () => void;
   documentId?: number | null;
   bouquetId?: number | null;
+  templateId?: number | null;
 }
 
 const ShareDocuments: React.FC<ShareDocumentsProp> = ({
@@ -38,10 +39,12 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
   onClose,
   documentId,
   bouquetId,
+  templateId,
 }) => {
   const [activeTab, setActiveTab] = useState<"User" | "department">("User");
   const isDocumentShare = !!documentId;
   const isBouquetShare = !!bouquetId;
+  const isTemplateShare = !!templateId;
   const [selectedDepartmentsList, setSelectedDepartmentsList] = useState<
     Department[]
   >([]);
@@ -66,7 +69,11 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
   const [search, setSearch] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const modalTitle = isBouquetShare ? "Share Bouquet" : "Share Document";
+  const modalTitle = isTemplateShare
+    ? "Share Template"
+    : isBouquetShare
+      ? "Share Bouquet"
+      : "Share Document";
 
   // Reset state when modal closes
   useEffect(() => {
@@ -265,7 +272,7 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
   };
 
   const handleSubmit = async () => {
-    if (!documentId && !bouquetId) {
+    if (!documentId && !bouquetId && !templateId) {
       notification.error({
         message: "Nothing to share",
       });
@@ -273,31 +280,27 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
     }
 
     try {
-      const isCompanyMode = activeTab === "User";
-      const isDepartmentMode = activeTab === "department";
-
       const payload: any = {
+        document_id: documentId ?? null,
+        bouquet_id: bouquetId ?? null,
+        template_id: templateId ?? null,
         users:
           activeTab === "User" && isCompanySelected
             ? []
             : activeTab === "User"
               ? selectedEmployeesList.map((e) => e.id)
               : [],
-
         departments: activeTab === "department" ? selectedDepartmentIds : [],
-
         company: activeTab === "User" && isCompanySelected,
-
         showRecord: activeTab === "department" ? false : true,
       };
-
-      if (documentId) payload.document_id = documentId;
-      if (bouquetId) payload.bouquet_id = bouquetId;
 
       await shareDocument(payload);
 
       notification.success({
-        message: "Document shared successfully",
+        message: isTemplateShare
+          ? "Template shared successfully"
+          : "Document shared successfully",
       });
 
       onClose();

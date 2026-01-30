@@ -8,9 +8,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../CommonComponents/Loader/loader";
 import { scrollLayoutToTop } from "../../utils/utilFunctions";
 import { getSharedData } from "../../services/sharedWorkspace.services";
+import SharedTemplates, { type SharedTemplate } from "./SharedTemplates";
 import "./Styles/SharedWorkspace.scss";
 
-type SharedFilter = "DOCUMENTS" | "BOUQUETS";
+type SharedFilter = "DOCUMENTS" | "BOUQUETS" | "TEMPLATES";
 
 interface SharedDocument {
   document_id: number;
@@ -37,6 +38,7 @@ export default function SharedWorkspace() {
   const debouncedSearch = useDebounce(search, 500);
   const [documentList, setDocumentList] = useState<SharedDocument[]>([]);
   const [bouquetList, setBouquetList] = useState<SharedBouquet[]>([]);
+  const [templateList, setTemplateList] = useState<SharedTemplate[]>([]);
   const [pageSize, setPageSize] = useState(10);
   const location = useLocation();
   const navigate = useNavigate();
@@ -188,13 +190,57 @@ export default function SharedWorkspace() {
     }
   };
 
+  // Fetch shared templates
+  const fetchSharedTemplates = async () => {
+    getLoaderControl()?.showLoader();
+    try {
+      const res: any = await getSharedData({
+        key: "template",
+        page: currentPageState,
+        pagelimit: pageSize,
+        query: debouncedSearch || "",
+        sort: "",
+        order: "asc",
+      });
+
+      if (res?.templates) {
+        const normalizedTemplates: SharedTemplate[] = (res.templates || []).map(
+          (t: any) => ({
+            id: t.id,
+            templateName: t.templateName ?? "—",
+            shared_by: t.shared_by,
+            shared_at: t.shared_at,
+          }),
+        );
+        setTemplateList(normalizedTemplates);
+        setCount(res.total || 0);
+      } else {
+        setTemplateList([]);
+        setCount(0);
+      }
+    } catch (error: any) {
+      setTemplateList([]);
+      setCount(0);
+      notification.error({
+        message:
+          error?.response?.data?.message ||
+          error?.response?.data?.detail ||
+          MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+      });
+    } finally {
+      getLoaderControl()?.hideLoader();
+    }
+  };
+
   // Effects
   useEffect(() => {
     scrollLayoutToTop();
     if (sharedFilter === "DOCUMENTS") {
       fetchSharedDocuments();
-    } else {
+    } else if (sharedFilter === "BOUQUETS") {
       fetchSharedBouquets();
+    } else {
+      fetchSharedTemplates();
     }
   }, [currentPageState, debouncedSearch, pageSize, sharedFilter]);
 
@@ -211,6 +257,15 @@ export default function SharedWorkspace() {
     navigate(`/sharedworkspace/bouquets/documents`, {
       state: {
         bouquetId: bouquet.id,
+        sharedFilter,
+        page: currentPageState,
+      },
+    });
+  };
+
+  const handleViewTemplate = (template: SharedTemplate) => {
+    navigate(`/templates/view/${template.id}`, {
+      state: {
         sharedFilter,
         page: currentPageState,
       },
@@ -316,6 +371,7 @@ export default function SharedWorkspace() {
     items: [
       { key: "DOCUMENTS", label: "Documents" },
       { key: "BOUQUETS", label: "Bouquets" },
+      { key: "TEMPLATES", label: "Templates" },
     ],
     onClick: ({ key }: { key: string }) => {
       setSharedFilter(key as SharedFilter);
@@ -330,7 +386,9 @@ export default function SharedWorkspace() {
         count={
           sharedFilter === "DOCUMENTS"
             ? `${count} Documents`
-            : `${count} Bouquets`
+            : sharedFilter === "BOUQUETS"
+              ? `${count} Bouquets`
+              : `${count} Templates`
         }
         searchValue={search}
         onSearchChange={(value) => {
@@ -340,10 +398,16 @@ export default function SharedWorkspace() {
         searchPlaceholder={
           sharedFilter === "DOCUMENTS"
             ? "Search by document name or tag"
-            : "Search bouquet by name"
+            : sharedFilter === "BOUQUETS"
+              ? "Search bouquet by name"
+              : "Search template by name"
         }
         categoryButtonText={
-          sharedFilter === "DOCUMENTS" ? "Documents" : "Bouquets"
+          sharedFilter === "DOCUMENTS"
+            ? "Documents"
+            : sharedFilter === "BOUQUETS"
+              ? "Bouquets"
+              : "Templates"
         }
         categoryButtonClassName="status-dropdown"
         categoryButtonTextClassName="status-title"
@@ -351,7 +415,20 @@ export default function SharedWorkspace() {
       />
 
       <div className="shared-workspace-table">
-        {sharedFilter === "DOCUMENTS" ? (
+        {sharedFilter === "TEMPLATES" ? (
+          <SharedTemplates
+            data={templateList}
+            count={count}
+            currentPage={currentPageState}
+            pageSize={pageSize}
+            onPageChange={setCurrentPageState}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPageState(1);
+            }}
+            onViewTemplate={handleViewTemplate}
+          />
+        ) : sharedFilter === "DOCUMENTS" ? (
           <Table<SharedDocument>
             data={documentList}
             columns={documentColumns}
