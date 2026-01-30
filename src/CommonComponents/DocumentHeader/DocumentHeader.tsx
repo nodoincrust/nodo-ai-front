@@ -28,6 +28,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   selectedVersion,
   onVersionChange,
   onSubmit,
+
   submitDisabled,
   extraActions = [],
   onReject,
@@ -209,6 +210,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           {/* <button className="notification-bell-btn" title="Notifications">
             <img src="/assets/Notifications.svg" alt="Notifications" />
           </button> */}
+          {/*
 
           {/* Submit button (when onSubmit is provided) */}
           {onSubmit && (

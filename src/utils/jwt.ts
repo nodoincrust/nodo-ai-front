@@ -4,6 +4,9 @@ import { jwtDecode } from "jwt-decode";
 export interface JwtPayload {
   role: string;
   exp?: number; // optional expiration
+  user_id?: number;
+  company_id?: number;
+  department_id?: number;
 }
 
 export const getRoleFromToken = (token: string): string | null => {

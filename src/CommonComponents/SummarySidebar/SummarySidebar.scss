@@ -279,7 +279,8 @@
 
     &:hover {
       background-color: $bg-light;
-      border-color: $color-primary;
+      border-color: #4580F7;
+      color: #4580F7;
     }
   }
 
@@ -468,6 +469,11 @@
         outline: none;
         transition: border-color 0.2s ease;
         font-weight: 500;
+      }
+
+      .tag-add-button:hover {
+        border-color: $color-primary;
+        color: $color-primary;
       }
     }
   }

@@ -25,13 +25,15 @@ const AddDocument: React.FC<AddDocumentProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx", ".txt", ".jpeg", ".jpg", ".doc"];
+  const acceptedFileTypes = [".pdf", ".docx", ".png", ".xls", ".xlsx", ".txt", ".jpeg", ".jpg", ".doc",".ppt", ".pptx",];
   const acceptedMimeTypes = [
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "image/png",
     "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ];
 
   const validateFile = (file: File): boolean => {
