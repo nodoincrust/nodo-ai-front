@@ -28,7 +28,8 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   selectedVersion,
   onVersionChange,
   onSubmit,
-
+  onEdit,
+  editButtonText,
   submitDisabled,
   extraActions = [],
   onReject,
@@ -206,11 +207,14 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             </div>
           )}
 
-          {/* Notification bell button */}
-          {/* <button className="notification-bell-btn" title="Notifications">
-            <img src="/assets/Notifications.svg" alt="Notifications" />
-          </button> */}
-          {/*
+          {/* Edit button (when onEdit is provided) */}
+          {onEdit && (
+            <PrimaryButton
+              text={editButtonText || "Edit"}
+              onClick={onEdit}
+              className="document-header-edit-btn"
+            />
+          )}
 
           {/* Submit button (when onSubmit is provided) */}
           {onSubmit && (

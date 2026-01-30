@@ -118,16 +118,16 @@ type HeaderCommonProps = {
   onStatusChange?: (status: StatusType) => void;
   documentFilterValue?: "MY_DOCUMENTS" | "AWAITING";
   onDocumentFilterChange?: (value: "MY_DOCUMENTS" | "AWAITING") => void;
-}
+};
 export type HeaderProps =
   | (HeaderCommonProps & {
-    title: string;
-    breadcrumb?: never;
-  })
+      title: string;
+      breadcrumb?: never;
+    })
   | (HeaderCommonProps & {
-    breadcrumb: Breadcrumb;
-    title?: never;
-  });
+      breadcrumb: Breadcrumb;
+      title?: never;
+    });
 export type StatusType = "all" | "active" | "inactive";
 
 // Sidebar.tsx
@@ -317,6 +317,7 @@ export interface ApiDocumentDetailResponse {
       file_type: string;
       file_size_mb: number;
     };
+    
     summary: {
       text: string | null;
       tags: string[];
@@ -327,6 +328,7 @@ export interface ApiDocumentDetailResponse {
       status: string | null;
       reviewed_by: number | null;
     };
+     editor?: any; // OnlyOffice editor config
   };
 }
 
@@ -370,6 +372,9 @@ export interface DocumentHeaderProps {
       timestamp?: string;
     }[];
   };
+ 
+  onEdit?: () => void;
+  editButtonText?: string;
 }
 
 // Awaiting header props
@@ -401,6 +406,7 @@ export interface ApiDocument {
       timestamp?: string;
     }[];
   };
+   editor?: any; // OnlyOffice editor config
 }
 
 export interface DocumentsListResponse {
@@ -507,7 +513,6 @@ export type FieldType =
   | "primary_button"
   | "secondary_button"
   | "file";
-
 
 export interface FormField {
   id: string;

@@ -81,7 +81,7 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
     const path = apiData.file.file_path.startsWith("/")
       ? apiData.file.file_path
       : `/${apiData.file.file_path}`;
-    fileUrl = `${baseUrl}${path}`;
+    fileUrl = `${baseUrl}${encodeURI(path)}`;
   }
 
   return {
@@ -107,6 +107,18 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
       summary: apiData.summary?.text || "",  // ✅ Map summary text to version.summary
     },
     tracking: (apiData as any).tracking,
+
+    editor: apiData.editor
+      ? {
+          ...apiData.editor,
+          documentServerUrl: apiData.editor.documentServerUrl,
+          document: {
+            ...apiData.editor.document,
+            url: API_URL.onlyOfficeFileStream(apiData.editor.token),
+          },
+        }
+      : null,
+ 
   };
 };
 
@@ -250,3 +262,5 @@ export const getAiChatHistory = async (
 
   return response.data;
 };
+
+

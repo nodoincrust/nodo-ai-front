@@ -78,5 +78,5 @@ export const API_URL = {
   removeDocumentFromBouquet: (boqId: number | string) =>
     `/newdocuments/removeDocuments/${boqId}`,
 
- 
+ onlyOfficeFileStream: (token: string) => `/newdocuments/internal/onlyoffice/file/${token}`,
 };

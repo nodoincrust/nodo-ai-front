@@ -6,6 +6,8 @@ import DocumentPreview from "../DocumentPreview";
 import SubmitDocument from "./submitDocument";
 import EditSummary from "./EditSummary";
 import WriteownSummary from "./WriteownSummary";
+import OnlyOfficeEditor from "./OnlyofficeEditor";
+import { getUserFromToken } from "../../../utils/jwt";
 import {
   getDocumentById,
   startSummary,
@@ -15,7 +17,6 @@ import {
   getAssignableEmployees,
   getAiChatResponse,
   getAiChatHistory,
-
 } from "../../../services/documents.service";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { getRoleFromToken } from "../../../utils/jwt";
@@ -46,7 +47,7 @@ const DocumentDetail: React.FC = () => {
 
   const [document, setDocument] = useState<ApiDocument | null>(null);
   const [chatInitialMessages, setChatInitialMessages] = useState<ChatMessage[]>(
-    []
+    [],
   );
   const [selectedVersion, setSelectedVersion] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,11 +71,35 @@ const DocumentDetail: React.FC = () => {
   const [isUserWrittenSummary, setIsUserWrittenSummary] = useState(false);
   const [tracking, setTracking] = useState<any>(null);
 
-  useEffect(() => {
-    if (id) {
-      fetchDocument();
-    }
-  }, [id]);
+  //Edit Document
+
+  const ONLYOFFICE_PREVIEW_TYPES = ["xlsx", "xls", "ppt", "pptx"];
+  const backendData = document as any;
+  const fileInfo = backendData?.file;
+  const currentUser = getUserFromToken();
+  const currentUserId = currentUser?.user_id;
+  const uploadedBy = (document as any)?.document?.uploaded_by;
+  const canEdit = currentUserId === uploadedBy;
+  const editorConfig = (document as any)?.editor;
+  const fileExtension = document?.version?.file_name
+    ?.split(".")
+    .pop()
+    ?.toLowerCase();
+  const isEditable = ["docx", "xlsx", "xls", "pptx", "ppt", "txt"].includes(
+    fileExtension || "",
+  );
+  const PreviewInOnlyOffice = ONLYOFFICE_PREVIEW_TYPES.includes(
+    fileExtension || "",
+  );
+
+  // const toggleEditMode = () => {
+  //   setIsEditing(prev => !prev);
+  // };
+  // useEffect(() => {
+  //   if (id) {
+  //     fetchDocument();
+  //   }
+  // }, [id]);
 
   useEffect(() => {
     const loadChatHistory = async () => {
@@ -99,10 +124,7 @@ const DocumentDetail: React.FC = () => {
             : undefined;
 
           return {
-            id:
-              (createdAt ? createdAt.getTime() : Date.now()) +
-              idx +
-              1,
+            id: (createdAt ? createdAt.getTime() : Date.now()) + idx + 1,
             sender: m.role === "assistant" ? "assistant" : "user",
             text: m.content,
             time,
@@ -136,11 +158,11 @@ const DocumentDetail: React.FC = () => {
       // Set isUserWrittenSummary based on API response
       setIsUserWrittenSummary(doc.summary?.is_self_generated === true);
 
-      setSelectedVersion(version ?? doc.version?.version_number ?? doc.current_version);
+      setSelectedVersion(
+        version ?? doc.version?.version_number ?? doc.current_version,
+      );
       setTracking(doc.tracking);
       console.log("Tracking", doc.tracking);
-
-
     } catch (error: any) {
       notification.error({
         message:
@@ -165,7 +187,7 @@ const DocumentDetail: React.FC = () => {
       message: "Edit Mode Enabled",
       description: "You can now edit this document.",
     });
-  }
+  };
 
   // Example options:
   // 1. Enable editable preview
@@ -201,8 +223,6 @@ const DocumentDetail: React.FC = () => {
   //   }
   // };
 
-
-
   const handleVersionChange = (version: number) => {
     setSelectedVersion(version);
     fetchDocument(version);
@@ -235,7 +255,7 @@ const DocumentDetail: React.FC = () => {
       // ✅ REAL API CALL USING SELECTED EMPLOYEES
       await submitDocumentForReview(
         document.document_id,
-        selectedReviewers // ← from hierarchy API
+        selectedReviewers, // ← from hierarchy API
       );
 
       // Update document status
@@ -454,7 +474,9 @@ const DocumentDetail: React.FC = () => {
 
           if (result.tags) {
             const nextSuggested = Array.isArray(result.tags)
-              ? result.tags.filter((t: any) => typeof t === "string" && t.trim())
+              ? result.tags.filter(
+                  (t: any) => typeof t === "string" && t.trim(),
+                )
               : [];
             setSuggestedTags(nextSuggested);
           }
@@ -475,7 +497,7 @@ const DocumentDetail: React.FC = () => {
             description: String(err),
             duration: 0,
           });
-        }
+        },
       );
     } catch (err) {
       setIsSummaryGenerating(false);
@@ -484,7 +506,6 @@ const DocumentDetail: React.FC = () => {
       });
     }
   };
-
 
   // Handler for ChatSidebar
   const handleSendMessage = async (message: string, documentId: number) => {
@@ -532,7 +553,6 @@ const DocumentDetail: React.FC = () => {
     }
   }, [document, isLoading, selectedVersion]);
 
-
   const fileUrl = document?.version?.file_url || "";
   const isTextFile = document?.version?.file_name?.endsWith(".txt");
   useEffect(() => {
@@ -578,7 +598,7 @@ const DocumentDetail: React.FC = () => {
     (_, i) => ({
       value: String(i + 1),
       label: `V${i + 1}`,
-    })
+    }),
   );
 
   // Get user role from token and authData
@@ -650,14 +670,13 @@ const DocumentDetail: React.FC = () => {
     });
   }
 
-  // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
-  //   extraActions.push({
-  //     label: "Edit",
-  //     onClick: () => setIsEditMode(true),
-  //     type: "default",
-  //   });
-  // }
-
+  if (status === "DRAFT") {
+    extraActions.push({
+      label: "Edit",
+      onClick: () => setIsEditMode(true),
+      type: "default",
+    });
+  }
 
   // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
   //   extraActions.push({
@@ -687,6 +706,11 @@ const DocumentDetail: React.FC = () => {
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
     tracking,
+    onEdit:
+      isEditable && status !== "SUBMITTED"
+        ? () => setIsEditMode((prev) => !prev)
+        : undefined,
+    editButtonText: isEditMode ? "Close Editor" : "Edit",
   };
   return (
     <>
@@ -711,22 +735,22 @@ const DocumentDetail: React.FC = () => {
         isUserWrittenSummary={isUserWrittenSummary}
       >
         <div className="document-viewer">
-          {isEditMode && isTextFile ? (
-            isTextLoading ? (
-              <p>Loading text...</p>
-            ) : (
-              <textarea
-                value={textContent}
-                onChange={(e) => setTextContent(e.target.value)}
-                rows={25}
-                style={{
-                  width: "100%",
-                  fontFamily: "monospace",
-                  padding: "12px",
-                  fontSize: "14px",
-                }}
-              />
-            )
+          {isEditMode ? (
+            <OnlyOfficeEditor
+              editor={(document as any).editor}
+              canEdit={true}
+            />
+          ) : PreviewInOnlyOffice ? (
+            <OnlyOfficeEditor
+              editor={{
+                ...(document as any).editor,
+                editorConfig: {
+                  ...(document as any).editor.editorConfig,
+                  mode: "view",
+                },
+              }}
+              canEdit={false}
+            />
           ) : (
             <DocumentPreview
               fileName={document.version?.file_name || "Unknown Document"}

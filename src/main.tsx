@@ -11,3 +11,7 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </StrictMode>
 );
+const script = document.createElement("script");
+script.src = "http://localhost:8080/web-apps/apps/api/documents/api.js";
+script.async = true;
+document.body.appendChild(script);
