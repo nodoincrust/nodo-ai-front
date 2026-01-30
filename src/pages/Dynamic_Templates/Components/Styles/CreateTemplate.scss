@@ -25,6 +25,43 @@
     align-items: center;
     border-bottom: 1px solid $modal-header-border-bottom;
 
+    .back-button {
+        border: 1px solid $color-border;
+        background: transparent;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: $color-gray;
+        margin-right: 12px;
+
+        img {
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 0;
+
+        img {
+            width: 20px;
+            height: 20px;
+            margin: 0 8px;
+            transform: rotate(180deg); // rotate chevron right
+        }
+    }
+
     .form-title {
         font-size: 20px;
         font-weight: 600;
@@ -54,17 +91,56 @@
     gap: 12px;
 }
 
+// .sidebar-panel.view-mode .sidebar-item {
+//     cursor: default;
+//     pointer-events: none;
+//     /* optional but recommended */
+//     opacity: 0.6;
+// }
+
+/* ===== VIEW MODE - FORM ===== */
+.template-form-container.view-mode * {
+    cursor: default !important;
+}
+
+/* Disable pointer interactions */
+.template-form-container.view-mode .form-field,
+.template-form-container.view-mode .form-row,
+.template-form-container.view-mode .row-drag-handle {
+    pointer-events: none;
+}
+
+/* Prevent grab cursor */
+.template-form-container.view-mode .row-drag-handle {
+    cursor: default !important;
+}
+
 .sidebar-item {
     padding: 8px 12px;
     background: $color-white;
     border: 1px solid $border-light;
     border-radius: $border-radius-md;
     font-size: 14px;
-    cursor: grab;
+    cursor: default;
+}
 
-    &:active {
-        cursor: grabbing;
-    }
+.sidebar-item[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.sidebar-item[draggable="true"] {
+    cursor: grab;
+}
+
+/* ===== SIDEBAR VIEW MODE ===== */
+.sidebar-panel.view-mode .sidebar-item {
+    cursor: default !important;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.sidebar-panel.view-mode .sidebar-item:active {
+    cursor: default !important;
 }
 
 .create-template-form {

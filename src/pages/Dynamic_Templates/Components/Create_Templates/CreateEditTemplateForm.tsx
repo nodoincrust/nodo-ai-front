@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CreateTemplateFormProps, FieldType, FormField } from "../../../../types/common";
+import { useNavigate, useParams } from "react-router-dom";
+import { FormField, FieldType, CreateEditTemplateFormProps } from "../../../../types/common";
 import { uid } from "../../../../utils/utilFunctions";
 import EditFieldModal from "./EditFieldModal";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
-import { MESSAGES } from "../../../../utils/Messages";
 import { notification } from "antd";
-import { useNavigate } from "react-router-dom";
-import { saveTemplate } from "../../../../services/templates.services";
+import { MESSAGES } from "../../../../utils/Messages";
+import { getTemplateById, saveTemplate } from "../../../../services/templates.services";
 
-const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate }) => {
+const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templateId, isViewMode, onFieldsChange }) => {
     const [fields, setFields] = useState<FormField[]>([]);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [editField, setEditField] = useState<FormField | null>(null);
@@ -19,7 +19,60 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
     const draggedFieldId = useRef<string | null>(null);
     const draggedRowId = useRef<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const initialFieldsRef = useRef<FormField[]>([]);
+
     const navigate = useNavigate();
+    const isEditMode = !!templateId && !isViewMode;
+
+    /* ================= FETCH TEMPLATE (EDIT MODE ONLY) ================= */
+    useEffect(() => {
+        if (!templateId) return;
+
+        const fetchTemplate = async () => {
+            const res = await getTemplateById(templateId);
+
+            if (res?.statusCode === 200) {
+                const loadedFields: FormField[] = [];
+
+                res.data.rows.forEach((row: any) => {
+                    const rowId = uid(); // ONE rowId per backend row
+
+                    row.fields
+                        .sort((a: any, b: any) => a.fieldOrder - b.fieldOrder)
+                        .forEach((f: any) => {
+                            loadedFields.push({
+                                ...f,
+                                rowId, // SAME rowId for all fields in this row
+                            });
+                        });
+                });
+
+                setFields(loadedFields);
+                initialFieldsRef.current = loadedFields; // store initial state
+            }
+        };
+
+        fetchTemplate();
+    }, [templateId]);
+
+
+    /* ================= TRACK CHANGES ================= */
+    useEffect(() => {
+        if (!isEditMode) return;
+
+        const hasChanges =
+            fields.length !== initialFieldsRef.current.length ||
+            fields.some((f, i) => {
+                const initial = initialFieldsRef.current[i];
+                return !initial ||
+                    f.label !== initial.label ||
+                    f.type !== initial.type ||
+                    f.placeholder !== initial.placeholder ||
+                    JSON.stringify(f.options) !== JSON.stringify(initial.options);
+            });
+
+        onFieldsChange?.(hasChanges);
+    }, [fields, isEditMode, onFieldsChange]);
 
     /* ================= DROP NEW FIELD ================= */
     const onDropNewField = (e: React.DragEvent, targetRowId?: string) => {
@@ -39,6 +92,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                 type === "select" || type === "radio" || type === "checkbox"
                     ? ["Option 1"]
                     : undefined,
+            allowedFileTypes: type === "file" ? [".pdf", ".jpg", ".png"] : undefined,
             rowId: targetRowId || uid(),
             hasUserEdited: false,
         };
@@ -48,16 +102,20 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     /* ================= UPDATE / REMOVE FIELD ================= */
     const updateField = (id: string, data: Partial<FormField>) => {
-        setFields((prev) => prev.map((f) => (f.id === id ? { ...f, ...data } : f)));
+        setFields(prev => prev.map(f => (f.id === id ? { ...f, ...data } : f)));
     };
 
     const removeField = (id: string) => {
-        setFields((prev) => prev.filter((f) => f.id !== id));
-        setActiveId(null);
+        setFields(prev => prev.filter(f => f.id !== id));
+    };
+
+    const addField = (newField: FormField) => {
+        setFields(prev => [...prev, newField]);
     };
 
     /* ================= DRAG START - FIELD ================= */
     const onDragStart = (fieldId: string) => {
+        if (isViewMode) return;
         draggedFieldId.current = fieldId;
         draggedRowId.current = null;
         setIsDragging(true);
@@ -65,6 +123,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     /* ================= DRAG START - ROW ================= */
     const onRowDragStart = (e: React.DragEvent, rowId: string) => {
+        if (isViewMode) return;
         e.stopPropagation();
         draggedRowId.current = rowId;
         draggedFieldId.current = null;
@@ -73,6 +132,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     /* ================= ROW REORDERING LOGIC ================= */
     const reorderRows = (draggedRow: string, targetRowId: string, position: 'before' | 'after') => {
+        if (isViewMode) return;
         setFields(prev => {
             // Group fields by rowId
             const rowMap = new Map<string, FormField[]>();
@@ -145,6 +205,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     /* ================= DROP HANDLER - ROW ================= */
     const onDropRow = (e: React.DragEvent, targetRowId: string, position: 'before' | 'after') => {
+        if (isViewMode) return;
         e.preventDefault();
         e.stopPropagation();
 
@@ -168,32 +229,32 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     /* ================= DROP HANDLER - FIELD ================= */
     const onDropIntoRow = (e: React.DragEvent, targetRowId: string, targetFieldId?: string) => {
+        if (isViewMode) return;
         e.preventDefault();
         e.stopPropagation();
 
         const draggedId = draggedFieldId.current;
 
-        // Handle row drops on the entire row
+        // Handle row drag drops
         if (draggedRowId.current) {
-            // Determine position based on mouse Y position
             const target = e.currentTarget as HTMLElement;
             const rect = target.getBoundingClientRect();
-            const midpoint = rect.top + rect.height / 2;
-            const position = e.clientY < midpoint ? 'before' : 'after';
+            const position = e.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
             onDropRow(e, targetRowId, position);
             return;
         }
 
-        // Case 1: Dropping a new field from sidebar
+        // Case 1: New field from sidebar
         if (!draggedId) {
             const type = e.dataTransfer.getData("type") as FieldType;
-            if (type) {
+            const label = e.dataTransfer.getData("label");
+            if (type && label) {
                 const rowFields = fields.filter(f => (f.rowId || '') === targetRowId);
                 if (rowFields.length >= 4) {
-                    // Target row full → create new row
+                    // Full row → create new row
                     onDropNewField(e, uid());
                 } else {
-                    // Target row has space → add field there
+                    // Row has space → drop here
                     onDropNewField(e, targetRowId);
                 }
             }
@@ -207,51 +268,32 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
             if (!draggedField) return prev;
 
             const sourceRowId = draggedField.rowId || '';
-            const targetRowFields = prev.filter(f => (f.rowId || '') === targetRowId);
+            let targetRowFields = prev.filter(f => (f.rowId || '') === targetRowId);
 
-            // SAME ROW REORDER
-            if (sourceRowId === targetRowId && targetFieldId) {
-                const otherRows = prev.filter(f => (f.rowId || '') !== targetRowId);
-
-                const draggedIndex = targetRowFields.findIndex(f => f.id === draggedId);
-                const targetIndex = targetRowFields.findIndex(f => f.id === targetFieldId);
-
-                if (draggedIndex === -1 || targetIndex === -1) return prev;
-
-                const reordered = [...targetRowFields];
-                const [moved] = reordered.splice(draggedIndex, 1);
-
-                // Insert at target position (works for both left-to-right and right-to-left)
-                const finalTargetIndex = draggedIndex < targetIndex ? targetIndex : targetIndex;
-                reordered.splice(finalTargetIndex, 0, moved);
-
-                return [...otherRows, ...reordered];
+            // Allow dropping into empty row (targetRowFields.length === 0)
+            if (targetRowFields.length >= 4 && sourceRowId !== targetRowId) {
+                return prev; // full row, cannot drop
             }
 
-            // CROSS-ROW MOVEMENT
-            // Prevent dropping into a full row (4 fields)
-            if (targetRowFields.length >= 4) {
-                return prev; // Don't allow drop
-            }
-
-            // Target row has space - move field there
-            const updatedFields = prev.map(f =>
+            // Update the rowId of the dragged field
+            let updatedFields = prev.map(f =>
                 f.id === draggedId ? { ...f, rowId: targetRowId } : f
             );
 
-            // If targetFieldId is provided, reorder within the target row
+            // Reorder within the target row if dropping on a specific field
             if (targetFieldId) {
                 const otherRows = updatedFields.filter(f => (f.rowId || '') !== targetRowId);
-                const newTargetRowFields = updatedFields.filter(f => (f.rowId || '') === targetRowId);
+                const row = updatedFields.filter(f => (f.rowId || '') === targetRowId);
 
-                const draggedIndex = newTargetRowFields.findIndex(f => f.id === draggedId);
-                const targetIndex = newTargetRowFields.findIndex(f => f.id === targetFieldId);
+                const draggedIndex = row.findIndex(f => f.id === draggedId);
+                const targetIndex = row.findIndex(f => f.id === targetFieldId);
 
                 if (draggedIndex !== -1 && targetIndex !== -1) {
-                    const [moved] = newTargetRowFields.splice(draggedIndex, 1);
-                    newTargetRowFields.splice(targetIndex, 0, moved);
-                    return [...otherRows, ...newTargetRowFields];
+                    const [moved] = row.splice(draggedIndex, 1);
+                    row.splice(targetIndex, 0, moved);
                 }
+
+                updatedFields = [...otherRows, ...row];
             }
 
             return updatedFields;
@@ -263,6 +305,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     /* ================= DROP INTO EMPTY SPACE ================= */
     const onDropIntoEmptySpace = (e: React.DragEvent) => {
+        if (isViewMode) return;
         e.preventDefault();
 
         // Only handle new fields from sidebar
@@ -279,6 +322,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     /* ================= DROP BETWEEN ROWS ================= */
     const onDropBetweenRows = (e: React.DragEvent, afterRowId: string | null) => {
+        if (isViewMode) return;
         e.preventDefault();
         e.stopPropagation();
 
@@ -351,58 +395,111 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
         return () => document.removeEventListener("mousedown", handler);
     }, []);
 
+    const buildRowsPayload = () => {
+        const rowMap = new Map<string, FormField[]>();
+        const rowOrder: string[] = [];
+        const seen = new Set<string>();
+
+        fields.forEach((field) => {
+            const rowId = field.rowId || "";
+
+            if (!rowMap.has(rowId)) {
+                rowMap.set(rowId, []);
+            }
+            rowMap.get(rowId)!.push(field);
+
+            if (!seen.has(rowId)) {
+                rowOrder.push(rowId);
+                seen.add(rowId);
+            }
+        });
+
+        return rowOrder.map((rowId, rowIndex) => ({
+            // rowId,
+            rowOrder: rowIndex + 1,
+            fields: (rowMap.get(rowId) || []).map((field, fieldIndex) => ({
+                // id: field.id,
+                type: field.type,
+                label: field.label,
+                placeholder: field.placeholder,
+                required: field.required,
+                requiredErrorMessage: field.required
+                    ? field.requiredErrorMessage || ""
+                    : "",
+                options: field.options,
+                allowedFileTypes: field.allowedFileTypes,
+                fieldOrder: fieldIndex + 1,
+                className:
+                    field.type === "primary_button"
+                        ? "primary-button"
+                        : field.type === "secondary_button"
+                            ? "secondary-button"
+                            : field.type === "header"
+                                ? "header-label"
+                                : "form-field",
+            })),
+        }));
+    };
+
     /* ================= SAVE TEMPLATE ================= */
     const handleSaveTemplate = async () => {
         try {
             getLoaderControl()?.showLoader();
 
-            const headerField = fields.find(f => f.type === "header");
+            if (fields.length === 0) {
+                notification.error({
+                    message: MESSAGES.ERRORS.PLEASE_ADD_AT_LEAST_ONE_FIELD_BEFORE_SAVING_THE_FORM,
+                });
+                getLoaderControl()?.hideLoader();
+                return;
+            }
+
+            const headerField = fields.find(f => f.type === "header" && f.label?.trim());
+            if (!headerField) {
+                notification.error({ message: MESSAGES.ERRORS.FORM_NAME_REQUIRED });
+                getLoaderControl()?.hideLoader();
+                return;
+            }
+
+            const hasButton = fields.some(f => f.type === "primary_button" || f.type === "secondary_button");
+            if (!hasButton) {
+                notification.error({ message: MESSAGES.ERRORS.AT_LEAST_ONE_BUTTON_REQUIRED });
+                getLoaderControl()?.hideLoader();
+                return;
+            }
 
             const payload = {
-                templateName: headerField?.label || "Untitled Template",
-                fields: fields.map((field, index) => ({
-                    id: field.id,
-                    type: field.type,
-                    label: field.label,
-                    placeholder: field.placeholder,
-                    required: field.required,
-                    requiredErrorMessage: field.required
-                        ? field.requiredErrorMessage || ""
-                        : "",
-                    options: field.options,
-                    allowedFileTypes: field.allowedFileTypes,
-                    order: index + 1,
-                    rowId: field.rowId,
-                    className:
-                        field.type === "primary_button"
-                            ? "primary-button"
-                            : field.type === "secondary_button"
-                                ? "secondary-button"
-                                : field.type === "header"
-                                    ? "header-label"
-                                    : "form-field",
-                })),
-            };
+                templateName: headerField.label.trim(),
+                rows: buildRowsPayload(),
+            } as Parameters<typeof saveTemplate>[0];
+
+            // Pass templateId when editing
+            if (isEditMode && templateId) {
+                payload.templateId = templateId;
+            }
+
+            console.log("Payload", payload);
 
             const res = await saveTemplate(payload);
 
             if (res?.statusCode === 200) {
                 notification.success({
-                    message: res.message || MESSAGES.SUCCESS.TEMPLATE_SAVED_SUCCESSFULLY,
+                    message: isEditMode
+                        ? res.message || MESSAGES.SUCCESS.TEMPLATE_UPDATED_SUCCESSFULLY
+                        : res.message || MESSAGES.SUCCESS.TEMPLATE_SAVED_SUCCESSFULLY,
                 });
-                setTimeout(() => {
-                    navigate(-1);
-                }, 3000);
+
+                setTimeout(() => navigate(-1), 3000);
             } else {
                 notification.error({
-                    message: res.message || MESSAGES.ERRORS.FAILED_TO_SAVE_TEMPLATE,
+                    message: isEditMode
+                        ? res.message || MESSAGES.ERRORS.FAILED_TO_UPDATE_TEMPLATE
+                        : res.message || MESSAGES.ERRORS.FAILED_TO_SAVE_TEMPLATE,
                 });
             }
         } catch (error: any) {
             notification.error({
-                message:
-                    error?.response?.data?.message ||
-                    MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+                message: error?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
             });
         } finally {
             getLoaderControl()?.hideLoader();
@@ -447,19 +544,20 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
 
     return (
         <>
-            <div className={`template-form-container ${isDragging ? 'dragging-active' : ''}`} ref={containerRef}>
+            <div className={`template-form-container ${isDragging ? 'dragging-active' : ""} ${isViewMode ? "view-mode" : ""}`} ref={containerRef}>
                 <div
                     className="drop-zone"
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={onDropIntoEmptySpace}
+                    onDragOver={(e) => !isViewMode && e.preventDefault()}
+                    onDrop={(e) => !isViewMode && onDropIntoEmptySpace(e)}
                 >
                     {fields.length === 0 && <p className="drop-placeholder">Drag & Drop fields here</p>}
 
                     {/* Drop zone at the very top */}
-                    {rowOrder.length > 0 && (
+                    {/* {rowOrder.length > 0 && (
                         <div
                             className={`row-drop-zone ${dragOverRowId === 'top' ? 'drag-over' : ''}`}
                             onDragOver={(e) => {
+                            if (isViewMode) return;
                                 if (draggedRowId.current || draggedFieldId.current || e.dataTransfer.types.includes('type')) {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -489,7 +587,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                         >
                             <div className="drop-indicator">Drop here to insert at top</div>
                         </div>
-                    )}
+                    )} */}
 
                     {rowOrder.map((rowId, rowIndex) => {
                         const rowFields = rowMap.get(rowId) || [];
@@ -502,71 +600,75 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                     className={`form-row-wrapper ${isRowDragOver && dragOverPosition === 'before' ? 'drag-over-before' : ''} ${isRowDragOver && dragOverPosition === 'after' ? 'drag-over-after' : ''}`}
                                 >
                                     {/* Row Drag Handle */}
-                                    <div
-                                        className="row-drag-handle"
-                                        draggable
-                                        onDragStart={(e) => onRowDragStart(e, rowId)}
-                                        onDragOver={(e) => {
-                                            // Accept row drags from other rows
-                                            if (draggedRowId.current && draggedRowId.current !== rowId) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
+                                    {!isViewMode && (
+                                        <div
+                                            className="row-drag-handle"
+                                            draggable={!isViewMode}
+                                            onDragStart={(e) => onRowDragStart(e, rowId)}
+                                            onDragOver={(e) => {
+                                                if (isViewMode) return;
+                                                // Accept row drags from other rows
+                                                if (draggedRowId.current && draggedRowId.current !== rowId) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
 
-                                                // Determine position based on mouse Y position relative to drag handle
-                                                const target = e.currentTarget as HTMLElement;
-                                                const rect = target.getBoundingClientRect();
-                                                const midpoint = rect.top + rect.height / 2;
-                                                const position = e.clientY < midpoint ? 'before' : 'after';
+                                                    // Determine position based on mouse Y position relative to drag handle
+                                                    const target = e.currentTarget as HTMLElement;
+                                                    const rect = target.getBoundingClientRect();
+                                                    const midpoint = rect.top + rect.height / 2;
+                                                    const position = e.clientY < midpoint ? 'before' : 'after';
 
-                                                setDragOverRowId(rowId);
-                                                setDragOverPosition(position);
-                                            }
-                                        }}
-                                        onDragLeave={(e) => {
-                                            // Only clear if we're leaving to somewhere other than a drop zone
-                                            const relatedTarget = e.relatedTarget as HTMLElement;
-                                            const target = e.currentTarget as HTMLElement;
-
-                                            // Don't clear if moving to a drop zone
-                                            if (relatedTarget && relatedTarget.classList?.contains('row-drop-zone')) {
-                                                return;
-                                            }
-
-                                            if (!target.contains(relatedTarget as Node)) {
-                                                if (draggedRowId.current && !dragOverRowId?.startsWith('after-') && dragOverRowId !== 'top') {
-                                                    setDragOverRowId(null);
-                                                    setDragOverPosition(null);
+                                                    setDragOverRowId(rowId);
+                                                    setDragOverPosition(position);
                                                 }
-                                            }
-                                        }}
-                                        onDrop={(e) => {
-                                            if (draggedRowId.current && draggedRowId.current !== rowId) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-
-                                                // Determine final position based on mouse Y
+                                            }}
+                                            onDragLeave={(e) => {
+                                                // Only clear if we're leaving to somewhere other than a drop zone
+                                                const relatedTarget = e.relatedTarget as HTMLElement;
                                                 const target = e.currentTarget as HTMLElement;
-                                                const rect = target.getBoundingClientRect();
-                                                const midpoint = rect.top + rect.height / 2;
-                                                const position = e.clientY < midpoint ? 'before' : 'after';
 
-                                                onDropRow(e, rowId, position);
-                                            }
-                                        }}
-                                        onDragEnd={() => {
-                                            draggedRowId.current = null;
-                                            setDragOverRowId(null);
-                                            setDragOverPosition(null);
-                                            setIsDragging(false);
-                                        }}
-                                        title="Drag to reorder row"
-                                    >
-                                        <img src="/assets/drag-drop.svg" alt="drag-handle" />
-                                    </div>
+                                                // Don't clear if moving to a drop zone
+                                                if (relatedTarget && relatedTarget.classList?.contains('row-drop-zone')) {
+                                                    return;
+                                                }
+
+                                                if (!target.contains(relatedTarget as Node)) {
+                                                    if (draggedRowId.current && !dragOverRowId?.startsWith('after-') && dragOverRowId !== 'top') {
+                                                        setDragOverRowId(null);
+                                                        setDragOverPosition(null);
+                                                    }
+                                                }
+                                            }}
+                                            onDrop={(e) => {
+                                                if (draggedRowId.current && draggedRowId.current !== rowId) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+
+                                                    // Determine final position based on mouse Y
+                                                    const target = e.currentTarget as HTMLElement;
+                                                    const rect = target.getBoundingClientRect();
+                                                    const midpoint = rect.top + rect.height / 2;
+                                                    const position = e.clientY < midpoint ? 'before' : 'after';
+
+                                                    onDropRow(e, rowId, position);
+                                                }
+                                            }}
+                                            onDragEnd={() => {
+                                                draggedRowId.current = null;
+                                                setDragOverRowId(null);
+                                                setDragOverPosition(null);
+                                                setIsDragging(false);
+                                            }}
+                                            title="Drag to reorder row"
+                                        >
+                                            <img src="/assets/drag-drop.svg" alt="drag-handle" />
+                                        </div>
+                                    )}
 
                                     <div
                                         className="form-row"
                                         onDragOver={(e) => {
+                                            if (isViewMode) return;
                                             if (draggedRowId.current && draggedRowId.current !== rowId) {
                                                 e.preventDefault();
                                                 e.stopPropagation();
@@ -623,9 +725,10 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                             return (
                                                 <div key={field.id} className={`form-col span-${span}`}>
                                                     <div
-                                                        draggable
+                                                        draggable={!isViewMode}
                                                         onDragStart={() => onDragStart(field.id)}
                                                         onDragOver={(e) => {
+                                                            if (isViewMode) return;
                                                             // Accept field drags (not row drags)
                                                             if (!draggedRowId.current) {
                                                                 e.preventDefault();
@@ -643,6 +746,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                                             setIsDragging(false);
                                                         }}
                                                         onClick={(e) => {
+                                                            if (isViewMode) return;
                                                             e.stopPropagation();
                                                             setActiveId(field.id);
                                                         }}
@@ -662,23 +766,29 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                                                     </label>
 
                                                                     <div className="field-actions">
-                                                                        <img
-                                                                            src="/assets/edit.svg"
-                                                                            alt="edit"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                setActiveId(field.id);
-                                                                                setEditField(field);
-                                                                            }}
-                                                                        />
-                                                                        <img
-                                                                            src="/assets/trash.svg"
-                                                                            alt="delete"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                removeField(field.id);
-                                                                            }}
-                                                                        />
+                                                                        {!isViewMode && (
+                                                                            <>
+                                                                                <img
+                                                                                    src="/assets/edit.svg"
+                                                                                    alt="edit"
+                                                                                    onClick={(e) => {
+                                                                                        if (isViewMode) return;
+                                                                                        e.stopPropagation();
+                                                                                        setActiveId(field.id);
+                                                                                        setEditField(field);
+                                                                                    }}
+                                                                                />
+                                                                                <img
+                                                                                    src="/assets/trash.svg"
+                                                                                    alt="delete"
+                                                                                    onClick={(e) => {
+                                                                                        if (isViewMode) return;
+                                                                                        e.stopPropagation();
+                                                                                        removeField(field.id);
+                                                                                    }}
+                                                                                />
+                                                                            </>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             )}
@@ -687,14 +797,16 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                                         {field.type === "horizontal_line" && (
                                                             <div className="hr-with-action">
                                                                 <hr className="form-hr" />
-                                                                <img
-                                                                    src="/assets/trash.svg"
-                                                                    alt="delete"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        removeField(field.id);
-                                                                    }}
-                                                                />
+                                                                {!isViewMode && (
+                                                                    <img
+                                                                        src="/assets/trash.svg"
+                                                                        alt="delete"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            removeField(field.id);
+                                                                        }}
+                                                                    />
+                                                                )}
                                                             </div>
                                                         )}
 
@@ -717,6 +829,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                                                             src="/assets/edit.svg"
                                                                             alt="edit"
                                                                             onClick={(e) => {
+                                                                                if (isViewMode) return;
                                                                                 e.stopPropagation();
                                                                                 setActiveId(field.id);
                                                                                 setEditField(field);
@@ -726,6 +839,7 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                                                             src="/assets/trash.svg"
                                                                             alt="delete"
                                                                             onClick={(e) => {
+                                                                                if (isViewMode) return;
                                                                                 e.stopPropagation();
                                                                                 removeField(field.id);
                                                                             }}
@@ -798,50 +912,13 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
                                         })}
                                     </div>
                                 </div>
-
-                                {/* Drop zone between rows */}
-                                {/* <div
-                                    className={`row-drop-zone ${dragOverRowId === `after-${rowId}` ? 'drag-over' : ''}`}
-                                    onDragOver={(e) => {
-                                        if (draggedRowId.current || draggedFieldId.current || e.dataTransfer.types.includes('type')) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            setDragOverRowId(`after-${rowId}`);
-                                        }
-                                    }}
-                                    onDragLeave={(e) => {
-                                        const relatedTarget = e.relatedTarget as HTMLElement;
-                                        const currentTarget = e.currentTarget as HTMLElement;
-
-                                        // Only clear if we're actually leaving the drop zone completely
-                                        if (!currentTarget.contains(relatedTarget)) {
-                                            // Don't clear if moving to a valid drop area
-                                            if (relatedTarget && (
-                                                relatedTarget.classList?.contains('row-drag-handle') ||
-                                                relatedTarget.classList?.contains('form-row') ||
-                                                relatedTarget.closest('.row-drag-handle') ||
-                                                relatedTarget.closest('.form-row')
-                                            )) {
-                                                return;
-                                            }
-
-                                            // Only clear if this is our active drop zone
-                                            if (dragOverRowId === `after-${rowId}`) {
-                                                setDragOverRowId(null);
-                                            }
-                                        }
-                                    }}
-                                    onDrop={(e) => onDropBetweenRows(e, rowId)}
-                                >
-                                    <div className="drop-indicator">Drop here to insert new row</div>
-                                </div> */}
                             </React.Fragment>
                         );
                     })}
                 </div>
             </div>
 
-            {editField && (
+            {editField && !isViewMode && (
                 <EditFieldModal
                     open={!!editField}
                     field={editField}
@@ -860,4 +937,4 @@ const CreateTemplateForm: React.FC<CreateTemplateFormProps> = ({ onSaveTemplate 
     );
 };
 
-export default CreateTemplateForm;
+export default CreateEditTemplateForm;

@@ -18,13 +18,11 @@ export const getTemplatesList = async (payload: {
 
 /* ================= SAVE TEMPLATE ================= */
 export const saveTemplate = async (payload: {
+    templateId?: string;
     templateName: string;
-    fields: any[];
+    rows: { rowId: string; rowOrder: number; fields: any[] }[];
 }) => {
-    const response = await axios.post(
-        API_URL.saveTemplate,
-        payload
-    );
+    const response = await axios.post(API_URL.saveTemplate, payload);
     return response.data;
 };
 

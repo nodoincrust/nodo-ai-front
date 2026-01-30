@@ -1,7 +1,6 @@
 import { RouteObject } from "react-router-dom";
-import CreateTemplate from "./Components/Create_Templates/CreateTemplate";
 import Templates from "./Components/Templates";
-import EditTemplateForm from "./Components/Create_Templates/EditTemplateForm";
+import TemplateLayout from "./Components/Create_Templates/TemplateLayout";
 
 export const templatesRoutes: RouteObject[] = [
     {
@@ -13,12 +12,16 @@ export const templatesRoutes: RouteObject[] = [
             },
             {
                 path: "createTemplates",
-                element: <CreateTemplate />,
+                element: <TemplateLayout />,
             },
             {
                 path: "edit/:id",
-                element: <EditTemplateForm />,
+                element: <TemplateLayout />,
             },
+            {
+                path: "view/:id",
+                element: <TemplateLayout />,
+            }
         ],
     },
 ];

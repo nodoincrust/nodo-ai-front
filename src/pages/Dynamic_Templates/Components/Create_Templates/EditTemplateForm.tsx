@@ -304,43 +304,111 @@ const EditTemplateForm: React.FC = () => {
         return () => document.removeEventListener("mousedown", handler);
     }, []);
 
+    const buildRowsPayload = () => {
+        const rowMap = new Map<string, FormField[]>();
+        const rowOrder: string[] = [];
+        const seen = new Set<string>();
+
+        fields.forEach((field) => {
+            const rowId = field.rowId || "";
+
+            if (!rowMap.has(rowId)) {
+                rowMap.set(rowId, []);
+            }
+            rowMap.get(rowId)!.push(field);
+
+            if (!seen.has(rowId)) {
+                rowOrder.push(rowId);
+                seen.add(rowId);
+            }
+        });
+
+        return rowOrder.map((rowId, rowIndex) => ({
+            rowId,
+            rowOrder: rowIndex + 1,
+            fields: (rowMap.get(rowId) || []).map((field, fieldIndex) => ({
+                id: field.id,
+                type: field.type,
+                label: field.label,
+                placeholder: field.placeholder,
+                required: field.required,
+                requiredErrorMessage: field.required
+                    ? field.requiredErrorMessage || ""
+                    : "",
+                options: field.options,
+                allowedFileTypes: field.allowedFileTypes,
+                fieldOrder: fieldIndex + 1,
+                className:
+                    field.type === "primary_button"
+                        ? "primary-button"
+                        : field.type === "secondary_button"
+                            ? "secondary-button"
+                            : field.type === "header"
+                                ? "header-label"
+                                : "form-field",
+            })),
+        }));
+    };
+
     /* ================= SAVE TEMPLATE ================= */
     const handleSaveTemplate = async () => {
         try {
             getLoaderControl()?.showLoader();
+
             const headerField = fields.find(f => f.type === "header");
+
+            // const payload = {
+            //     templateName: headerField?.label || "Untitled Template",
+            //     fields: fields.map((field, index) => ({
+            //         id: field.id,
+            //         type: field.type,
+            //         label: field.label,
+            //         placeholder: field.placeholder,
+            //         required: field.required,
+            //         requiredErrorMessage: field.required
+            //             ? field.requiredErrorMessage || ""
+            //             : "",
+            //         options: field.options,
+            //         allowedFileTypes: field.allowedFileTypes,
+            //         order: index + 1,
+            //         rowId: field.rowId,
+            //         className:
+            //             field.type === "primary_button"
+            //                 ? "primary-button"
+            //                 : field.type === "secondary_button"
+            //                     ? "secondary-button"
+            //                     : field.type === "header"
+            //                         ? "header-label"
+            //                         : "form-field",
+            //     })),
+            // };
+
             const payload = {
                 templateName: headerField?.label || "Untitled Template",
-                fields: fields.map((field, index) => ({
-                    id: field.id,
-                    type: field.type,
-                    label: field.label,
-                    placeholder: field.placeholder,
-                    required: field.required,
-                    requiredErrorMessage: field.required ? field.requiredErrorMessage || "" : "",
-                    options: field.options,
-                    allowedFileTypes: field.allowedFileTypes,
-                    order: index + 1,
-                    rowId: field.rowId,
-                    className:
-                        field.type === "primary_button"
-                            ? "primary-button"
-                            : field.type === "secondary_button"
-                                ? "secondary-button"
-                                : field.type === "header"
-                                    ? "header-label"
-                                    : "form-field",
-                })),
+                rows: buildRowsPayload(),
             };
+            console.log("Payload", payload);
+
             const res = await saveTemplate(payload);
+
             if (res?.statusCode === 200) {
-                notification.success({ message: res.message || MESSAGES.SUCCESS.TEMPLATE_SAVED_SUCCESSFULLY });
-                setTimeout(() => navigate(-1), 3000);
+                notification.success({
+                    message: res.message || MESSAGES.SUCCESS.TEMPLATE_SAVED_SUCCESSFULLY,
+                });
+                setTimeout(() => {
+                    navigate(-1);
+                }, 3000);
             } else {
-                notification.error({ message: res.message || MESSAGES.ERRORS.FAILED_TO_SAVE_TEMPLATE });
+                notification.error({
+                    message: res.message || MESSAGES.ERRORS.FAILED_TO_SAVE_TEMPLATE,
+                });
             }
-        } catch (err: any) {
-            notification.error({ message: err?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG });
+        } catch (error: any) {
+            notification.error({
+                message:
+                    error?.response?.data?.message ||
+                    MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+            });
         } finally {
             getLoaderControl()?.hideLoader();
         }

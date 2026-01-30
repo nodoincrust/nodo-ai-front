@@ -9,7 +9,7 @@ import { getAvatarColorIndex, getInitials, scrollLayoutToTop } from "../../../ut
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
-import CreateTemplate from "./Create_Templates/CreateTemplate";
+import CreateTemplate from "./Create_Templates/TemplateLayout";
 import { getTemplatesList } from "../../../services/templates.services";
 
 export default function Templates() {
@@ -210,7 +210,7 @@ export default function Templates() {
         scrollLayoutToTop();
     }, [currentPage, pageSize, location.pathname]);
 
-    /* ---------- Add / Edit ---------- */
+    /* ---------- Add / Edit / View ---------- */
     const openAddTemplate = () => {
         navigate("/templates/createTemplates");
     };
@@ -219,6 +219,16 @@ export default function Templates() {
         navigate(`/templates/edit/${template.id}`);
     };
 
+    const openViewTemplate = (template: any) => {
+        navigate(`/templates/view/${template.id}`);
+    };
+
+    const handleShareTemplate = (row: any) => {
+        // Example: copy link to clipboard
+        const link = `${window.location.origin}/templates/view/${row.id}`;
+        navigator.clipboard.writeText(link);
+        notification.success({ message: "Template link copied to clipboard!" });
+    };
     /* ---------- Delete ---------- */
     // const handleDeleteTemplate = async () => {
     //     if (!templateToDelete) return;
@@ -334,11 +344,23 @@ export default function Templates() {
                 ]}
                 actions={(row: any) => (
                     <div className="templates-actions">
+                        {/* View Template */}
+                        <img
+                            src="/assets/Eye.svg"
+                            alt="View"
+                            onClick={() => openViewTemplate(row)}
+                            title="View Template"
+                        />
+
+                        {/* Edit Template */}
                         <img
                             src="/assets/edit.svg"
                             alt="Edit"
                             onClick={() => openEditTemplate(row)}
+                            title="Edit Template"
                         />
+
+                        {/* Delete Template */}
                         <img
                             src="/assets/trash.svg"
                             alt="Delete"
@@ -346,9 +368,19 @@ export default function Templates() {
                                 setTemplateToDelete(row.id);
                                 setShowDeleteModal(true);
                             }}
+                            title="Delete Template"
+                        />
+
+                        {/* Share Template */}
+                        <img
+                            src="/assets/share.svg"
+                            alt="Share"
+                            onClick={() => handleShareTemplate(row)}
+                            title="Share Template"
                         />
                     </div>
                 )}
+
                 currentPage={currentPage}
                 totalPages={Math.ceil(count / pageSize)}
                 totalRecords={count}

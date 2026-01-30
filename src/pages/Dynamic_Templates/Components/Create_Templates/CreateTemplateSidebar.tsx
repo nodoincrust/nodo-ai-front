@@ -17,23 +17,29 @@ const COMPONENTS: { type: FieldType; label: string }[] = [
     { type: "file", label: "File Upload" },
 ];
 
-const CreateTemplateSidebar = () => {
+interface CreateTemplateSidebarProps {
+    isViewMode?: boolean;
+}
+
+const CreateTemplateSidebar: React.FC<CreateTemplateSidebarProps> = ({ isViewMode }) => {
     const onDragStart = (
         e: React.DragEvent<HTMLDivElement>,
         item: typeof COMPONENTS[number]
     ) => {
+        if (isViewMode) return;
+
         e.dataTransfer.setData("type", item.type);
         e.dataTransfer.setData("label", item.label);
     };
 
     return (
-        <div className="sidebar-panel">
+        <div className={`sidebar-panel ${isViewMode ? "view-mode" : ""}`}>
             {COMPONENTS.map((item) => (
                 <div
                     key={item.type}
-                    draggable
+                    {...(!isViewMode && { draggable: true })}
                     onDragStart={(e) => onDragStart(e, item)}
-                    className="sidebar-item"
+                    className={`sidebar-item ${isViewMode ? "view-mode" : ""}`}
                 >
                     {item.label}
                 </div>

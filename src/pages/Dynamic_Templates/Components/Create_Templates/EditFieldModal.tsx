@@ -28,13 +28,12 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
     const [hasChanges, setHasChanges] = useState(false);
 
     // Options state
-    const [options, setOptions] = useState<string[]>(field.options || []);
+    const [options, setOptions] = useState<string[]>([]);
     const [newOptionText, setNewOptionText] = useState("");
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [optionError, setOptionError] = useState("");
     const [isFirstOpen, setIsFirstOpen] = useState(true);
-    const [lastRequiredErrorMessage, setLastRequiredErrorMessage] = useState(field.requiredErrorMessage || "");
-    const [newFileType, setNewFileType] = useState("");
+    const [lastRequiredErrorMessage, setLastRequiredErrorMessage] = useState("");
     const hideRequiredCheckbox = ["header", "horizontal_line", "primary_button", "secondary_button"];
 
     // Refs for editable options to autofocus
@@ -51,29 +50,42 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
         setShowModal(true);
         setAnimateClose(false);
 
-        const initLabel = field.label || "";
-        const initPlaceholder = field.placeholder || "";
-        const initOptions = field.type === "file" ? field.allowedFileTypes || [] : field.options || [];
-        const initRequiredErrorMessage = field.requiredErrorMessage || lastRequiredErrorMessage || "";
+        // If field has never been edited by user, start with empty/default values
+        const isFirstEdit = !field.hasUserEdited;
+
+        const initLabel = isFirstEdit ? "" : (field.label || "");
+        const initPlaceholder = isFirstEdit ? "" : (field.placeholder || "");
+        const initRequired = isFirstEdit ? false : (field.required || false);
+        const initRequiredErrorMessage = isFirstEdit ? "" : (field.requiredErrorMessage || "");
+
+        // For options: if first edit, start with empty array, otherwise use existing
+        let initOptions: string[] = [];
+        if (!isFirstEdit) {
+            if (field.type === "file") {
+                initOptions = field.allowedFileTypes || [];
+            } else if (["select", "radio", "checkbox"].includes(field.type)) {
+                initOptions = field.options || [];
+            }
+        }
 
         form.setFieldsValue({
             label: initLabel,
             placeholder: initPlaceholder,
-            required: field.required || false,
-            requiredErrorMessage: field.required ? initRequiredErrorMessage : "",
+            required: initRequired,
+            requiredErrorMessage: initRequired ? initRequiredErrorMessage : "",
         });
 
         setOptions(initOptions);
         setNewOptionText("");
-        setIsLabelRequired(field.required || false);
+        setIsLabelRequired(initRequired);
         setOptionError("");
         setLastRequiredErrorMessage(initRequiredErrorMessage);
 
         setInitialValues({
             label: initLabel,
             placeholder: initPlaceholder,
-            required: field.required || false,
-            requiredErrorMessage: field.required ? initRequiredErrorMessage : "",
+            required: initRequired,
+            requiredErrorMessage: initRequired ? initRequiredErrorMessage : "",
             options: initOptions,
         });
 
@@ -175,44 +187,49 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
     };
 
     const handleSubmit = async () => {
-        const values = await form.validateFields();
+        try {
+            const values = await form.validateFields();
 
-        // Validate options for select / checkbox / radio / file
-        if (
-            ["select", "radio", "checkbox", "file"].includes(field.type) &&
-            options.length === 0
-        ) {
-            setOptionError(MESSAGES.ERRORS.AT_LEAST_ONE_OPTION_REQUIRED);
-            return;
+            // Validate options for select / checkbox / radio / file
+            if (
+                ["select", "radio", "checkbox", "file"].includes(field.type) &&
+                options.length === 0
+            ) {
+                setOptionError(MESSAGES.ERRORS.AT_LEAST_ONE_OPTION_REQUIRED);
+                return;
+            }
+
+            setOptionError("");
+
+            // Always include requiredErrorMessage if required is true
+            const payload: Partial<FormField> = {
+                label: values.label.trim(),
+                placeholder: values.placeholder?.trim(),
+                required: values.required || false,
+                requiredErrorMessage: values.required
+                    ? values.requiredErrorMessage?.trim() || lastRequiredErrorMessage || ""
+                    : undefined,
+                hasUserEdited: true,
+            };
+
+            // Include options / allowedFileTypes
+            if (["select", "radio", "checkbox"].includes(field.type)) {
+                payload.options = options;
+            }
+            if (field.type === "file") {
+                payload.allowedFileTypes = options;
+            }
+
+            // Save last required error message
+            if (values.required) {
+                setLastRequiredErrorMessage(values.requiredErrorMessage?.trim() || "");
+            }
+
+            onSave(payload);
+        } catch (error) {
+            // Validation failed - don't close modal
+            console.error("Form validation failed:", error);
         }
-
-        setOptionError("");
-
-        // Always include requiredErrorMessage if required is true
-        const payload: Partial<FormField> = {
-            label: values.label.trim(),
-            placeholder: values.placeholder?.trim(),
-            required: values.required || false,
-            requiredErrorMessage: values.required
-                ? values.requiredErrorMessage?.trim() || lastRequiredErrorMessage || ""
-                : undefined,
-            hasUserEdited: true,
-        };
-
-        // Include options / allowedFileTypes
-        if (["select", "radio", "checkbox"].includes(field.type)) {
-            payload.options = options;
-        }
-        if (field.type === "file") {
-            payload.allowedFileTypes = options;
-        }
-
-        // Save last required error message
-        if (values.required) {
-            setLastRequiredErrorMessage(values.requiredErrorMessage?.trim() || "");
-        }
-
-        onSave(payload);
     };
 
     if (!showModal) return null;
@@ -382,24 +399,6 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                             {optionError && <div className="star">{optionError}</div>}
                         </div>
                     )}
-
-                    {/* PLACEHOLDER for file */}
-                    {/* {field.type === "file" && (
-                        <Form.Item
-                            label="Placeholder / Button Text"
-                            name="placeholder"
-                            rules={[
-                                {
-                                    validator: (_, value) =>
-                                        value && value.trim()
-                                            ? Promise.resolve()
-                                            : Promise.reject(MESSAGES.ERRORS.PLACEHOLDER_NAME_REQUIRED),
-                                },
-                            ]}
-                        >
-                            <Input placeholder="Enter placeholder/button text" />
-                        </Form.Item>
-                    )} */}
 
                     {/* REQUIRED */}
                     {!hideRequiredCheckbox.includes(field.type) && (

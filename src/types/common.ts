@@ -529,3 +529,34 @@ export interface FormColumn {
   span: number;
   field: FormField;
 }
+
+export interface TemplateFieldPayload {
+  id: string;
+  type: FieldType;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  requiredErrorMessage?: string;
+  options?: string[];
+  allowedFileTypes?: string[];
+  fieldOrder: number;
+  className: string;
+}
+
+export interface TemplateRowPayload {
+  rowId: string;
+  rowOrder: number;
+  fields: TemplateFieldPayload[];
+}
+
+export interface SaveTemplatePayload {
+  templateId?: string;
+  templateName: string;
+  rows: TemplateRowPayload[];
+}
+
+export interface CreateEditTemplateFormProps {
+  templateId?: string;
+  isViewMode?: boolean;
+  onFieldsChange?: (changed: boolean) => void;
+}
