@@ -10,8 +10,8 @@ import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 import CreateTemplate from "./Create_Templates/TemplateLayout";
-import { getTemplatesList } from "../../../services/templates.services";
 import ShareDocuments from "../../Documents/Components/ShareDocuments";
+import { deleteTemplate, getTemplatesList } from "../../../services/templates.services";
 
 export default function Templates() {
     const [count, setCount] = useState(0);
@@ -230,45 +230,47 @@ export default function Templates() {
         setTemplateToShare(row.id);
         setIsShareOpen(true);
     };
+
     /* ---------- Delete ---------- */
-    // const handleDeleteTemplate = async () => {
-    //     if (!templateToDelete) return;
+    const handleDeleteTemplate = async () => {
+        if (!templateToDelete) return;
 
-    //     getLoaderControl()?.showLoader();
-    //     try {
-    //         const res: any = await deleteTemplate(templateToDelete);
+        getLoaderControl()?.showLoader();
+        try {
+            const res: any = await deleteTemplate(templateToDelete);
 
-    //         if (res?.statusCode === 200) {
-    //             notification.success({
-    //                 message:
-    //                     res?.message ||
-    //                     MESSAGES.SUCCESS.TEMPLATE_DELETED_SUCCESSFULLY,
-    //             });
+            if (res?.statusCode === 200) {
+                notification.success({
+                    message:
+                        res?.message ||
+                        MESSAGES.SUCCESS.TEMPLATE_DELETED_SUCCESSFULLY,
+                });
 
-    //             if (templateList.length === 1 && currentPage > 1) {
-    //                 setCurrentPage((prev) => prev - 1);
-    //             } else {
-    //                 fetchTemplates();
-    //             }
-    //         } else {
-    //             notification.error({
-    //                 message:
-    //                     res?.message ||
-    //                     MESSAGES.ERRORS.TEMPLATE_DELETE_FAILED,
-    //             });
-    //         }
-    //     } catch (error: any) {
-    //         notification.error({
-    //             message:
-    //                 error?.response?.data?.message ||
-    //                 MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
-    //         });
-    //     } finally {
-    //         setShowDeleteModal(false);
-    //         setTemplateToDelete(null);
-    //         getLoaderControl()?.hideLoader();
-    //     }
-    // };
+                // Handle pagination edge case
+                if (templateList.length === 1 && currentPage > 1) {
+                    setCurrentPage((prev) => prev - 1);
+                } else {
+                    fetchTemplates();
+                }
+            } else {
+                notification.error({
+                    message:
+                        res?.message ||
+                        MESSAGES.ERRORS.TEMPLATE_DELETE_FAILED,
+                });
+            }
+        } catch (error: any) {
+            notification.error({
+                message:
+                    error?.response?.data?.message ||
+                    MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+            });
+        } finally {
+            setShowDeleteModal(false);
+            setTemplateToDelete(null);
+            getLoaderControl()?.hideLoader();
+        }
+    };
 
     return (
         <div className="templates-container">
@@ -283,12 +285,12 @@ export default function Templates() {
                 onAddClick={openAddTemplate}
                 addButtonText="Add Template"
                 searchPlaceholder="Search template by name or type"
-                showDropdown
-                status={status}
-                onStatusChange={(val: any) => {
-                    setStatus(val);
-                    setCurrentPage(1);
-                }}
+            // showDropdown
+            // status={status}
+            // onStatusChange={(val: any) => {
+            //     setStatus(val);
+            //     setCurrentPage(1);
+            // }}
             />
 
             <Table
@@ -394,32 +396,7 @@ export default function Templates() {
                 emptyText="No templates found"
             />
 
-            <ShareDocuments
-                open={isShareOpen}
-                onClose={() => {
-                    setIsShareOpen(false);
-                    setTemplateToShare(null);
-                }}
-                templateId={templateToShare}
-            />
-
-            {/* {isAddEditOpen && (
-                <CreateTemplate
-                    open={isAddEditOpen}
-                    initialData={selectedTemplate}
-                    onClose={() => {
-                        setIsAddEditOpen(false);
-                        setSelectedTemplate(null);
-                    }}
-                    onSave={() => {
-                        fetchTemplates();
-                        setIsAddEditOpen(false);
-                        setSelectedTemplate(null);
-                    }}
-                />
-            )} */}
-
-            {/* <ConfirmModal
+            <ConfirmModal
                 open={showDeleteModal}
                 onCancel={() => {
                     setShowDeleteModal(false);
@@ -432,7 +409,7 @@ export default function Templates() {
                 }
                 confirmText="Delete"
                 icon="/assets/trash-hover.svg"
-            /> */}
+            />
         </div>
     );
 }

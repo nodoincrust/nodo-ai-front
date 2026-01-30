@@ -50,17 +50,19 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
         setShowModal(true);
         setAnimateClose(false);
 
-        // If field has never been edited by user, start with empty/default values
-        const isFirstEdit = !field.hasUserEdited;
+        // KEY CHANGE: Check if field is newly dropped (not yet saved)
+        // If newly dropped (isNewlyDropped=true) or never edited (hasUserEdited=false), 
+        // show empty/default values
+        const shouldShowEmpty = field.isNewlyDropped || !field.hasUserEdited;
 
-        const initLabel = isFirstEdit ? "" : (field.label || "");
-        const initPlaceholder = isFirstEdit ? "" : (field.placeholder || "");
-        const initRequired = isFirstEdit ? false : (field.required || false);
-        const initRequiredErrorMessage = isFirstEdit ? "" : (field.requiredErrorMessage || "");
+        const initLabel = shouldShowEmpty ? "" : (field.label || "");
+        const initPlaceholder = shouldShowEmpty ? "" : (field.placeholder || "");
+        const initRequired = shouldShowEmpty ? false : (field.required || false);
+        const initRequiredErrorMessage = shouldShowEmpty ? "" : (field.requiredErrorMessage || "");
 
-        // For options: if first edit, start with empty array, otherwise use existing
+        // For options: if should show empty, start with empty array, otherwise use existing
         let initOptions: string[] = [];
-        if (!isFirstEdit) {
+        if (!shouldShowEmpty) {
             if (field.type === "file") {
                 initOptions = field.allowedFileTypes || [];
             } else if (["select", "radio", "checkbox"].includes(field.type)) {
@@ -210,6 +212,7 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                     ? values.requiredErrorMessage?.trim() || lastRequiredErrorMessage || ""
                     : undefined,
                 hasUserEdited: true,
+                isNewlyDropped: false, // Mark as no longer newly dropped once saved
             };
 
             // Include options / allowedFileTypes

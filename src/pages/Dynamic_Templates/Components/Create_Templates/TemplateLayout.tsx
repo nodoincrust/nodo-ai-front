@@ -43,9 +43,11 @@ const TemplateLayout = () => {
 
                 {/* Main Content */}
                 <div className="template-main-content">
-                    <aside className="create-template-sidebar">
-                        <CreateTemplateSidebar />
-                    </aside>
+                    {!isViewMode && (
+                        <aside className="create-template-sidebar">
+                            <CreateTemplateSidebar />
+                        </aside>
+                    )}
 
                     <section className="create-template-form">
                         <CreateEditTemplateForm templateId={id} isViewMode={isViewMode} onFieldsChange={(changed) => setIsDirty(changed)} />
@@ -55,7 +57,7 @@ const TemplateLayout = () => {
                 {/* Footer */}
                 {!isViewMode && (
                     <div className="create-template-footer">
-                        <button className="secondary-button">Cancel</button>
+                        <button className="secondary-button" onClick={() => navigate(-1)}>Cancel</button>
                         <button
                             className="primary-button"
                             onClick={() => (window as any).__saveTemplate?.()}

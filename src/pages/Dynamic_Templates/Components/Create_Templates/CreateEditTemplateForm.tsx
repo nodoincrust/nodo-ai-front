@@ -43,6 +43,8 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
                             loadedFields.push({
                                 ...f,
                                 rowId, // SAME rowId for all fields in this row
+                                hasUserEdited: true, // Mark loaded fields as already edited/saved
+                                isNewlyDropped: false, // Not newly dropped
                             });
                         });
                 });
@@ -95,6 +97,7 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
             allowedFileTypes: type === "file" ? [".pdf", ".jpg", ".png"] : undefined,
             rowId: targetRowId || uid(),
             hasUserEdited: false,
+            isNewlyDropped: true, // Mark as newly dropped - not yet saved via edit modal
         };
 
         setFields((prev) => [...prev, newField]);
@@ -102,7 +105,7 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
 
     /* ================= UPDATE / REMOVE FIELD ================= */
     const updateField = (id: string, data: Partial<FormField>) => {
-        setFields(prev => prev.map(f => (f.id === id ? { ...f, ...data } : f)));
+        setFields(prev => prev.map(f => (f.id === id ? { ...f, ...data, isNewlyDropped: false } : f)));
     };
 
     const removeField = (id: string) => {
@@ -489,7 +492,7 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
                         : res.message || MESSAGES.SUCCESS.TEMPLATE_SAVED_SUCCESSFULLY,
                 });
 
-                setTimeout(() => navigate(-1), 3000);
+                navigate(-1);
             } else {
                 notification.error({
                     message: isEditMode
@@ -811,19 +814,18 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
                                                         )}
 
                                                         {/* ===== BUTTONS INLINE ===== */}
-                                                        {(field.type === "primary_button" ||
-                                                            field.type === "secondary_button") && (
-                                                                <div className="button-field-with-action">
-                                                                    {field.type === "primary_button" ? (
-                                                                        <button className="primary-button" type="button" disabled>
-                                                                            {field.label || "Primary Button"}
-                                                                        </button>
-                                                                    ) : (
-                                                                        <button className="secondary-button" type="button" disabled>
-                                                                            {field.label || "Secondary Button"}
-                                                                        </button>
-                                                                    )}
-
+                                                        {(field.type === "primary_button" || field.type === "secondary_button") && (
+                                                            <div className="button-field-with-action">
+                                                                {field.type === "primary_button" ? (
+                                                                    <button className="primary-button" type="button" disabled>
+                                                                        {field.label || "Primary Button"}
+                                                                    </button>
+                                                                ) : (
+                                                                    <button className="secondary-button" type="button" disabled>
+                                                                        {field.label || "Secondary Button"}
+                                                                    </button>
+                                                                )}
+                                                                {!isViewMode && (
                                                                     <div className="field-actions">
                                                                         <img
                                                                             src="/assets/edit.svg"
@@ -845,8 +847,9 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
                                                                             }}
                                                                         />
                                                                     </div>
-                                                                </div>
-                                                            )}
+                                                                )}
+                                                            </div>
+                                                        )}
 
                                                         {/* ===== FIELD PREVIEW ===== */}
                                                         {(() => {

@@ -376,15 +376,17 @@
 /* ================= CHECKBOX GROUP ================= */
 .checkbox-group {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    // flex-direction: column;
+    flex-wrap: wrap;
+    gap: 10px;
+    cursor: pointer;
     pointer-events: none;
 }
 
 .checkbox-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     font-size: 14px;
     cursor: pointer;
 
@@ -435,15 +437,16 @@
 /* ================= RADIO GROUP ================= */
 .radio-group {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-wrap: wrap;
+    // flex-direction: column;
+    gap: 10px;
     pointer-events: none;
 }
 
 .radio-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 4px;
     cursor: pointer;
     max-height: 20px;
 
@@ -555,6 +558,11 @@
         font-weight: 600;
         border-radius: 32px;
         cursor: pointer;
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     }
 }
 

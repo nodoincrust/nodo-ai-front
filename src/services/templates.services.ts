@@ -33,3 +33,11 @@ export const getTemplateById = async (templateId: string | number) => {
     );
     return response.data;
 };
+
+/* ================= DELETE TEMPLATE ================= */
+export const deleteTemplate = async (templateId: number | string) => {
+    const response = await axios.delete(
+        `${API_URL.deleteTemplate}/${templateId}`
+    );
+    return response.data;
+};

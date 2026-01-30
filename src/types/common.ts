@@ -531,6 +531,7 @@ export interface FormField {
   allowedFileTypes?: string[];
   className?: string;
   orderInRow?: number;
+  isNewlyDropped?: boolean;
 }
 
 export interface CreateTemplateFormProps {
