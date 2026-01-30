@@ -95,11 +95,12 @@ const DocumentDetail: React.FC = () => {
   // const toggleEditMode = () => {
   //   setIsEditing(prev => !prev);
   // };
-  // useEffect(() => {
-  //   if (id) {
-  //     fetchDocument();
-  //   }
-  // }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      fetchDocument();
+    }
+  }, [id]);
 
   useEffect(() => {
     const loadChatHistory = async () => {

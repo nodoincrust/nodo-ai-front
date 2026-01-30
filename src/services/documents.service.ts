@@ -70,7 +70,13 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
     }
   );
 
-  const apiData = response.data.data;
+  const apiData = response.data?.data;
+  if (!apiData?.document || !apiData?.file) {
+    throw new Error(
+      "Invalid document response: missing document or file data. " +
+      (response.data ? "Check API response shape." : "API returned no data.")
+    );
+  }
 
   // Construct file URL
   let fileUrl = "";
