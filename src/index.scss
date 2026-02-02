@@ -1101,3 +1101,18 @@ input {
     font-weight: 500;
     display: inline-block;
   }
+/* AntD Notification Font Customization */
+.ant-notification-notice {
+  font-family: "Inter",
+}
+
+.ant-notification-notice-message {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.ant-notification-notice-description {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}

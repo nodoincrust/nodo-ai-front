@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import "./Styles/Templates.scss";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDebounce } from "../../../hooks/useDebounce";
@@ -247,7 +247,7 @@ export default function Templates() {
                 <span className="submitted-name">
                   {/* {row.submitted_by || "—"} */}
                 </span>
-
+                <Tooltip title="View Submitted Response">
                 <img
                   src="/assets/Eye.svg"
                   alt="View users"
@@ -256,6 +256,7 @@ export default function Templates() {
                     navigate(`/templates/submitted-users/${row.id}`)
                   }
                 />
+                </Tooltip>
               </div>
             ),
           },
@@ -286,22 +287,26 @@ export default function Templates() {
         actions={(row: any) => (
           <div className="templates-actions">
             {/* View Template */}
-            <img
-              src="/assets/Eye.svg"
-              alt="View"
-              onClick={() => openViewTemplate(row)}
-              title="View Template"
-            />
-
+            <Tooltip title="View Template">
+              <img
+                src="/assets/Eye.svg"
+                alt="View"
+                onClick={() => openViewTemplate(row)}
+                title="View Template"
+              />
+            </Tooltip>
             {/* Edit Template */}
+            <Tooltip title="Edit Template">
             <img
               src="/assets/edit.svg"
               alt="Edit"
               onClick={() => openEditTemplate(row)}
               title="Edit Template"
             />
+            </Tooltip>
 
             {/* Delete Template */}
+            <Tooltip title="Delete Template">
             <img
               src="/assets/trash.svg"
               alt="Delete"
@@ -311,15 +316,19 @@ export default function Templates() {
               }}
               title="Delete Template"
             />
-
+            </Tooltip>
             {/* Share Template */}
+
+            <Tooltip title="Share Template">
             <img
               src="/assets/share.svg"
               alt="Share"
               onClick={() => handleShareTemplate(row)}
               title="Share Template"
             />
+            </Tooltip>
           </div>
+            
         )}
         currentPage={currentPage}
         totalPages={Math.ceil(count / pageSize)}
