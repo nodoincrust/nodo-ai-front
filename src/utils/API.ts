@@ -60,6 +60,7 @@ export const API_URL = {
   getTemplateById: "/newdocuments/templatesFeilds",
   deleteTemplate: "/newdocuments/deleteTemplate",
   submitTemplateForm: "/newdocuments/submitTemplateForm",
+  viewSummmitedUers:(id: number | string)=> `/newdocuments/submissions/${id}`,
 
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",

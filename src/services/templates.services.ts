@@ -63,3 +63,12 @@ export const submitTemplateForm = async (payload: FormData) => {
 //     );
 //     return response.data;
 // };
+
+export const getTemplateSubmissions = async (
+  templateId: number | string
+) => {
+  const response = await axios.get(
+    API_URL.viewSummmitedUers(templateId)
+  );
+  return response.data;
+};
