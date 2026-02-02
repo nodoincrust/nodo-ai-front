@@ -35,6 +35,7 @@ export const MESSAGES = {
         TEMPLATE_UPDATED_SUCCESSFULLY: "Template updated successfully.",
         TEMPLATE_DELETED_SUCCESSFULLY: "Template deleted successfully.",
         TEMPLATE_SAVED_SUCCESSFULLY: "Template saved successfully.",
+        FORM_SUBMITTED_SUCCESSFULLY: "Form submitted successfully.",
     },
 
     ERRORS: {
@@ -120,7 +121,8 @@ export const MESSAGES = {
         FAILED_TO_SAVE_TEMPLATE: "Failed to save template",
         FAILED_TO_UPDATE_TEMPLATE: "Failed to update template",
         PLEASE_ADD_AT_LEAST_ONE_FIELD_BEFORE_SAVING_THE_FORM: "Please add at least one field before saving the template",
-        FORM_NAME_REQUIRED: "Form name is required",
-        AT_LEAST_ONE_BUTTON_REQUIRED: "At least one button is required in the template"
+        FORM_NAME_REQUIRED: "Template name is required",
+        AT_LEAST_ONE_BUTTON_REQUIRED: "At least one button is required in the template",
+        AT_LEAST_ONE_FIELD_REQUIRED: "At least one field is required",
     },
 };

@@ -302,7 +302,7 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                     </Form.Item>
 
                     {/* PLACEHOLDER */}
-                    {(field.type === "input" || field.type === "textarea" || field.type === "number") && (
+                    {(field.type === "input" || field.type === "email" || field.type === "textarea" || field.type === "number") && (
                         <Form.Item
                             label="Placeholder Name"
                             name="placeholder"

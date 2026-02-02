@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { notification } from "antd";
-import { getTemplateById, submitTemplateForm } from "../../../../services/templates.services";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { notification, Select } from "antd";
+import {
+    getTemplateById,
+    submitTemplateForm,
+    getFilledTemplateSubmission,
+} from "../../../../services/templates.services";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
 import { FormField } from "../../../../types/common";
 import { MESSAGES } from "../../../../utils/Messages";
@@ -14,12 +18,27 @@ interface ErrorMap {
     [fieldId: string]: string;
 }
 
-const FillTemplateForm: React.FC = () => {
+const SubmitTemplateForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const [fields, setFields] = useState<FormField[]>([]);
     const [values, setValues] = useState<FilledValueMap>({});
     const [errors, setErrors] = useState<ErrorMap>({});
+    const [openSelect, setOpenSelect] = useState<string | null>(null);
+    const [isPrefilledMode, setIsPrefilledMode] = useState(false);
+
+    const getLoggedInUserId = () => {
+        try {
+            const authData = localStorage.getItem("authData");
+            if (!authData) return null;
+
+            const parsed = JSON.parse(authData);
+            return parsed?.user?.id || null;
+        } catch {
+            return null;
+        }
+    };
 
     /* ================= FETCH TEMPLATE ================= */
     useEffect(() => {
@@ -28,17 +47,50 @@ const FillTemplateForm: React.FC = () => {
         const fetchTemplate = async () => {
             try {
                 getLoaderControl()?.showLoader();
-                const res = await getTemplateById(id);
 
-                if (res?.statusCode === 200) {
+                const submissionId = (location.state as any)?.submissionId || null;
+                const submittedBy = getLoggedInUserId();
+
+                let res;
+
+                if (submissionId && submittedBy) {
+                    setIsPrefilledMode(true);
+                    res = await getFilledTemplateSubmission({
+                        template_id: Number(id),
+                        submitted_by: submittedBy,
+                    });
+                } else {
+                    setIsPrefilledMode(false);
+                    res = await getTemplateById(id);
+                }
+
+                if (res?.statusCode === 200 && res?.data?.rows) {
                     const loadedFields: FormField[] = [];
+                    const prefilledValues: FilledValueMap = {};
+
                     res.data.rows.forEach((row: any) => {
-                        const rowId = row.rowOrder.toString();
+                        const rowId = String(row.rowOrder);
+
                         row.fields
                             .sort((a: any, b: any) => a.fieldOrder - b.fieldOrder)
-                            .forEach((f: any) => loadedFields.push({ ...f, rowId }));
+                            .forEach((field: any) => {
+                                loadedFields.push({ ...field, rowId });
+
+                                if (
+                                    submissionId &&
+                                    field.value !== null &&
+                                    field.value !== undefined
+                                ) {
+                                    prefilledValues[field.id] = field.value;
+                                }
+                            });
                     });
+
                     setFields(loadedFields);
+
+                    if (submissionId && Object.keys(prefilledValues).length > 0) {
+                        setValues(prefilledValues);
+                    }
                 }
             } catch (err: any) {
                 notification.error({ message: err?.response?.data?.message || MESSAGES.ERRORS.TEMPLATE_FETCH_FAILED });
@@ -48,87 +100,131 @@ const FillTemplateForm: React.FC = () => {
         };
 
         fetchTemplate();
-    }, [id]);
+    }, [id, location.state]);
 
-    /* ================= HANDLE CHANGE ================= */
-    const updateValue = (fieldId: string, value: any) => {
-        setValues(prev => ({ ...prev, [fieldId]: value }));
-        if (errors[fieldId]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[fieldId];
-                return newErrors;
-            });
-        }
-    };
+    /* ================= VALIDATION HELPERS ================= */
+    const isValidEmail = (email: string) =>
+        /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
 
-    /* ================= VALIDATE SINGLE FIELD ================= */
     const validateField = (fieldId: string, value: any) => {
-        const field = fields.find(f => f.id === fieldId);
+        const field = fields.find((f) => f.id === fieldId);
         if (!field) return true;
 
         let error = "";
+        const trimmedValue = typeof value === "string" ? value.trim() : value;
 
         if (field.required) {
-            const isEmpty = value === undefined || value === null || value === "" || (Array.isArray(value) && value.length === 0);
+            const isEmpty =
+                trimmedValue === undefined ||
+                trimmedValue === null ||
+                trimmedValue === "" ||
+                (Array.isArray(trimmedValue) && trimmedValue.length === 0);
             if (isEmpty) error = field.requiredErrorMessage || `${field.label} is required`;
         }
 
         if (!error) {
             switch (field.type) {
                 case "number":
-                    if (value && !/^\d+$/.test(value)) error = MESSAGES.ERRORS.ONLY_NUMBERS_ALLOWED;
-                    if (field.label.toLowerCase().includes("mobile") && value && !/^\d{10}$/.test(value))
+                    if (trimmedValue && !/^\d+$/.test(trimmedValue))
+                        error = MESSAGES.ERRORS.ONLY_NUMBERS_ALLOWED;
+                    if (
+                        field.label.toLowerCase().includes("mobile") &&
+                        trimmedValue &&
+                        !/^\d{10}$/.test(trimmedValue)
+                    )
                         error = MESSAGES.ERRORS.INVALID_CONTACT_NUMBER;
                     break;
-
                 case "input":
                 case "textarea":
-                    if ((field as any).onlyChars && value && /[^a-zA-Z\s]/.test(value))
+                    if ((field as any).onlyChars && trimmedValue && /[^a-zA-Z\s]/.test(trimmedValue))
                         error = MESSAGES.ERRORS.ONLY_CHARS_ALLOWED;
-                    break;
-
-                case "email":
-                    if (value && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value))
+                    if ((field as any).subtype === "email" && trimmedValue && !isValidEmail(trimmedValue))
                         error = MESSAGES.ERRORS.ENTER_VALID_EMAIL;
                     break;
-
+                case "email":
+                    if (trimmedValue && !isValidEmail(trimmedValue))
+                        error = MESSAGES.ERRORS.ENTER_VALID_EMAIL;
+                    break;
                 case "file":
-                    if (value instanceof File && field.allowedFileTypes?.length) {
-                        const allowed = field.allowedFileTypes.some(ext => value.name.toLowerCase().endsWith(ext.toLowerCase()));
+                    if (trimmedValue instanceof File && field.allowedFileTypes?.length) {
+                        const allowed = field.allowedFileTypes.some((ext) =>
+                            trimmedValue.name.toLowerCase().endsWith(ext.toLowerCase())
+                        );
                         if (!allowed) error = MESSAGES.ERRORS.INVALID_FILE_TYPE_FORMAT;
                     }
                     break;
             }
         }
 
-        setErrors(prev => ({ ...prev, ...(error ? { [fieldId]: error } : {}) }));
+        setErrors((prev: any) => ({
+            ...prev,
+            ...(error ? { [fieldId]: error } : { [fieldId]: undefined }),
+        }));
         return !error;
     };
 
-    /* ================= VALIDATE ALL FIELDS ================= */
+    /* ================= HANDLE CHANGE ================= */
+    const updateValue = (fieldId: string, value: any) => {
+        if (isPrefilledMode) return;
+        setValues((prev) => ({ ...prev, [fieldId]: value }));
+        validateField(fieldId, value);
+    };
+
+    /* ================= VALIDATE FIELDS & SCROLL ================= */
     const validateFields = (): boolean => {
         let isValid = true;
-        fields.forEach(field => {
-            if (!["header", "primary_button", "secondary_button", "horizontal_line"].includes(field.type)) {
-                const valid = validateField(field.id, values[field.id]);
+        let atLeastOneFilled = false;
+        let firstErrorFieldId: string | null = null;
+
+        fields.forEach((field) => {
+            if (["header", "primary_button", "secondary_button", "horizontal_line"].includes(field.type)) return;
+
+            const value = values[field.id];
+            const trimmedValue = typeof value === "string" ? value.trim() : value;
+            const isFilled =
+                trimmedValue !== undefined &&
+                trimmedValue !== null &&
+                trimmedValue !== "" &&
+                !(Array.isArray(trimmedValue) && trimmedValue.length === 0);
+
+            if (isFilled) atLeastOneFilled = true;
+
+            if (field.required || isFilled) {
+                const valid = validateField(field.id, value);
+                if (!valid && !firstErrorFieldId) firstErrorFieldId = field.id;
                 if (!valid) isValid = false;
             }
         });
+
+        if (!atLeastOneFilled) {
+            notification.error({
+                message: MESSAGES.ERRORS.AT_LEAST_ONE_FIELD_REQUIRED || "Please fill at least one field",
+            });
+            return false;
+        }
+
+        if (firstErrorFieldId) {
+            const element = document.querySelector<HTMLElement>(`[data-field-id="${firstErrorFieldId}"]`);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth", block: "center" });
+                element.focus({ preventScroll: true });
+            }
+        }
+
         return isValid;
     };
 
     /* ================= SUBMIT ================= */
     const handleSubmit = async () => {
+        if (isPrefilledMode) {
+            notification.info({ message: "This form has already been submitted and cannot be modified" });
+            return;
+        }
         if (!id) {
             notification.error({ message: MESSAGES.ERRORS.SOMETHING_WENT_WRONG });
             return;
         }
-
-        if (!validateFields()) {
-            notification.error({ message: MESSAGES.ERRORS.FILL_ALL_REQUIRED_FIELDS });
-            return;
-        }
+        if (!validateFields()) return;
 
         try {
             getLoaderControl()?.showLoader();
@@ -138,8 +234,8 @@ const FillTemplateForm: React.FC = () => {
             const valuesPayload: { fieldId: string; value: any }[] = [];
 
             fields
-                .filter(f => !["header", "primary_button", "secondary_button", "horizontal_line"].includes(f.type))
-                .forEach(field => {
+                .filter((f) => !["header", "primary_button", "secondary_button", "horizontal_line"].includes(f.type))
+                .forEach((field) => {
                     const value = values[field.id];
                     if (field.type === "file" && value instanceof File) {
                         files.push(value);
@@ -150,27 +246,31 @@ const FillTemplateForm: React.FC = () => {
                 });
 
             formData.append("payload", JSON.stringify({ templateId: id, values: valuesPayload }));
-            files.forEach(file => formData.append("files", file));
+            files.forEach((file) => formData.append("files", file));
 
             const res = await submitTemplateForm(formData);
 
             if (res?.statusCode === 200) {
-                notification.success({ message: MESSAGES.SUCCESS.TEMPLATE_SAVED_SUCCESSFULLY });
+                notification.success({
+                    message: res.message || MESSAGES.SUCCESS.TEMPLATE_SAVED_SUCCESSFULLY || MESSAGES.SUCCESS.FORM_SUBMITTED_SUCCESSFULLY,
+                });
                 setValues({});
                 setErrors({});
                 navigate(-1);
             }
         } catch (err: any) {
-            notification.error({ message: err?.response?.data?.message || err.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG });
+            notification.error({
+                message: err?.response?.data?.message || err.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+            });
         } finally {
             getLoaderControl()?.hideLoader();
         }
     };
 
     /* ================= RENDER ================= */
-    const visibleFields = fields.filter(f => f.label && f.label.trim() !== "");
+    const visibleFields = fields.filter((f) => f.label && f.label.trim() !== "");
     const rowMap = new Map<string, FormField[]>();
-    visibleFields.forEach(f => {
+    visibleFields.forEach((f) => {
         const rowKey = f.rowId || "";
         if (!rowMap.has(rowKey)) rowMap.set(rowKey, []);
         rowMap.get(rowKey)!.push(f);
@@ -178,7 +278,7 @@ const FillTemplateForm: React.FC = () => {
 
     const rowOrder: string[] = [];
     const seen = new Set<string>();
-    visibleFields.forEach(f => {
+    visibleFields.forEach((f) => {
         const rowKey = f.rowId || "";
         if (!seen.has(rowKey)) {
             rowOrder.push(rowKey);
@@ -186,35 +286,38 @@ const FillTemplateForm: React.FC = () => {
         }
     });
 
-    const getSpan = (count: number) => (count === 1 ? 12 : count === 2 ? 6 : count === 3 ? 4 : count === 4 ? 3 : 12);
+    const getSpan = (count: number) =>
+        count === 1 ? 12 : count === 2 ? 6 : count === 3 ? 4 : count === 4 ? 3 : 12;
 
     return (
-        <div className="template-form-container submit-mode">
+        <div className={`template-form-container submit-mode ${isPrefilledMode ? "prefilled-mode" : ""}`}>
             <div className="drop-zone">
                 {fields.length === 0 && <p className="drop-placeholder">Loading form...</p>}
 
-                {rowOrder.map(rowId => {
+                {rowOrder.map((rowId) => {
                     const rowFields = rowMap.get(rowId) || [];
                     const span = getSpan(rowFields.length);
 
                     return (
                         <div key={rowId} className="form-row-wrapper">
                             <div className="form-row">
-                                {rowFields.map(field => {
+                                {rowFields.map((field) => {
                                     const hasError = !!errors[field.id];
+                                    const fieldValue = values[field.id];
 
                                     return (
-                                        <div key={field.id} className={`form-col span-${span}`}>
-                                            <div className={`form-field ${hasError ? "has-error" : ""}`}>
+                                        <div key={field.id} className={`form-col span-${span}`} data-field-id={field.id}>
+                                            <div className={`form-field ${hasError ? "star" : ""}`}>
                                                 {/* LABEL */}
-                                                {field.label && !["horizontal_line", "primary_button", "secondary_button"].includes(field.type) && (
-                                                    <div className="label-with-action">
-                                                        <label className={field.type === "header" ? "header-label" : ""}>
-                                                            {field.label}
-                                                            {field.required && field.type !== "header" && <span className="star"> *</span>}
-                                                        </label>
-                                                    </div>
-                                                )}
+                                                {field.label &&
+                                                    !["horizontal_line", "primary_button", "secondary_button"].includes(field.type) && (
+                                                        <div className="label-with-action">
+                                                            <label className={field.type === "header" ? "header-label" : ""}>
+                                                                {field.label}
+                                                                {field.required && field.type !== "header" && <span className="star"> *</span>}
+                                                            </label>
+                                                        </div>
+                                                    )}
 
                                                 {/* HORIZONTAL LINE */}
                                                 {field.type === "horizontal_line" && (
@@ -227,12 +330,22 @@ const FillTemplateForm: React.FC = () => {
                                                 {["primary_button", "secondary_button"].includes(field.type) && (
                                                     <div className="button-field-with-action">
                                                         {field.type === "primary_button" ? (
-                                                            <button className="primary-button" type="button" onClick={handleSubmit}>
+                                                            <button
+                                                                className="primary-button"
+                                                                type="button"
+                                                                onClick={handleSubmit}
+                                                                disabled={isPrefilledMode}
+                                                                style={isPrefilledMode ? { display: "none" } : {}}
+                                                            >
                                                                 {field.label || "Submit"}
                                                             </button>
                                                         ) : (
-                                                            <button className="secondary-button" type="button" onClick={() => navigate("/templates")}>
-                                                                {field.label || "Cancel"}
+                                                            <button
+                                                                className="secondary-button"
+                                                                type="button"
+                                                                onClick={() => navigate(-1)}
+                                                            >
+                                                                {isPrefilledMode ? "Close" : field.label || "Cancel"}
                                                             </button>
                                                         )}
                                                     </div>
@@ -240,30 +353,120 @@ const FillTemplateForm: React.FC = () => {
 
                                                 {/* FIELD INPUTS */}
                                                 {(() => {
+                                                    const isEmail = field.type === "email" || (field.type === "input" && (field as any).subtype === "email");
                                                     switch (field.type) {
                                                         case "input":
-                                                            return <input value={values[field.id] || ""} onChange={e => updateValue(field.id, e.target.value)} placeholder={field.placeholder} className={hasError ? "error" : ""} />;
+                                                        case "email":
+                                                            return (
+                                                                <input
+                                                                    type={isEmail ? "email" : "text"}
+                                                                    value={fieldValue || ""}
+                                                                    onChange={(e) => updateValue(field.id, e.target.value)}
+                                                                    placeholder={field.placeholder}
+                                                                    className={hasError ? "error" : ""}
+                                                                    disabled={isPrefilledMode}
+                                                                    readOnly={isPrefilledMode}
+                                                                />
+                                                            );
                                                         case "textarea":
-                                                            return <textarea value={values[field.id] || ""} onChange={e => updateValue(field.id, e.target.value)} placeholder={field.placeholder} className={hasError ? "error" : ""} />;
+                                                            return (
+                                                                <textarea
+                                                                    value={fieldValue || ""}
+                                                                    onChange={(e) => updateValue(field.id, e.target.value)}
+                                                                    placeholder={field.placeholder}
+                                                                    className={hasError ? "error" : ""}
+                                                                    disabled={isPrefilledMode}
+                                                                    readOnly={isPrefilledMode}
+                                                                />
+                                                            );
                                                         case "number":
-                                                            return <input type="number" value={values[field.id] || ""} onChange={e => updateValue(field.id, e.target.value)} placeholder={field.placeholder} className={hasError ? "error" : ""} />;
+                                                            return (
+                                                                <input
+                                                                    type="number"
+                                                                    value={fieldValue || ""}
+                                                                    onChange={(e) => updateValue(field.id, e.target.value)}
+                                                                    placeholder={field.placeholder}
+                                                                    className={hasError ? "error" : ""}
+                                                                    disabled={isPrefilledMode}
+                                                                    readOnly={isPrefilledMode}
+                                                                />
+                                                            );
                                                         case "date":
-                                                            return <input type="date" value={values[field.id] || ""} onChange={e => updateValue(field.id, e.target.value)} className={hasError ? "error" : ""} />;
+                                                            return (
+                                                                <input
+                                                                    type="date"
+                                                                    value={fieldValue || ""}
+                                                                    onChange={(e) => updateValue(field.id, e.target.value)}
+                                                                    className={hasError ? "error" : ""}
+                                                                    disabled={isPrefilledMode}
+                                                                    readOnly={isPrefilledMode}
+                                                                />
+                                                            );
                                                         case "file":
-                                                            return <input type="file" accept={field.allowedFileTypes?.join(",")} onChange={e => updateValue(field.id, e.target.files?.[0])} className={hasError ? "error" : ""} />;
+                                                            if (isPrefilledMode && (field as any).fileUrl) {
+                                                                return (
+                                                                    <div className="file-preview">
+                                                                        <a
+                                                                            href={(field as any).fileUrl}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            className="file-link"
+                                                                        >
+                                                                            View uploaded file
+                                                                        </a>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return (
+                                                                <input
+                                                                    type="file"
+                                                                    accept={field.allowedFileTypes?.join(",")}
+                                                                    onChange={(e) => updateValue(field.id, e.target.files?.[0])}
+                                                                    className={hasError ? "error" : ""}
+                                                                    disabled={isPrefilledMode}
+                                                                />
+                                                            );
                                                         case "select":
                                                             return (
-                                                                <select value={values[field.id] || ""} onChange={e => updateValue(field.id, e.target.value)} className={hasError ? "error" : ""}>
-                                                                    <option value="">Select an option</option>
-                                                                    {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                                                                </select>
+                                                                <div
+                                                                    className={`custom-select-wrapper ${hasError ? "error" : ""} ${openSelect === field.id ? "open" : ""
+                                                                        }`}
+                                                                >
+                                                                    <Select
+                                                                        value={fieldValue || undefined}
+                                                                        placeholder="Select an option"
+                                                                        style={{ width: "100%" }}
+                                                                        className="custom-select"
+                                                                        showArrow={false}
+                                                                        disabled={isPrefilledMode}
+                                                                        options={field.options?.map((opt) => ({ label: opt, value: opt }))}
+                                                                        onDropdownVisibleChange={(open) => {
+                                                                            if (!isPrefilledMode) setOpenSelect(open ? field.id : null);
+                                                                        }}
+                                                                        onChange={(value) => {
+                                                                            if (!isPrefilledMode) {
+                                                                                updateValue(field.id, value);
+                                                                                setOpenSelect(null);
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <span className="custom-arrow" />
+                                                                </div>
                                                             );
                                                         case "radio":
                                                             return (
                                                                 <div className="radio-group">
-                                                                    {field.options?.map(opt => (
+                                                                    {field.options?.map((opt) => (
                                                                         <label key={opt} className="radio-wrapper">
-                                                                            <input type="radio" name={field.id} value={opt} checked={values[field.id] === opt} onChange={() => updateValue(field.id, opt)} className="custom-radio" />
+                                                                            <input
+                                                                                type="radio"
+                                                                                name={field.id}
+                                                                                value={opt}
+                                                                                checked={fieldValue === opt}
+                                                                                onChange={() => updateValue(field.id, opt)}
+                                                                                className="custom-radio"
+                                                                                disabled={isPrefilledMode}
+                                                                            />
                                                                             <span>{opt}</span>
                                                                         </label>
                                                                     ))}
@@ -272,12 +475,25 @@ const FillTemplateForm: React.FC = () => {
                                                         case "checkbox":
                                                             return (
                                                                 <div className="checkbox-group">
-                                                                    {field.options?.map(opt => (
+                                                                    {field.options?.map((opt) => (
                                                                         <label key={opt} className="checkbox-wrapper">
-                                                                            <input type="checkbox" className="custom-checkbox" checked={values[field.id]?.includes(opt) || false} onChange={() => {
-                                                                                const prev = values[field.id] || [];
-                                                                                updateValue(field.id, prev.includes(opt) ? prev.filter((o: string) => o !== opt) : [...prev, opt]);
-                                                                            }} />
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                className="custom-checkbox"
+                                                                                checked={fieldValue?.includes(opt) || false}
+                                                                                onChange={() => {
+                                                                                    if (!isPrefilledMode) {
+                                                                                        const prev = fieldValue || [];
+                                                                                        updateValue(
+                                                                                            field.id,
+                                                                                            prev.includes(opt)
+                                                                                                ? prev.filter((o: string) => o !== opt)
+                                                                                                : [...prev, opt]
+                                                                                        );
+                                                                                    }
+                                                                                }}
+                                                                                disabled={isPrefilledMode}
+                                                                            />
                                                                             <span>{opt}</span>
                                                                         </label>
                                                                     ))}
@@ -286,8 +502,13 @@ const FillTemplateForm: React.FC = () => {
                                                         case "switch":
                                                             return (
                                                                 <label className="switch">
-                                                                    <input type="checkbox" checked={values[field.id] || false} onChange={e => updateValue(field.id, e.target.checked)} />
-                                                                    <span className="slider"></span>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={fieldValue || false}
+                                                                        onChange={(e) => updateValue(field.id, e.target.checked)}
+                                                                        disabled={isPrefilledMode}
+                                                                    />
+                                                                    <span className="slider round"></span>
                                                                 </label>
                                                             );
                                                         default:
@@ -295,7 +516,7 @@ const FillTemplateForm: React.FC = () => {
                                                     }
                                                 })()}
 
-                                                {hasError && <span className="star">{errors[field.id]}</span>}
+                                                {hasError && <span className="error-message">{errors[field.id]}</span>}
                                             </div>
                                         </div>
                                     );
@@ -309,4 +530,4 @@ const FillTemplateForm: React.FC = () => {
     );
 };
 
-export default FillTemplateForm;
+export default SubmitTemplateForm;

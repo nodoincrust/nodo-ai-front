@@ -56,10 +56,14 @@ export const submitTemplateForm = async (payload: FormData) => {
     return response.data;
 };
 
-/* ================= GET SUBMITTED RESPONSES (OPTIONAL) ================= */
-// export const getTemplateSubmissions = async (templateId: string | number) => {
-//     const response = await axios.get(
-//         `${API_URL.getTemplateSubmissions}/${templateId}`
-//     );
-//     return response.data;
-// };
+/* ================= GET FILLED TEMPLATE SUBMISSION ================= */
+export const getFilledTemplateSubmission = async (payload: {
+    template_id: number;
+    submitted_by: number;
+}) => {
+    const response = await axios.post(
+        API_URL.getFilledTemplateSubmission,
+        payload
+    );
+    return response.data;
+};

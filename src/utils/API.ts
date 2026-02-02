@@ -60,6 +60,7 @@ export const API_URL = {
   getTemplateById: "/newdocuments/templatesFeilds",
   deleteTemplate: "/newdocuments/deleteTemplate",
   submitTemplateForm: "/newdocuments/submitTemplateForm",
+  getFilledTemplateSubmission: "/newdocuments/templates/submissions/filledvalues",
 
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",
@@ -79,5 +80,5 @@ export const API_URL = {
   removeDocumentFromBouquet: (boqId: number | string) =>
     `/newdocuments/removeDocuments/${boqId}`,
 
- onlyOfficeFileStream: (token: string) => `/newdocuments/internal/onlyoffice/file/${token}`,
+  onlyOfficeFileStream: (token: string) => `/newdocuments/internal/onlyoffice/file/${token}`,
 };

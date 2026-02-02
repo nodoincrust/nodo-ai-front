@@ -11,6 +11,7 @@ const COMPONENTS: { type: FieldType; label: string }[] = [
     { type: "switch", label: "Switch" },
     { type: "date", label: "Date" },
     { type: "number", label: "Number" },
+    { type: "email", label: "Email" },
     { type: "horizontal_line", label: "Horizontal Line" },
     { type: "secondary_button", label: "Secondary Button" },
     { type: "primary_button", label: "Primary Button" },

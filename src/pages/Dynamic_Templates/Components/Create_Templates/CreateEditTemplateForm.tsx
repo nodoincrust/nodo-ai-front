@@ -856,6 +856,8 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
                                                             switch (field.type) {
                                                                 case "input":
                                                                     return <input readOnly placeholder={field.placeholder} />;
+                                                                case "email":
+                                                                    return <input readOnly type="email" placeholder={field.placeholder} />;
                                                                 case "textarea":
                                                                     return <textarea readOnly placeholder={field.placeholder} />;
                                                                 case "number":

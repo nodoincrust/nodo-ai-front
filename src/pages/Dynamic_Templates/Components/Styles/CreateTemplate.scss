@@ -581,7 +581,7 @@
     /* Remove drop zone dashed border */
     .drop-zone {
         border: none !important;
-        padding: 16px 0 !important;
+        padding: 0 !important;
         min-height: auto !important;
     }
 
@@ -616,11 +616,11 @@
         pointer-events: auto !important;
         cursor: text !important;
 
-        &:focus {
-            border-color: $primary !important;
-            outline: none !important;
-            box-shadow: 0 0 0 2px rgba($primary, 0.1) !important;
-        }
+        // &:focus {
+        //     border-color: $primary !important;
+        //     outline: none !important;
+        //     box-shadow: 0 0 0 2px rgba($primary, 0.1) !important;
+        // }
     }
 
     /* Enable file inputs */
@@ -673,6 +673,119 @@
         }
     }
 
+    /* ================= CUSTOM SELECT ================= */
+    .custom-select-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    /* Native select OR AntD select input */
+    .custom-select,
+    .ant-select-selector {
+        width: 100% !important;
+        height: 38px !important;
+        padding: 6px 36px 6px 12px !important;
+
+        border: 1px solid $input-border !important;
+        border-radius: 12px !important;
+        background-color: $color-white !important;
+
+        font-size: 14px;
+        font-family: $font-family-main;
+        color: $text-primary;
+
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    .ant-select-selector {
+        border: none !important;
+        height: 36px !important;
+        padding-left: 0px !important;
+    }
+
+    .ant-select-selector:focus-visible {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Placeholder color */
+    .custom-select::placeholder,
+    .ant-select-selection-placeholder {
+        color: $color-placeholder !important;
+    }
+
+    /* Error state */
+    .custom-select-wrapper.error .custom-select,
+    .custom-select-wrapper.error .ant-select-selector {
+        border-color: #ef4444 !important;
+    }
+
+    /* ================= ARROW IMAGE ================= */
+    .custom-arrow {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        width: 18px;
+        height: 18px;
+
+        background: url("/assets/chevron-down.svg") no-repeat center;
+        background-size: contain;
+
+        transform: translateY(-50%) rotate(0deg);
+        /* default DOWN */
+        transition: transform 0.25s ease;
+
+        pointer-events: none;
+    }
+
+    /* Rotate when open */
+    .custom-select-wrapper.open .custom-arrow {
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    .ant-select-focused:where(.css-dev-only-do-not-override-mncuj7).ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+        border-color: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* ================= AntD fixes ================= */
+    .ant-select {
+        width: 100%;
+    }
+
+    .ant-select-arrow {
+        display: none !important;
+        /* hide AntD default arrow */
+    }
+
+    .ant-select-dropdown {
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .ant-select-item-option-selected {
+        background: $color-primary-light !important;
+    }
+
+    /* ================= SUBMIT MODE ENABLE ================= */
+    .template-form-container.submit-mode {
+        .custom-select-wrapper {
+            pointer-events: auto !important;
+        }
+
+        .custom-select,
+        .ant-select,
+        .ant-select-selector {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            box-shadow: none !important;
+        }
+    }
+
     /* Enable buttons */
     button.primary-button,
     button.secondary-button {
@@ -709,6 +822,43 @@
     }
 }
 
+/* ================= PREFILLED MODE ================= */
+.template-form-container.prefilled-mode {
+
+    input:disabled,
+    textarea:disabled,
+    select:disabled {
+        background-color: #f5f5f5 !important;
+        cursor: not-allowed !important;
+        opacity: 0.7;
+    }
+
+    .custom-checkbox:disabled,
+    input[type="radio"]:disabled {
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+
+    .switch input:disabled+.slider {
+        opacity: 0.6;
+        cursor: not-allowed !important;
+    }
+
+    .file-preview {
+        padding: 8px 12px;
+
+        .file-link {
+            color: $primary;
+            text-decoration: none;
+            font-size: 14px;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
 /* Error state for inputs */
 input.error,
 textarea.error,
@@ -719,12 +869,6 @@ select.error {
         border-color: #ef4444 !important;
         box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
     }
-}
-
-/* Error state for form field container */
-.form-field.has-error {
-    /* Optional: Add subtle background for error fields */
-    /* background: rgba(239, 68, 68, 0.02) !important; */
 }
 
 /* Submit mode specific error styling */
