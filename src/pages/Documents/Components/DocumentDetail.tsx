@@ -659,10 +659,9 @@ const DocumentDetail: React.FC = () => {
     status = "DRAFT";
   }
 
-  // Build extra actions based on user role and document status
+  // Build extra actions (only Reupload when rejected; Edit is via onEdit and hidden for PDF)
   const extraActions: DocumentHeaderAction[] = [];
 
-  // Re-Upload button for employees when document is rejected
   if (status === "REJECTED") {
     extraActions.push({
       label: "Reupload",
@@ -671,21 +670,6 @@ const DocumentDetail: React.FC = () => {
     });
   }
 
-  if (status === "DRAFT") {
-    extraActions.push({
-      label: "Edit",
-      onClick: () => setIsEditMode(true),
-      type: "default",
-    });
-  }
-
-  // if (status === "DRAFT" && document.version?.file_name?.endsWith(".txt")) {
-  //   extraActions.push({
-  //     label: "Save",
-  //     onClick: () => setIsEditMode(true),
-  //     type: "default",
-  //   });
-  // }
   const hideSubmit = status === "REUPLOADED";
 
   const headerProps: DocumentHeaderProps = {
@@ -707,8 +691,9 @@ const DocumentDetail: React.FC = () => {
     submitDisabled: status === "DRAFT" && !isMetadataSaved,
     extraActions: extraActions.length > 0 ? extraActions : undefined,
     tracking,
+    // Only show Edit when file type is editable (not PDF) and status is DRAFT
     onEdit:
-      isEditable && status !== "SUBMITTED"
+      isEditable && status === "DRAFT"
         ? () => setIsEditMode((prev) => !prev)
         : undefined,
     editButtonText: isEditMode ? "Close Editor" : "Edit",

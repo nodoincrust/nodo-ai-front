@@ -61,6 +61,7 @@ export const API_URL = {
   deleteTemplate: "/newdocuments/deleteTemplate",
   submitTemplateForm: "/newdocuments/submitTemplateForm",
   getFilledTemplateSubmission: "/newdocuments/templates/submissions/filledvalues",
+  viewSummmitedUers:(id: number | string)=> `/newdocuments/submissions/${id}`,
 
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",

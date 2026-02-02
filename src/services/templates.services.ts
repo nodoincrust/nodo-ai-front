@@ -67,3 +67,19 @@ export const getFilledTemplateSubmission = async (payload: {
     );
     return response.data;
 };
+/* ================= GET SUBMITTED RESPONSES (OPTIONAL) ================= */
+// export const getTemplateSubmissions = async (templateId: string | number) => {
+//     const response = await axios.get(
+//         `${API_URL.getTemplateSubmissions}/${templateId}`
+//     );
+//     return response.data;
+// };
+
+export const getTemplateSubmissions = async (
+    templateId: number | string
+) => {
+    const response = await axios.get(
+        API_URL.viewSummmitedUers(templateId)
+    );
+    return response.data;
+};

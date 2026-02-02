@@ -240,6 +240,26 @@ export default function Templates() {
             title: "Type",
             render: (row: any) => <span>{row.type || "—"}</span>,
           },
+          {
+            title: "Submitted By",
+            render: (row: any) => (
+              <div className="submitted-by-cell">
+                <span className="submitted-name">
+                  {/* {row.submitted_by || "—"} */}
+                </span>
+
+                <img
+                  src="/assets/Eye.svg"
+                  alt="View users"
+                  title="View Submitted Users"
+                  onClick={() =>
+                    navigate(`/templates/submitted-users/${row.id}`)
+                  }
+                />
+              </div>
+            ),
+          },
+
           // {
           //     title: "Category",
           //     render: (row: any) => (
