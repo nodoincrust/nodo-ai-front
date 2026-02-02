@@ -566,6 +566,175 @@
     }
 }
 
+/* ================= SUBMIT MODE - Enable interactions ================= */
+/* ================= SUBMIT MODE - Enable interactions with identical view-mode styling ================= */
+.template-form-container.submit-mode {
+
+    /* Keep default cursor for container */
+    cursor: default;
+
+    /* Hide drag handles completely */
+    .row-drag-handle {
+        display: none !important;
+    }
+
+    /* Remove drop zone dashed border */
+    .drop-zone {
+        border: none !important;
+        padding: 16px 0 !important;
+        min-height: auto !important;
+    }
+
+    /* Disable field highlighting and interactions */
+    .form-field {
+        pointer-events: none !important;
+        cursor: default !important;
+        border: 1px solid transparent !important;
+
+        &.active,
+        &:hover {
+            border-color: transparent !important;
+            background: $color-white !important;
+        }
+    }
+
+    /* Hide all field actions (edit/delete buttons) */
+    .field-actions {
+        display: none !important;
+    }
+
+    .label-with-action .field-actions,
+    .hr-with-action img,
+    .button-field-with-action .field-actions {
+        display: none !important;
+    }
+
+    /* Enable only the interactive form elements */
+    input:not([type="file"]),
+    textarea,
+    select {
+        pointer-events: auto !important;
+        cursor: text !important;
+
+        &:focus {
+            border-color: $primary !important;
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba($primary, 0.1) !important;
+        }
+    }
+
+    /* Enable file inputs */
+    input[type="file"] {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+
+    /* Enable checkboxes */
+    .checkbox-group {
+        pointer-events: auto !important;
+    }
+
+    .checkbox-wrapper {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+
+        input.custom-checkbox {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+    }
+
+    /* Enable radios */
+    .radio-group {
+        pointer-events: auto !important;
+    }
+
+    .radio-wrapper {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+
+        input {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+    }
+
+    /* Enable switch */
+    .switch {
+        pointer-events: auto !important;
+
+        input {
+            pointer-events: auto !important;
+        }
+
+        .slider {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+    }
+
+    /* Enable buttons */
+    button.primary-button,
+    button.secondary-button {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+
+        &:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5;
+        }
+    }
+
+    /* Keep labels non-interactive */
+    label {
+        cursor: default !important;
+        pointer-events: none !important;
+    }
+
+    /* Keep header label styling */
+    .header-label {
+        cursor: default !important;
+        pointer-events: none !important;
+    }
+
+    /* Keep horizontal line non-interactive */
+    .form-hr {
+        pointer-events: none !important;
+    }
+
+    /* Ensure form rows don't have any interactive cursor */
+    .form-row,
+    .form-row-wrapper {
+        cursor: default !important;
+    }
+}
+
+/* Error state for inputs */
+input.error,
+textarea.error,
+select.error {
+    border-color: #ef4444 !important;
+
+    &:focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+    }
+}
+
+/* Error state for form field container */
+.form-field.has-error {
+    /* Optional: Add subtle background for error fields */
+    /* background: rgba(239, 68, 68, 0.02) !important; */
+}
+
+/* Submit mode specific error styling */
+.template-form-container.submit-mode {
+    .error-message {
+        pointer-events: none !important;
+        user-select: none !important;
+    }
+}
+
 // /* Enhanced Drag and Drop Styles */
 
 // /* Drop zone between rows */

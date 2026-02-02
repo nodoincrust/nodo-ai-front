@@ -41,3 +41,25 @@ export const deleteTemplate = async (templateId: number | string) => {
     );
     return response.data;
 };
+
+/* ================= SUBMIT FILLED TEMPLATE ================= */
+export const submitTemplateForm = async (payload: FormData) => {
+    const response = await axios.post(
+        API_URL.submitTemplateForm,
+        payload,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }
+    );
+    return response.data;
+};
+
+/* ================= GET SUBMITTED RESPONSES (OPTIONAL) ================= */
+// export const getTemplateSubmissions = async (templateId: string | number) => {
+//     const response = await axios.get(
+//         `${API_URL.getTemplateSubmissions}/${templateId}`
+//     );
+//     return response.data;
+// };

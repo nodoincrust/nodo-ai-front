@@ -121,13 +121,13 @@ type HeaderCommonProps = {
 };
 export type HeaderProps =
   | (HeaderCommonProps & {
-      title: string;
-      breadcrumb?: never;
-    })
+    title: string;
+    breadcrumb?: never;
+  })
   | (HeaderCommonProps & {
-      breadcrumb: Breadcrumb;
-      title?: never;
-    });
+    breadcrumb: Breadcrumb;
+    title?: never;
+  });
 export type StatusType = "all" | "active" | "inactive";
 
 // Sidebar.tsx
@@ -317,7 +317,7 @@ export interface ApiDocumentDetailResponse {
       file_type: string;
       file_size_mb: number;
     };
-    
+
     summary: {
       text: string | null;
       tags: string[];
@@ -328,7 +328,7 @@ export interface ApiDocumentDetailResponse {
       status: string | null;
       reviewed_by: number | null;
     };
-     editor?: any; // OnlyOffice editor config
+    editor?: any; // OnlyOffice editor config
   };
 }
 
@@ -372,7 +372,7 @@ export interface DocumentHeaderProps {
       timestamp?: string;
     }[];
   };
- 
+
   onEdit?: () => void;
   editButtonText?: string;
 }
@@ -406,7 +406,7 @@ export interface ApiDocument {
       timestamp?: string;
     }[];
   };
-   editor?: any; // OnlyOffice editor config
+  editor?: any; // OnlyOffice editor config
 }
 
 export interface DocumentsListResponse {
@@ -504,6 +504,7 @@ export type FieldType =
   | "input"
   | "textarea"
   | "number"
+  | "email"
   | "date"
   | "checkbox"
   | "radio"
@@ -532,6 +533,7 @@ export interface FormField {
   className?: string;
   orderInRow?: number;
   isNewlyDropped?: boolean;
+  onlyChars?: boolean;
 }
 
 export interface CreateTemplateFormProps {

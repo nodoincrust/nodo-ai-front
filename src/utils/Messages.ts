@@ -115,6 +115,7 @@ export const MESSAGES = {
         PLACEHOLDER_NAME_REQUIRED: "Placeholder name is required",
         AT_LEAST_ONE_OPTION_REQUIRED: "At least one option is required",
         PLEASE_ENTER_ERROR_MESSAGE: "Please enter the error message",
+        FILL_ALL_REQUIRED_FIELDS: "Please fill all the required fields",
         INVALID_FILE_TYPE_FORMAT: "Invalid file type format. Example: .jpg, .png",
         FAILED_TO_SAVE_TEMPLATE: "Failed to save template",
         FAILED_TO_UPDATE_TEMPLATE: "Failed to update template",

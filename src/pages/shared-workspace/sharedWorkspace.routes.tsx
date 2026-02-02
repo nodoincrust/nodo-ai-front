@@ -3,6 +3,7 @@ import SharedWorkspace from "./SharedWorkspace";
 import SharedDocumentDetail from "./SharedDocumentDetail";
 import SharedBouquetDocuments from "./SharedBouquetDocuments";
 import SharedBouquetDocumentDetails from "./SharedBouquetDocumentDetails";
+import TemplateLayout from "../Dynamic_Templates/Components/Create_Templates/TemplateLayout";
 
 export const sharedWorkspaceRoutes: RouteObject[] = [
   {
@@ -24,6 +25,10 @@ export const sharedWorkspaceRoutes: RouteObject[] = [
         path: "bouquets/:bouquetId/documents/:id",
         element: <SharedBouquetDocumentDetails />,
       },
+      {
+        path: "submit/:id",
+        element: <TemplateLayout />,
+      }
     ],
   },
 ];
