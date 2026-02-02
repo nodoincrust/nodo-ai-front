@@ -124,5 +124,6 @@ export const MESSAGES = {
         FORM_NAME_REQUIRED: "Template name is required",
         AT_LEAST_ONE_BUTTON_REQUIRED: "At least one button is required in the template",
         AT_LEAST_ONE_FIELD_REQUIRED: "At least one field is required",
+        PLEASE_FILL_AT_LEAST_ONE_FIELD: "Please fill at least one field",
     },
 };

@@ -879,6 +879,172 @@ select.error {
     }
 }
 
+/* ================= FILE PREVIEW STYLES ================= */
+.file-preview-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 36px;
+    /* Match input field height */
+}
+
+.file-preview-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 12px;
+    border: 1px solid $input-border;
+    border-radius: 12px;
+    background: $color-white;
+
+    .no-file-text {
+        color: $color-placeholder;
+        font-size: 14px;
+    }
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+}
+
+.file-name-wrapper {
+    flex: 1;
+    min-width: 0;
+    /* Allows text truncation */
+}
+
+.file-name {
+    font-size: 14px;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.file-preview-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.eye-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid $input-border;
+    border-radius: 6px;
+    color: $primary;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: $color-primary-light;
+        border-color: $primary;
+    }
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Error state for file preview */
+.template-form-container.submit-mode {
+    .file-preview-container.error {
+        border-color: #ef4444 !important;
+    }
+}
+
+/* Submitted mode adjustments */
+.template-form-container.submitted-mode {
+    .file-preview-container {
+        background: #f5f5f5;
+        border-color: $border-light;
+
+        .file-name {
+            color: $subheading-color;
+        }
+
+        .eye-icon-container {
+            border-color: $border-light;
+            color: $color-placeholder;
+
+            &:hover {
+                background: $color-primary-light;
+                border-color: $primary;
+                color: $primary;
+            }
+        }
+    }
+}
+
+/* ================= SUBMISSION STATUS BANNER ================= */
+.submission-status-banner {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+
+    .status-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+
+            &.submitted {
+                background: #dcfce7;
+                color: #166534;
+                border: 1px solid #bbf7d0;
+            }
+        }
+
+        .template-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: $text-primary;
+        }
+
+        .template-id {
+            font-size: 14px;
+            color: $subheading-color;
+            margin-left: auto;
+        }
+    }
+}
+
+/* Readonly badge */
+.readonly-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: #f3f4f6;
+    color: $subheading-color;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 4px;
+    border: 1px solid $border-light;
+}
+
 // /* Enhanced Drag and Drop Styles */
 
 // /* Drop zone between rows */

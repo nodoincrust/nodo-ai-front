@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { notification, Select } from "antd";
 import {
     getTemplateById,
     submitTemplateForm,
-    getFilledTemplateSubmission,
 } from "../../../../services/templates.services";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
 import { FormField } from "../../../../types/common";
@@ -18,27 +17,33 @@ interface ErrorMap {
     [fieldId: string]: string;
 }
 
+// Eye icon SVG component
+const EyeIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+    <svg
+        className={className}
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+);
+
 const SubmitTemplateForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const location = useLocation();
     const [fields, setFields] = useState<FormField[]>([]);
     const [values, setValues] = useState<FilledValueMap>({});
     const [errors, setErrors] = useState<ErrorMap>({});
     const [openSelect, setOpenSelect] = useState<string | null>(null);
-    const [isPrefilledMode, setIsPrefilledMode] = useState(false);
-
-    const getLoggedInUserId = () => {
-        try {
-            const authData = localStorage.getItem("authData");
-            if (!authData) return null;
-
-            const parsed = JSON.parse(authData);
-            return parsed?.user?.id || null;
-        } catch {
-            return null;
-        }
-    };
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [templateData, setTemplateData] = useState<any>(null);
 
     /* ================= FETCH TEMPLATE ================= */
     useEffect(() => {
@@ -48,27 +53,19 @@ const SubmitTemplateForm: React.FC = () => {
             try {
                 getLoaderControl()?.showLoader();
 
-                const submissionId = (location.state as any)?.submissionId || null;
-                const submittedBy = getLoggedInUserId();
+                const res = await getTemplateById(id);
 
-                let res;
+                if (res?.statusCode === 200 && res?.data) {
+                    const templateData = res.data;
+                    setTemplateData(templateData);
 
-                if (submissionId && submittedBy) {
-                    setIsPrefilledMode(true);
-                    res = await getFilledTemplateSubmission({
-                        template_id: Number(id),
-                        submitted_by: submittedBy,
-                    });
-                } else {
-                    setIsPrefilledMode(false);
-                    res = await getTemplateById(id);
-                }
+                    const isFormSubmitted = templateData.isSubmitted || false;
+                    setIsSubmitted(isFormSubmitted);
 
-                if (res?.statusCode === 200 && res?.data?.rows) {
                     const loadedFields: FormField[] = [];
                     const prefilledValues: FilledValueMap = {};
 
-                    res.data.rows.forEach((row: any) => {
+                    templateData.rows?.forEach((row: any) => {
                         const rowId = String(row.rowOrder);
 
                         row.fields
@@ -76,11 +73,7 @@ const SubmitTemplateForm: React.FC = () => {
                             .forEach((field: any) => {
                                 loadedFields.push({ ...field, rowId });
 
-                                if (
-                                    submissionId &&
-                                    field.value !== null &&
-                                    field.value !== undefined
-                                ) {
+                                if (isFormSubmitted && field.value !== null && field.value !== undefined) {
                                     prefilledValues[field.id] = field.value;
                                 }
                             });
@@ -88,7 +81,7 @@ const SubmitTemplateForm: React.FC = () => {
 
                     setFields(loadedFields);
 
-                    if (submissionId && Object.keys(prefilledValues).length > 0) {
+                    if (isFormSubmitted && Object.keys(prefilledValues).length > 0) {
                         setValues(prefilledValues);
                     }
                 }
@@ -100,7 +93,7 @@ const SubmitTemplateForm: React.FC = () => {
         };
 
         fetchTemplate();
-    }, [id, location.state]);
+    }, [id]);
 
     /* ================= VALIDATION HELPERS ================= */
     const isValidEmail = (email: string) =>
@@ -165,7 +158,7 @@ const SubmitTemplateForm: React.FC = () => {
 
     /* ================= HANDLE CHANGE ================= */
     const updateValue = (fieldId: string, value: any) => {
-        if (isPrefilledMode) return;
+        if (isSubmitted) return;
         setValues((prev) => ({ ...prev, [fieldId]: value }));
         validateField(fieldId, value);
     };
@@ -198,7 +191,7 @@ const SubmitTemplateForm: React.FC = () => {
 
         if (!atLeastOneFilled) {
             notification.error({
-                message: MESSAGES.ERRORS.AT_LEAST_ONE_FIELD_REQUIRED || "Please fill at least one field",
+                message: MESSAGES.ERRORS.PLEASE_FILL_AT_LEAST_ONE_FIELD || "Please fill at least one field",
             });
             return false;
         }
@@ -216,7 +209,7 @@ const SubmitTemplateForm: React.FC = () => {
 
     /* ================= SUBMIT ================= */
     const handleSubmit = async () => {
-        if (isPrefilledMode) {
+        if (isSubmitted) {
             notification.info({ message: "This form has already been submitted and cannot be modified" });
             return;
         }
@@ -256,6 +249,7 @@ const SubmitTemplateForm: React.FC = () => {
                 });
                 setValues({});
                 setErrors({});
+                setIsSubmitted(true);
                 navigate(-1);
             }
         } catch (err: any) {
@@ -265,6 +259,17 @@ const SubmitTemplateForm: React.FC = () => {
         } finally {
             getLoaderControl()?.hideLoader();
         }
+    };
+
+    /* ================= GET FIELD DATA ================= */
+    const getFieldData = (fieldId: string) => {
+        if (!templateData?.rows) return null;
+
+        for (const row of templateData.rows) {
+            const field = row.fields.find((f: any) => f.id === fieldId);
+            if (field) return field;
+        }
+        return null;
     };
 
     /* ================= RENDER ================= */
@@ -290,9 +295,19 @@ const SubmitTemplateForm: React.FC = () => {
         count === 1 ? 12 : count === 2 ? 6 : count === 3 ? 4 : count === 4 ? 3 : 12;
 
     return (
-        <div className={`template-form-container submit-mode ${isPrefilledMode ? "prefilled-mode" : ""}`}>
+        <div className={`template-form-container submit-mode ${isSubmitted ? "submitted-mode" : ""}`}>
             <div className="drop-zone">
-                {fields.length === 0 && <p className="drop-placeholder">Loading form...</p>}
+                {/* {fields.length === 0 && <p className="drop-placeholder">Loading form...</p>} */}
+
+                {/* {templateData && isSubmitted && (
+                    <div className="submission-status-banner">
+                        <div className="status-info">
+                            <span className="status-badge submitted">Submitted</span>
+                            <span className="template-name">{templateData.templateName}</span>
+                            <span className="template-id">Template ID: {templateData.templateId}</span>
+                        </div>
+                    </div>
+                )} */}
 
                 {rowOrder.map((rowId) => {
                     const rowFields = rowMap.get(rowId) || [];
@@ -304,10 +319,12 @@ const SubmitTemplateForm: React.FC = () => {
                                 {rowFields.map((field) => {
                                     const hasError = !!errors[field.id];
                                     const fieldValue = values[field.id];
+                                    const isReadOnly = isSubmitted;
+                                    const fieldData = getFieldData(field.id);
 
                                     return (
                                         <div key={field.id} className={`form-col span-${span}`} data-field-id={field.id}>
-                                            <div className={`form-field ${hasError ? "star" : ""}`}>
+                                            <div className={`form-field ${hasError ? "star" : ""} ${isReadOnly ? "readonly" : ""}`}>
                                                 {/* LABEL */}
                                                 {field.label &&
                                                     !["horizontal_line", "primary_button", "secondary_button"].includes(field.type) && (
@@ -315,6 +332,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                             <label className={field.type === "header" ? "header-label" : ""}>
                                                                 {field.label}
                                                                 {field.required && field.type !== "header" && <span className="star"> *</span>}
+                                                                {/* {isReadOnly && <span className="readonly-badge">Submitted</span>} */}
                                                             </label>
                                                         </div>
                                                     )}
@@ -334,8 +352,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                                 className="primary-button"
                                                                 type="button"
                                                                 onClick={handleSubmit}
-                                                                disabled={isPrefilledMode}
-                                                                style={isPrefilledMode ? { display: "none" } : {}}
+                                                                disabled={isReadOnly}
+                                                            // style={isReadOnly ? { display: "none" } : {}}
                                                             >
                                                                 {field.label || "Submit"}
                                                             </button>
@@ -345,7 +363,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                                 type="button"
                                                                 onClick={() => navigate(-1)}
                                                             >
-                                                                {isPrefilledMode ? "Close" : field.label || "Cancel"}
+                                                                {field.label || "Cancel"}
+                                                                {/* {isReadOnly ? "Close" : field.label || "Cancel"} */}
                                                             </button>
                                                         )}
                                                     </div>
@@ -354,6 +373,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                 {/* FIELD INPUTS */}
                                                 {(() => {
                                                     const isEmail = field.type === "email" || (field.type === "input" && (field as any).subtype === "email");
+
                                                     switch (field.type) {
                                                         case "input":
                                                         case "email":
@@ -364,8 +384,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     onChange={(e) => updateValue(field.id, e.target.value)}
                                                                     placeholder={field.placeholder}
                                                                     className={hasError ? "error" : ""}
-                                                                    disabled={isPrefilledMode}
-                                                                    readOnly={isPrefilledMode}
+                                                                    disabled={isReadOnly}
+                                                                    readOnly={isReadOnly}
                                                                 />
                                                             );
                                                         case "textarea":
@@ -375,8 +395,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     onChange={(e) => updateValue(field.id, e.target.value)}
                                                                     placeholder={field.placeholder}
                                                                     className={hasError ? "error" : ""}
-                                                                    disabled={isPrefilledMode}
-                                                                    readOnly={isPrefilledMode}
+                                                                    disabled={isReadOnly}
+                                                                    readOnly={isReadOnly}
                                                                 />
                                                             );
                                                         case "number":
@@ -387,8 +407,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     onChange={(e) => updateValue(field.id, e.target.value)}
                                                                     placeholder={field.placeholder}
                                                                     className={hasError ? "error" : ""}
-                                                                    disabled={isPrefilledMode}
-                                                                    readOnly={isPrefilledMode}
+                                                                    disabled={isReadOnly}
+                                                                    readOnly={isReadOnly}
                                                                 />
                                                             );
                                                         case "date":
@@ -398,22 +418,42 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     value={fieldValue || ""}
                                                                     onChange={(e) => updateValue(field.id, e.target.value)}
                                                                     className={hasError ? "error" : ""}
-                                                                    disabled={isPrefilledMode}
-                                                                    readOnly={isPrefilledMode}
+                                                                    disabled={isReadOnly}
+                                                                    readOnly={isReadOnly}
                                                                 />
                                                             );
                                                         case "file":
-                                                            if (isPrefilledMode && (field as any).fileUrl) {
+                                                            if (isReadOnly && fieldData?.value) {
+                                                                const fileName = fieldData.value.split('/').pop() || fieldData.value;
+                                                                const fileUrl = fieldData.fileUrl || fieldData.value;
+
                                                                 return (
-                                                                    <div className="file-preview">
-                                                                        <a
-                                                                            href={(field as any).fileUrl}
-                                                                            target="_blank"
-                                                                            rel="noopener noreferrer"
-                                                                            className="file-link"
-                                                                        >
-                                                                            View uploaded file
-                                                                        </a>
+                                                                    <div className="file-preview-wrapper">
+                                                                        <div className="file-preview-container">
+                                                                            <div className="file-info">
+                                                                                <div className="file-name-wrapper">
+                                                                                    <span className="file-name">{fileName}</span>
+                                                                                </div>
+                                                                                <a
+                                                                                    href={fileUrl}
+                                                                                    target="_blank"
+                                                                                    rel="noopener noreferrer"
+                                                                                    className="file-preview-link"
+                                                                                >
+                                                                                    <div className="eye-icon-container">
+                                                                                        <EyeIcon />
+                                                                                    </div>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            } else if (isReadOnly) {
+                                                                return (
+                                                                    <div className="file-preview-wrapper">
+                                                                        <div className="file-preview-container">
+                                                                            <span className="no-file-text">No file uploaded</span>
+                                                                        </div>
                                                                     </div>
                                                                 );
                                                             }
@@ -423,7 +463,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     accept={field.allowedFileTypes?.join(",")}
                                                                     onChange={(e) => updateValue(field.id, e.target.files?.[0])}
                                                                     className={hasError ? "error" : ""}
-                                                                    disabled={isPrefilledMode}
+                                                                    disabled={isReadOnly}
                                                                 />
                                                             );
                                                         case "select":
@@ -438,13 +478,13 @@ const SubmitTemplateForm: React.FC = () => {
                                                                         style={{ width: "100%" }}
                                                                         className="custom-select"
                                                                         showArrow={false}
-                                                                        disabled={isPrefilledMode}
+                                                                        disabled={isReadOnly}
                                                                         options={field.options?.map((opt) => ({ label: opt, value: opt }))}
                                                                         onDropdownVisibleChange={(open) => {
-                                                                            if (!isPrefilledMode) setOpenSelect(open ? field.id : null);
+                                                                            if (!isReadOnly) setOpenSelect(open ? field.id : null);
                                                                         }}
                                                                         onChange={(value) => {
-                                                                            if (!isPrefilledMode) {
+                                                                            if (!isReadOnly) {
                                                                                 updateValue(field.id, value);
                                                                                 setOpenSelect(null);
                                                                             }
@@ -465,7 +505,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                                                 checked={fieldValue === opt}
                                                                                 onChange={() => updateValue(field.id, opt)}
                                                                                 className="custom-radio"
-                                                                                disabled={isPrefilledMode}
+                                                                                disabled={isReadOnly}
                                                                             />
                                                                             <span>{opt}</span>
                                                                         </label>
@@ -482,7 +522,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                                                 className="custom-checkbox"
                                                                                 checked={fieldValue?.includes(opt) || false}
                                                                                 onChange={() => {
-                                                                                    if (!isPrefilledMode) {
+                                                                                    if (!isReadOnly) {
                                                                                         const prev = fieldValue || [];
                                                                                         updateValue(
                                                                                             field.id,
@@ -492,7 +532,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                                                         );
                                                                                     }
                                                                                 }}
-                                                                                disabled={isPrefilledMode}
+                                                                                disabled={isReadOnly}
                                                                             />
                                                                             <span>{opt}</span>
                                                                         </label>
@@ -506,7 +546,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                                         type="checkbox"
                                                                         checked={fieldValue || false}
                                                                         onChange={(e) => updateValue(field.id, e.target.checked)}
-                                                                        disabled={isPrefilledMode}
+                                                                        disabled={isReadOnly}
                                                                     />
                                                                     <span className="slider round"></span>
                                                                 </label>
