@@ -361,7 +361,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                             <button
                                                                 className="secondary-button"
                                                                 type="button"
-                                                                onClick={() => navigate(-1)}
+                                                                // onClick={() => navigate(-1)}
+                                                                disabled={isReadOnly}
                                                             >
                                                                 {field.label || "Cancel"}
                                                                 {/* {isReadOnly ? "Close" : field.label || "Cancel"} */}
@@ -422,41 +423,48 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     readOnly={isReadOnly}
                                                                 />
                                                             );
+                                                            
                                                         case "file":
-                                                            if (isReadOnly && fieldData?.value) {
-                                                                const fileName = fieldData.value.split('/').pop() || fieldData.value;
-                                                                const fileUrl = fieldData.fileUrl || fieldData.value;
+                                                            if (isReadOnly) {
+                                                                if (fieldData?.value) {
+                                                                    const fileName = fieldData.value.split("/").pop() || fieldData.value;
+                                                                    const fileUrl = fieldData.fileUrl
+                                                                        ? `${import.meta.env.VITE_Document_Viewer_url}${fieldData.fileUrl}`
+                                                                        : fieldData.value;
 
-                                                                return (
-                                                                    <div className="file-preview-wrapper">
-                                                                        <div className="file-preview-container">
-                                                                            <div className="file-info">
-                                                                                <div className="file-name-wrapper">
-                                                                                    <span className="file-name">{fileName}</span>
-                                                                                </div>
-                                                                                <a
-                                                                                    href={fileUrl}
-                                                                                    target="_blank"
-                                                                                    rel="noopener noreferrer"
-                                                                                    className="file-preview-link"
-                                                                                >
-                                                                                    <div className="eye-icon-container">
-                                                                                        <EyeIcon />
+                                                                    return (
+                                                                        <div className="file-preview-wrapper">
+                                                                            <div className="file-preview-container">
+                                                                                <div className="file-info">
+                                                                                    <div className="file-name-wrapper">
+                                                                                        <span className="file-name">{fileName}</span>
                                                                                     </div>
-                                                                                </a>
+                                                                                    <a
+                                                                                        href={fileUrl}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        className="file-preview-link"
+                                                                                    >
+                                                                                        <div className="eye-icon-container">
+                                                                                            <EyeIcon />
+                                                                                        </div>
+                                                                                    </a>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-                                                                );
-                                                            } else if (isReadOnly) {
-                                                                return (
-                                                                    <div className="file-preview-wrapper">
-                                                                        <div className="file-preview-container">
-                                                                            <span className="no-file-text">No file uploaded</span>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <div className="file-preview-wrapper">
+                                                                            <div className="file-preview-container">
+                                                                                <span className="no-file-text">No file uploaded</span>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                );
+                                                                    );
+                                                                }
                                                             }
+
+                                                            // Editable mode
                                                             return (
                                                                 <input
                                                                     type="file"
@@ -466,7 +474,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     disabled={isReadOnly}
                                                                 />
                                                             );
-                                                        case "select":
+                                                        
+                                                            case "select":
                                                             return (
                                                                 <div
                                                                     className={`custom-select-wrapper ${hasError ? "error" : ""} ${openSelect === field.id ? "open" : ""
@@ -493,7 +502,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     <span className="custom-arrow" />
                                                                 </div>
                                                             );
-                                                        case "radio":
+                                                       
+                                                            case "radio":
                                                             return (
                                                                 <div className="radio-group">
                                                                     {field.options?.map((opt) => (
