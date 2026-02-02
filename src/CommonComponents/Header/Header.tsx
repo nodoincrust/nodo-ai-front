@@ -97,7 +97,7 @@ breadcrumb,
           )}
         </div>
 
-        {onAddClick && addButtonText && (
+        {onAddClick && addButtonText &&  documentFilterValue !== "AWAITING"  && (
           <PrimaryButton
             text={addButtonText}
             imgSrc="/assets/plus-02.svg"

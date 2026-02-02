@@ -241,7 +241,7 @@ export default function Templates() {
             render: (row: any) => <span>{row.type || "—"}</span>,
           },
           {
-            title: "Submitted Users",
+            title: "Submitted By",
             render: (row: any) => (
               <div className="submitted-by-cell">
                 <span className="submitted-name">
