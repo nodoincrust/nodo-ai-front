@@ -59,6 +59,7 @@ export const API_URL = {
   saveTemplate: "/newdocuments/savetemplate",
   getTemplateById: "/newdocuments/templatesFeilds",
   deleteTemplate: "/newdocuments/deleteTemplate",
+  submitTemplateForm: "/newdocuments/submitTemplateForm",
 
   //Bouuquet
   getBouquetsList: "/newdocuments/getAllBoq",

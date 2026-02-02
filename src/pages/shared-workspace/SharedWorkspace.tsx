@@ -264,7 +264,7 @@ export default function SharedWorkspace() {
   };
 
   const handleViewTemplate = (template: SharedTemplate) => {
-    navigate(`/templates/view/${template.id}`, {
+    navigate(`/sharedworkspace/submit/${template.id}`, {
       state: {
         sharedFilter,
         page: currentPageState,

@@ -21,7 +21,7 @@ export const templatesRoutes: RouteObject[] = [
             {
                 path: "view/:id",
                 element: <TemplateLayout />,
-            }
+            },
         ],
     },
 ];
