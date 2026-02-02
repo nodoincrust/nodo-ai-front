@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import dayjs from "dayjs";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
@@ -122,6 +122,7 @@ export default function SubmittedUsers() {
           },
         ]}
         actions={(row: SubmissionItem) => (
+            <Tooltip title="View Reponse">
           <div className="submitted-users-actions">
             <img
               src="/assets/Eye.svg"
@@ -130,6 +131,7 @@ export default function SubmittedUsers() {
               onClick={() => handleViewSubmission(row)}
             />
           </div>
+          </Tooltip>
         )}
         actionsTitle="Actions"
         currentPage={currentPage}
