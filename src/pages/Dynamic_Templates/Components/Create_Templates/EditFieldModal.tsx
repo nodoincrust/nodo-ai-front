@@ -64,9 +64,17 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
         let initOptions: string[] = [];
         if (!shouldShowEmpty) {
             if (field.type === "file") {
-                initOptions = field.allowedFileTypes || [];
+                initOptions = Array.isArray(field.allowedfiletypes)
+                    ? field.allowedfiletypes
+                    : field.allowedfiletypes
+                        ? [field.allowedfiletypes]
+                        : [];
             } else if (["select", "radio", "checkbox"].includes(field.type)) {
-                initOptions = field.options || [];
+                initOptions = Array.isArray(field.options)
+                    ? field.options
+                    : field.options
+                        ? [field.options]
+                        : [];
             }
         }
 
@@ -215,12 +223,13 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                 isNewlyDropped: false, // Mark as no longer newly dropped once saved
             };
 
-            // Include options / allowedFileTypes
+            // Include options / allowedfiletypes
             if (["select", "radio", "checkbox"].includes(field.type)) {
-                payload.options = options;
+                payload.options = Array.isArray(options) ? options : [];
             }
+
             if (field.type === "file") {
-                payload.allowedFileTypes = options;
+                payload.allowedfiletypes = Array.isArray(options) ? options : [];
             }
 
             // Save last required error message
@@ -374,7 +383,7 @@ const EditFieldModal: React.FC<Props> = ({ open, field, onClose, onSave }) => {
                                                             if (el) saveEditedOption(i, el.textContent || "");
                                                         }}
                                                     >
-                                                        <img src="/assets/save.svg" alt="save" />
+                                                        <img src="/assets/save-01.svg" alt="save" />
                                                     </button>
                                                 ) : (
                                                     <button

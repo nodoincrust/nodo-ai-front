@@ -123,7 +123,7 @@ const TemplateLayout = () => {
                             onClick={() => (window as any).__saveTemplate?.()}
                             disabled={isEditMode && !isDirty}
                         >
-                            Save Template
+                            {isEditMode ? "Update Template" : "Create Template"}
                         </button>
                     </div>
                 )}

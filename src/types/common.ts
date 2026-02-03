@@ -529,7 +529,7 @@ export interface FormField {
   colSpan?: number;
   hasUserEdited?: boolean;
   requiredErrorMessage?: string;
-  allowedFileTypes?: string[];
+  allowedfiletypes?: string[];
   className?: string;
   orderInRow?: number;
   isNewlyDropped?: boolean;
@@ -561,7 +561,7 @@ export interface TemplateFieldPayload {
   required?: boolean;
   requiredErrorMessage?: string;
   options?: string[];
-  allowedFileTypes?: string[];
+  allowedfiletypes?: string[];
   fieldOrder: number;
   className: string;
 }

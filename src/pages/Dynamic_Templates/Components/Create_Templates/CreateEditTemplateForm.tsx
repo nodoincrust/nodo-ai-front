@@ -94,7 +94,7 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
                 type === "select" || type === "radio" || type === "checkbox"
                     ? ["Option 1"]
                     : undefined,
-            allowedFileTypes: type === "file" ? [".pdf", ".jpg", ".png"] : undefined,
+            allowedfiletypes: type === "file" ? [".pdf", ".jpg", ".png"] : undefined,
             rowId: targetRowId || uid(),
             hasUserEdited: false,
             isNewlyDropped: true, // Mark as newly dropped - not yet saved via edit modal
@@ -430,7 +430,7 @@ const CreateEditTemplateForm: React.FC<CreateEditTemplateFormProps> = ({ templat
                     ? field.requiredErrorMessage || ""
                     : "",
                 options: field.options,
-                allowedFileTypes: field.allowedFileTypes,
+                allowedfiletypes: field.allowedfiletypes,
                 fieldOrder: fieldIndex + 1,
                 className:
                     field.type === "primary_button"

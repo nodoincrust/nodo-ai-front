@@ -822,6 +822,22 @@
     }
 }
 
+/* ===== ENABLE FILE VIEW BUTTON IN SUBMIT/SUBMITTED MODE ===== */
+.template-form-container.submit-mode,
+.template-form-container.submitted-mode {
+
+    .file-preview-link,
+    .file-preview-link * {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+
+    .eye-icon-container {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+}
+
 /* ================= PREFILLED MODE ================= */
 .template-form-container.prefilled-mode {
 
@@ -937,7 +953,8 @@ select.error {
     transition: all 0.2s ease;
 }
 
-.eye-icon-container {
+.eye-icon-container,
+.delete-icon-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -946,17 +963,16 @@ select.error {
     border: 1px solid $input-border;
     border-radius: 6px;
     color: $primary;
-    cursor: pointer;
     transition: all 0.2s ease;
 
-    &:hover {
-        background: $color-primary-light;
-        border-color: $primary;
-    }
+    // &:hover {
+    //     background: $color-primary-light;
+    //     border-color: $primary;
+    // }
 
-    svg {
-        width: 18px;
-        height: 18px;
+    img {
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -981,12 +997,29 @@ select.error {
             border-color: $border-light;
             color: $color-placeholder;
 
-            &:hover {
-                background: $color-primary-light;
-                border-color: $primary;
-                color: $primary;
-            }
+            // &:hover {
+            //     background: $color-primary-light;
+            //     border-color: $primary;
+            //     color: $primary;
+            // }
         }
+
+        .delete-icon-container img {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}
+
+/* ===== ENABLE FILE ACTION ICONS IN EDITABLE MODE ===== */
+.template-form-container.submit-mode:not(.submitted-mode) {
+
+    .file-preview-link,
+    .file-preview-link *,
+    .delete-icon-container,
+    .delete-icon-container * {
+        pointer-events: auto !important;
+        cursor: pointer !important;
     }
 }
 
