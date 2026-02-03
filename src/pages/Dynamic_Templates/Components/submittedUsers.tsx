@@ -8,7 +8,11 @@ import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { getTemplateSubmissions } from "../../../services/templates.services";
 import { MESSAGES } from "../../../utils/Messages";
 import "./Styles/SubmittedUsers.scss";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 interface SubmissionItem {
   submissionId: number;
   submittedBy: string;
@@ -70,14 +74,16 @@ export default function SubmittedUsers() {
       description: `Submission ID: ${row.submissionId}`,
     });
   };
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return "—";
 
-  const formatDate = (dateStr: string) => {
-    try {
-      return dayjs(dateStr).format("DD MMM YYYY, HH:mm");
-    } catch {
-      return dateStr;
-    }
-  };
+  const d = dayjs.utc(dateStr).tz("Asia/Kolkata");
+
+  return d.isValid()
+    ? d.format("DD MMM YYYY, hh:mm A")
+    : dateStr;
+};
+
 
   if (!templateId) {
     navigate("/templates");
