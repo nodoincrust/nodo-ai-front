@@ -487,7 +487,7 @@ const DocumentDetail: React.FC = () => {
 
           notification.success({
             message: "Summary generated",
-            description: `Summary generated for "${fileName}" (version ${version})`,
+            description: `Summary generated for ${fileName} (${version})`,
             duration: 0,
           });
         },
