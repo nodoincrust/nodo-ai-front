@@ -336,7 +336,7 @@ const EditTemplateForm: React.FC = () => {
                     ? field.requiredErrorMessage || ""
                     : "",
                 options: field.options,
-                allowedFileTypes: field.allowedFileTypes,
+                allowedfiletypes: field.allowedfiletypes,
                 fieldOrder: fieldIndex + 1,
                 className:
                     field.type === "primary_button"
@@ -369,7 +369,7 @@ const EditTemplateForm: React.FC = () => {
             //             ? field.requiredErrorMessage || ""
             //             : "",
             //         options: field.options,
-            //         allowedFileTypes: field.allowedFileTypes,
+            //         allowedfiletypes: field.allowedfiletypes,
             //         order: index + 1,
             //         rowId: field.rowId,
             //         className:

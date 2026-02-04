@@ -190,12 +190,12 @@
                             border-radius: 12px;
                             cursor: pointer;
                             transition: all 0.2s ease;
-                            padding: 0; // center icon
+                            padding: 0;
                             line-height: 1;
 
                             &:hover {
-                                background: lighten($color-white, 5%);
-                                border-color: darken($color-border, 10%);
+                                background: $color-white;
+                                border-color: $color-border;
                             }
 
                             img {

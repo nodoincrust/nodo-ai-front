@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification, Select } from "antd";
 import {
+    getFilledTemplateSubmission,
     getTemplateById,
     submitTemplateForm,
 } from "../../../../services/templates.services";
@@ -17,33 +18,36 @@ interface ErrorMap {
     [fieldId: string]: string;
 }
 
-// Eye icon SVG component
-const EyeIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-    <svg
-        className={className}
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-    >
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-        <circle cx="12" cy="12" r="3"></circle>
-    </svg>
-);
+interface Props {
+    viewOnly?: boolean;
+}
 
-const SubmitTemplateForm: React.FC = () => {
+const SubmitTemplateForm: React.FC<Props> = ({ viewOnly = false }) => {
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
     const navigate = useNavigate();
+    const templateIdFromState = (location.state as any)?.templateId;
+    const submittedBy = (location.state as any)?.submittedBy;
+    const templateId = templateIdFromState; // fallback to URL param
+    const isViewResponseMode = viewOnly && submittedBy;
     const [fields, setFields] = useState<FormField[]>([]);
     const [values, setValues] = useState<FilledValueMap>({});
     const [errors, setErrors] = useState<ErrorMap>({});
     const [openSelect, setOpenSelect] = useState<string | null>(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [templateData, setTemplateData] = useState<any>(null);
+    const normalizeArray = (value: any): string[] => {
+        if (Array.isArray(value)) return value;
+
+        if (typeof value === "string") {
+            return value
+                .split(",")
+                .map((v) => v.trim())
+                .filter(Boolean);
+        }
+
+        return [];
+    };
 
     /* ================= FETCH TEMPLATE ================= */
     useEffect(() => {
@@ -95,6 +99,59 @@ const SubmitTemplateForm: React.FC = () => {
         fetchTemplate();
     }, [id]);
 
+    /* ================= FETCH FILLED SUBMISSION (VIEW MODE ONLY) ================= */
+    useEffect(() => {
+        if (!id || !viewOnly) return;
+
+        const submittedByToFetch = (location.state as any)?.submittedBy;
+        if (!submittedByToFetch) return;
+
+        const fetchFilledSubmission = async () => {
+            try {
+                getLoaderControl()?.showLoader();
+
+                const res = await getFilledTemplateSubmission({
+                    template_id: Number(id),
+                    submitted_by: submittedByToFetch,
+                });
+
+                if (res?.statusCode === 200 && res?.data) {
+                    const submission = res.data;
+                    setTemplateData(submission);
+                    setIsSubmitted(true); // readonly
+
+                    const loadedFields: FormField[] = [];
+                    const filledValues: FilledValueMap = {};
+
+                    // Map all rows and fields
+                    submission.data.forEach((row: any) => {
+                        const rowId = String(row.rowOrder);
+                        row.fields
+                            .sort((a: any, b: any) => a.fieldOrder - b.fieldOrder)
+                            .forEach((field: any) => {
+                                loadedFields.push({ ...field, rowId });
+
+                                if (field.value !== undefined && field.value !== null) {
+                                    filledValues[field.id] = field.value;
+                                }
+                            });
+                    });
+
+                    setFields(loadedFields);
+                    setValues(filledValues);
+                }
+            } catch (err: any) {
+                notification.error({
+                    message: err?.response?.data?.message || MESSAGES.ERRORS.SOMETHING_WENT_WRONG,
+                });
+            } finally {
+                getLoaderControl()?.hideLoader();
+            }
+        };
+
+        fetchFilledSubmission();
+    }, [id, location.state, viewOnly]);
+
     /* ================= VALIDATION HELPERS ================= */
     const isValidEmail = (email: string) =>
         /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
@@ -139,8 +196,10 @@ const SubmitTemplateForm: React.FC = () => {
                         error = MESSAGES.ERRORS.ENTER_VALID_EMAIL;
                     break;
                 case "file":
-                    if (trimmedValue instanceof File && field.allowedFileTypes?.length) {
-                        const allowed = field.allowedFileTypes.some((ext) =>
+                    const allowedTypes = normalizeArray(field.allowedfiletypes);
+
+                    if (trimmedValue instanceof File && allowedTypes.length) {
+                        const allowed = allowedTypes.some((ext) =>
                             trimmedValue.name.toLowerCase().endsWith(ext.toLowerCase())
                         );
                         if (!allowed) error = MESSAGES.ERRORS.INVALID_FILE_TYPE_FORMAT;
@@ -263,9 +322,12 @@ const SubmitTemplateForm: React.FC = () => {
 
     /* ================= GET FIELD DATA ================= */
     const getFieldData = (fieldId: string) => {
-        if (!templateData?.rows) return null;
+        if (!templateData) return null;
 
-        for (const row of templateData.rows) {
+        const rows = templateData.rows || templateData.data; // fallback
+        if (!rows) return null;
+
+        for (const row of rows) {
             const field = row.fields.find((f: any) => f.id === fieldId);
             if (field) return field;
         }
@@ -294,6 +356,18 @@ const SubmitTemplateForm: React.FC = () => {
     const getSpan = (count: number) =>
         count === 1 ? 12 : count === 2 ? 6 : count === 3 ? 4 : count === 4 ? 3 : 12;
 
+    const removeFile = (fieldId: string) => {
+        setValues((prev) => {
+            const updated = { ...prev };
+            delete updated[fieldId];
+            return updated;
+        });
+
+        setErrors((prev: any) => ({
+            ...prev,
+            [fieldId]: undefined,
+        }));
+    };
     return (
         <div className={`template-form-container submit-mode ${isSubmitted ? "submitted-mode" : ""}`}>
             <div className="drop-zone">
@@ -319,7 +393,7 @@ const SubmitTemplateForm: React.FC = () => {
                                 {rowFields.map((field) => {
                                     const hasError = !!errors[field.id];
                                     const fieldValue = values[field.id];
-                                    const isReadOnly = isSubmitted;
+                                    const isReadOnly = isSubmitted || (viewOnly && submittedBy);
                                     const fieldData = getFieldData(field.id);
 
                                     return (
@@ -361,7 +435,8 @@ const SubmitTemplateForm: React.FC = () => {
                                                             <button
                                                                 className="secondary-button"
                                                                 type="button"
-                                                                onClick={() => navigate(-1)}
+                                                                // onClick={() => navigate(-1)}
+                                                                disabled={isReadOnly}
                                                             >
                                                                 {field.label || "Cancel"}
                                                                 {/* {isReadOnly ? "Close" : field.label || "Cancel"} */}
@@ -422,33 +497,43 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     readOnly={isReadOnly}
                                                                 />
                                                             );
-                                                        case "file":
-                                                            if (isReadOnly && fieldData?.value) {
-                                                                const fileName = fieldData.value.split('/').pop() || fieldData.value;
-                                                                const fileUrl = fieldData.fileUrl || fieldData.value;
 
-                                                                return (
-                                                                    <div className="file-preview-wrapper">
-                                                                        <div className="file-preview-container">
-                                                                            <div className="file-info">
-                                                                                <div className="file-name-wrapper">
-                                                                                    <span className="file-name">{fileName}</span>
-                                                                                </div>
-                                                                                <a
-                                                                                    href={fileUrl}
-                                                                                    target="_blank"
-                                                                                    rel="noopener noreferrer"
-                                                                                    className="file-preview-link"
-                                                                                >
-                                                                                    <div className="eye-icon-container">
-                                                                                        <EyeIcon />
+                                                        case "file": {
+                                                            const uploadedFile = fieldValue instanceof File ? fieldValue : null;
+
+                                                            // ================= READONLY / SUBMITTED =================
+                                                            if (isReadOnly) {
+                                                                if (fieldData?.value) {
+                                                                    const fileName = fieldData.value.split("/").pop() || fieldData.value;
+                                                                    const fileUrl = fieldData.fileUrl
+                                                                        ? `${import.meta.env.VITE_Document_Viewer_url}${fieldData.fileUrl}`
+                                                                        : fieldData.value;
+
+                                                                    return (
+                                                                        <div className="file-preview-wrapper">
+                                                                            <div className="file-preview-container">
+                                                                                <div className="file-info">
+                                                                                    <div className="file-name-wrapper">
+                                                                                        <span className="file-name">{fileName}</span>
                                                                                     </div>
-                                                                                </a>
+
+                                                                                    <a
+                                                                                        href={fileUrl}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        className="file-preview-link"
+                                                                                        title={fileName}
+                                                                                    >
+                                                                                        <div className="eye-icon-container">
+                                                                                            <img src="/assets/Eye.svg" alt="View" />
+                                                                                        </div>
+                                                                                    </a>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-                                                                );
-                                                            } else if (isReadOnly) {
+                                                                    );
+                                                                }
+
                                                                 return (
                                                                     <div className="file-preview-wrapper">
                                                                         <div className="file-preview-container">
@@ -457,15 +542,55 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     </div>
                                                                 );
                                                             }
+
+                                                            // ================= EDITABLE MODE =================
+                                                            if (uploadedFile) {
+                                                                const previewUrl = URL.createObjectURL(uploadedFile);
+
+                                                                return (
+                                                                    <div className="file-preview-wrapper">
+                                                                        <div className="file-preview-container">
+                                                                            <div className="file-info">
+                                                                                <div className="file-name-wrapper">
+                                                                                    <span className="file-name">{uploadedFile.name}</span>
+                                                                                </div>
+
+                                                                                {/* Eye */}
+                                                                                <a
+                                                                                    href={previewUrl}
+                                                                                    target="_blank"
+                                                                                    rel="noopener noreferrer"
+                                                                                    className="file-preview-link"
+                                                                                >
+                                                                                    <div className="eye-icon-container">
+                                                                                        <img src="/assets/Eye.svg" alt="View" />
+                                                                                    </div>
+                                                                                </a>
+
+                                                                                {/* Delete */}
+                                                                                <div
+                                                                                    className="delete-icon-container"
+                                                                                    onClick={() => removeFile(field.id)}
+                                                                                >
+                                                                                    <img src="/assets/trash.svg" alt="Delete" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            }
+
+                                                            // ================= NO FILE SELECTED =================
                                                             return (
                                                                 <input
                                                                     type="file"
-                                                                    accept={field.allowedFileTypes?.join(",")}
+                                                                    accept={normalizeArray(field.allowedfiletypes).join(",")}
                                                                     onChange={(e) => updateValue(field.id, e.target.files?.[0])}
                                                                     className={hasError ? "error" : ""}
-                                                                    disabled={isReadOnly}
                                                                 />
                                                             );
+                                                        }
+
                                                         case "select":
                                                             return (
                                                                 <div
@@ -479,7 +604,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                                         className="custom-select"
                                                                         showArrow={false}
                                                                         disabled={isReadOnly}
-                                                                        options={field.options?.map((opt) => ({ label: opt, value: opt }))}
+                                                                        options={normalizeArray(field.options).map((opt) => ({ label: opt, value: opt }))}
                                                                         onDropdownVisibleChange={(open) => {
                                                                             if (!isReadOnly) setOpenSelect(open ? field.id : null);
                                                                         }}
@@ -493,10 +618,11 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     <span className="custom-arrow" />
                                                                 </div>
                                                             );
+
                                                         case "radio":
                                                             return (
                                                                 <div className="radio-group">
-                                                                    {field.options?.map((opt) => (
+                                                                    {normalizeArray(field.options).map((opt) => (
                                                                         <label key={opt} className="radio-wrapper">
                                                                             <input
                                                                                 type="radio"
@@ -515,15 +641,15 @@ const SubmitTemplateForm: React.FC = () => {
                                                         case "checkbox":
                                                             return (
                                                                 <div className="checkbox-group">
-                                                                    {field.options?.map((opt) => (
+                                                                    {normalizeArray(field.options).map((opt) => (
                                                                         <label key={opt} className="checkbox-wrapper">
                                                                             <input
                                                                                 type="checkbox"
                                                                                 className="custom-checkbox"
-                                                                                checked={fieldValue?.includes(opt) || false}
+                                                                                checked={Array.isArray(fieldValue) && fieldValue.includes(opt)}
                                                                                 onChange={() => {
                                                                                     if (!isReadOnly) {
-                                                                                        const prev = fieldValue || [];
+                                                                                        const prev = Array.isArray(fieldValue) ? fieldValue : [];
                                                                                         updateValue(
                                                                                             field.id,
                                                                                             prev.includes(opt)
@@ -539,6 +665,7 @@ const SubmitTemplateForm: React.FC = () => {
                                                                     ))}
                                                                 </div>
                                                             );
+
                                                         case "switch":
                                                             return (
                                                                 <label className="switch">

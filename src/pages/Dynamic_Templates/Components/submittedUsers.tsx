@@ -68,11 +68,15 @@ export default function SubmittedUsers() {
   const paginatedData = submissions.slice(startIndex, startIndex + pageSize);
 
   const handleViewSubmission = (row: SubmissionItem) => {
-    // Placeholder for future detailed view implementation
-    notification.info({
-      message: "View submission",
-      description: `Submission ID: ${row.submissionId}`,
-    });
+    navigate(
+      `/templates/view-response/${templateId}`,
+      {
+        state: {
+          submittedBy: row.submitedUserID, // <-- this is correct
+          data: submissions, // optional: pass all submissions if needed
+        },
+      }
+    );
   };
 const formatDate = (dateStr?: string) => {
   if (!dateStr) return "—";
@@ -84,6 +88,14 @@ const formatDate = (dateStr?: string) => {
     : dateStr;
 };
 
+
+  // const formatDate = (dateStr: string) => {
+  //   try {
+  //     return dayjs(dateStr).format("DD MMM YYYY, HH:mm");
+  //   } catch {
+  //     return dateStr;
+  //   }
+  // };
 
   if (!templateId) {
     navigate("/templates");
@@ -128,15 +140,15 @@ const formatDate = (dateStr?: string) => {
           },
         ]}
         actions={(row: SubmissionItem) => (
-            <Tooltip title="View Reponse">
-          <div className="submitted-users-actions">
-            <img
-              src="/assets/Eye.svg"
-              alt="View submission"
-              title="View submission"
-              onClick={() => handleViewSubmission(row)}
-            />
-          </div>
+          <Tooltip title="View Reponse">
+            <div className="submitted-users-actions">
+              <img
+                src="/assets/Eye.svg"
+                alt="View submission"
+                title="View submission"
+                onClick={() => handleViewSubmission(row)}
+              />
+            </div>
           </Tooltip>
         )}
         actionsTitle="Actions"
