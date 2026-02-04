@@ -14,14 +14,16 @@ const TemplateLayout = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const location = useLocation();
+    const isResponseView = location.pathname.includes("/view-response/");
 
     // Determine mode and breadcrumb based on URL path
     useEffect(() => {
         const path = location.pathname;
         const isView = path.includes("/view/");
+        const isResponseView = path.includes("/view-response/");
         const isSubmit = path.includes("/submit/");
 
-        setIsViewMode(isView);
+        setIsViewMode(isView || isResponseView);
         setIsSubmitMode(isSubmit);
 
         // Breadcrumb
@@ -34,6 +36,8 @@ const TemplateLayout = () => {
         // Form title
         if (isSubmit) {
             setFormTitle(path.includes("/sharedworkspace/submit/") ? "Submit Form" : "Submit Form");
+        } else if (isResponseView) {
+            setFormTitle("View Response");
         } else if (isView) {
             setFormTitle("View Template");
         } else if (id) {
@@ -104,11 +108,15 @@ const TemplateLayout = () => {
 
                     {/* Form Area */}
                     <section className="create-template-form">
-                        <CreateEditTemplateForm
-                            templateId={id}
-                            isViewMode={isViewMode}
-                            onFieldsChange={(changed) => setIsDirty(changed)}
-                        />
+                        {isSubmitMode || isResponseView ? (
+                            <SubmitTemplateForm viewOnly={isResponseView} />
+                        ) : (
+                            <CreateEditTemplateForm
+                                templateId={id}
+                                isViewMode={isViewMode}
+                                onFieldsChange={(changed) => setIsDirty(changed)}
+                            />
+                        )}
                     </section>
                 </div>
 

@@ -30,7 +30,7 @@ export const templatesRoutes: RouteObject[] = [
             },
             {
                 path: "view-response/:id",
-                element: <SubmitTemplateForm viewOnly />,
+                element: <TemplateLayout />,
             }
         ],
     },
