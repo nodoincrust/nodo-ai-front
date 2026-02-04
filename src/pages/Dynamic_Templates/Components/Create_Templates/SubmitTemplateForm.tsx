@@ -100,7 +100,6 @@ const SubmitTemplateForm: React.FC<Props> = ({ viewOnly = false }) => {
     }, [id]);
 
     /* ================= FETCH FILLED SUBMISSION (VIEW MODE ONLY) ================= */
-    /* ================= FETCH FILLED SUBMISSION (VIEW MODE ONLY) ================= */
     useEffect(() => {
         if (!id || !viewOnly) return;
 

@@ -118,10 +118,10 @@ const DocumentDetail: React.FC = () => {
           const createdAt = m?.created_at ? new Date(m.created_at) : null;
           const time = createdAt
             ? createdAt.toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })
             : undefined;
 
           return {
@@ -456,7 +456,7 @@ const DocumentDetail: React.FC = () => {
             return;
           }
 
-          // ✅ Update summary for SAME version (update both summary.text and version.summary)
+          // Update summary for SAME version (update both summary.text and version.summary)
           setDocument((prev) => {
             if (!prev) return prev;
             return {
@@ -464,7 +464,7 @@ const DocumentDetail: React.FC = () => {
               summary: {
                 ...prev.summary,
                 text: result.summary,
-                is_self_generated: false, // AI-generated
+                is_self_generated: false,
               },
               version: {
                 ...prev.version,
@@ -476,18 +476,18 @@ const DocumentDetail: React.FC = () => {
           if (result.tags) {
             const nextSuggested = Array.isArray(result.tags)
               ? result.tags.filter(
-                  (t: any) => typeof t === "string" && t.trim(),
-                )
+                (t: any) => typeof t === "string" && t.trim(),
+              )
               : [];
             setSuggestedTags(nextSuggested);
           }
 
           setIsSummaryGenerating(false);
-          setIsUserWrittenSummary(false); // Mark as AI-generated when regenerated
+          setIsUserWrittenSummary(false);
 
           notification.success({
             message: "Summary generated",
-            description: `Summary generated for version ${version}`,
+            description: `Summary generated for "${fileName}" (version ${version})`,
             duration: 0,
           });
         },
