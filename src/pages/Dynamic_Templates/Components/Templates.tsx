@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { notification, Tooltip } from "antd";
+
 import "./Styles/Templates.scss";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDebounce } from "../../../hooks/useDebounce";
@@ -84,6 +85,7 @@ export default function Templates() {
       getLoaderControl()?.hideLoader();
     }
   };
+
 
   // const fetchTemplates = async () => {
   //     getLoaderControl()?.showLoader();
@@ -240,6 +242,7 @@ export default function Templates() {
             title: "Type",
             render: (row: any) => <span>{row.type || "—"}</span>,
           },
+      
           {
             title: "Submitted By",
             render: (row: any) => (
@@ -249,7 +252,7 @@ export default function Templates() {
                 </span>
                 <Tooltip title="View Submitted Response">
                 <img
-                  src="/assets/Eye.svg"
+                   src="/assets/Eye.svg"
                   alt="View users"
                   title="View Submitted Users"
                   onClick={() =>
