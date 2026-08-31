@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 
@@ -34,6 +34,12 @@ const AwaitingApprovalDetails = () => {
   const [selectedVersion, setSelectedVersion] = useState<number>();
   const [tracking, setTracking] = useState<any>(null);
   const ONLYOFFICE_PREVIEW_TYPES = ["xlsx", "xls", "ppt", "pptx"];
+
+  // Presigned URLs expire, so a failed preview gets one silent refetch. The
+  // budget lives here rather than in DocumentPreview because the preview
+  // unmounts whenever the page re-enters its loading branch.
+  const fileRetrySpentRef = useRef(false);
+  const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
   /* ------------------------------ Fetch Document ------------------------------ */
   useEffect(() => {
     if (id) fetchDocumentDetails(selectedVersion);
@@ -44,6 +50,8 @@ const AwaitingApprovalDetails = () => {
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+    fileRetrySpentRef.current = false;
+    setIsPreviewUnavailable(false);
 
     try {
       const res = await getAwaitingApprovalDetails(id, version);
@@ -87,6 +95,45 @@ const AwaitingApprovalDetails = () => {
       getLoaderControl()?.hideLoader();
     }
   };
+
+  // Refreshes only the file side of the document, keeping the review state that
+  // came from the approval inbox. Deliberately avoids setSelectedVersion, which
+  // would retrigger the loading fetch and unmount the preview.
+  const refreshDocumentSilently = useCallback(
+    async (version?: number) => {
+      if (!id) return false;
+
+      try {
+        const doc = await getDocumentById(Number(id), version);
+        setDocument((prev) =>
+          prev
+            ? {
+                ...prev,
+                version: doc.version,
+                editor: doc.editor,
+                summary: doc.summary,
+              }
+            : doc,
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [id],
+  );
+
+  const handleFileUrlExpired = useCallback(() => {
+    if (fileRetrySpentRef.current) {
+      setIsPreviewUnavailable(true);
+      return;
+    }
+
+    fileRetrySpentRef.current = true;
+    void refreshDocumentSilently(selectedVersion).then((refreshed) => {
+      if (!refreshed) setIsPreviewUnavailable(true);
+    });
+  }, [refreshDocumentSilently, selectedVersion]);
 
   /* ------------------------------ Handlers ------------------------------ */
   const handleBackClick = () => {
@@ -242,6 +289,8 @@ const AwaitingApprovalDetails = () => {
               <DocumentPreview
                 fileName={document.version.file_name}
                 fileUrl={document.version.file_url}
+                onFileUrlExpired={handleFileUrlExpired}
+                isUnavailable={isPreviewUnavailable}
               />
             );
           }

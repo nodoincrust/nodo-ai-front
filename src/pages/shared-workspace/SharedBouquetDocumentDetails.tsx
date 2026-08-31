@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "../Documents/Components/DocumentLayout";
@@ -53,6 +53,12 @@ const SharedBouquetDocumentDetails: React.FC = () => {
 
   const [tracking, setTracking] = useState<any>(null);
 
+  // Presigned URLs expire, so a failed preview gets one silent refetch. The
+  // budget lives here rather than in DocumentPreview because the preview
+  // unmounts whenever the page re-enters its loading branch.
+  const fileRetrySpentRef = useRef(false);
+  const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
+
   const navState = location.state as any;
   const bouquetId = bouquetIdParam || navState?.bouquetId;
 
@@ -67,6 +73,8 @@ const SharedBouquetDocumentDetails: React.FC = () => {
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+    fileRetrySpentRef.current = false;
+    setIsPreviewUnavailable(false);
 
     try {
       const doc = await getDocumentById(Number(id), version);
@@ -93,6 +101,36 @@ const SharedBouquetDocumentDetails: React.FC = () => {
       getLoaderControl()?.hideLoader();
     }
   };
+
+  // Refreshes the document without entering the loading branch, so the preview
+  // stays mounted and can retry in place.
+  const refreshDocumentSilently = useCallback(
+    async (version?: number) => {
+      if (!id) return false;
+
+      try {
+        const doc = await getDocumentById(Number(id), version);
+        setDocument(doc);
+        setTracking(doc.tracking);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [id],
+  );
+
+  const handleFileUrlExpired = useCallback(() => {
+    if (fileRetrySpentRef.current) {
+      setIsPreviewUnavailable(true);
+      return;
+    }
+
+    fileRetrySpentRef.current = true;
+    void refreshDocumentSilently(selectedVersion).then((refreshed) => {
+      if (!refreshed) setIsPreviewUnavailable(true);
+    });
+  }, [refreshDocumentSilently, selectedVersion]);
 
   const handleBackClick = () => {
     const sharedFilter = navState?.sharedFilter;
@@ -286,6 +324,8 @@ const SharedBouquetDocumentDetails: React.FC = () => {
             <DocumentPreview
               fileName={document.version?.file_name || "Unknown Document"}
               fileUrl={document.version?.file_url || ""}
+              onFileUrlExpired={handleFileUrlExpired}
+              isUnavailable={isPreviewUnavailable}
             />
           )}
         </div>
