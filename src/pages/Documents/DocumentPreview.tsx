@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import PdfViewer from "./Components/Document Preview Components/PdfViewer";
 import DocxViewer from "./Components/Document Preview Components/DocxViewer";
 import ExcelViewer from "./Components/Document Preview Components/ExcelViewer";
@@ -6,20 +6,22 @@ import ImageViewer from "./Components/Document Preview Components/ImageViewer";
 import TextPreview from "./Components/Document Preview Components/TextPreview";
 import PptViewer from "./Components/Document Preview Components/pptViwer";
 
-const DocumentPreview = ({ fileName, fileUrl, onFileUrlExpired }: any) => {
+const DocumentPreview = ({
+  fileName,
+  fileUrl,
+  onFileUrlExpired,
+  isUnavailable,
+}: any) => {
   const fileType = fileName?.split(".").pop()?.toLowerCase();
 
-  // Presigned S3 URLs expire, so a failed load is retried once against a
-  // freshly fetched URL before falling back to the error state.
-  const retriedUrlRef = useRef<string | null>(null);
+  // Presigned S3 URLs expire, so a failed load asks the parent for a fresh one.
+  // The parent owns the retry budget: this component unmounts whenever the page
+  // re-enters its loading branch, which would reset any budget held here.
   const handleLoadError = useCallback(() => {
-    if (!fileUrl || !onFileUrlExpired) return;
-    if (retriedUrlRef.current === fileUrl) return;
-    retriedUrlRef.current = fileUrl;
-    onFileUrlExpired();
-  }, [fileUrl, onFileUrlExpired]);
+    onFileUrlExpired?.();
+  }, [onFileUrlExpired]);
 
-  if (!fileUrl || typeof fileUrl !== "string") {
+  if (isUnavailable || !fileUrl || typeof fileUrl !== "string") {
     return (
       <div style={{ textAlign: "center", padding: "40px" }}>
         File is currently unavailable.

@@ -31,10 +31,7 @@ const PptViewer: React.FC<PptViewerProps> = ({ fileUrl, onLoadError }) => {
     try {
       // Fetch the file
       const response = await fetch(url);
-      if (!response.ok) {
-        onLoadError?.();
-        throw new Error('Failed to fetch file');
-      }
+      if (!response.ok) throw new Error('Failed to fetch file');
 
       const blob = await response.blob();
       
@@ -134,6 +131,7 @@ const PptViewer: React.FC<PptViewerProps> = ({ fileUrl, onLoadError }) => {
     } catch (err: any) {
       console.error('Error loading presentation:', err);
       setError(`Error: ${err.message || 'Failed to load presentation'}`);
+      onLoadError?.();
     } finally {
       setLoading(false);
     }

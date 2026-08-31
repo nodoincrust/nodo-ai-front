@@ -109,7 +109,6 @@ const SharedDocumentDetail: React.FC = () => {
         <DocumentPreview
           fileName={document.version?.file_name || "Unknown Document"}
           fileUrl={document.version?.file_url || ""}
-          onFileUrlExpired={() => void fetchDocument(selectedVersion)}
         />
       </div>
     </DocumentLayout>

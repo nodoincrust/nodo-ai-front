@@ -29,11 +29,7 @@ const ExcelViewer = ({ fileUrl, onLoadError }: ExcelViewerProps) => {
         // requests that carry one.
         const res = await fetch(fileUrl);
 
-        if (!res.ok) {
-          // 403 is what an expired presigned URL returns.
-          onLoadError?.();
-          throw new Error("Failed to load Excel");
-        }
+        if (!res.ok) throw new Error("Failed to load Excel");
 
         const buffer = await res.arrayBuffer();
         const wb = XLSX.read(buffer, { type: "array" });
@@ -51,6 +47,7 @@ const ExcelViewer = ({ fileUrl, onLoadError }: ExcelViewerProps) => {
         loadSheetData(wb, first);
       } catch (err) {
         setError("Failed to load Excel file");
+        onLoadError?.();
       } finally {
         setLoading(false);
       }

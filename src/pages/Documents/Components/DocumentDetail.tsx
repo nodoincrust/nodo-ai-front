@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation, data } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
@@ -64,6 +64,12 @@ const DocumentDetail: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [isTextLoading, setIsTextLoading] = useState(false);
+
+  // Presigned URLs expire, so a failed preview gets one silent refetch. The
+  // budget lives here rather than in DocumentPreview because the preview
+  // unmounts whenever the page re-enters its loading branch.
+  const fileRetrySpentRef = useRef(false);
+  const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
 
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
@@ -148,6 +154,8 @@ const DocumentDetail: React.FC = () => {
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+    fileRetrySpentRef.current = false;
+    setIsPreviewUnavailable(false);
 
     try {
       const doc = await getDocumentById(Number(id), version);
@@ -176,6 +184,36 @@ const DocumentDetail: React.FC = () => {
       getLoaderControl()?.hideLoader();
     }
   };
+
+  // Refreshes the document without entering the loading branch, so the preview
+  // stays mounted and can retry in place.
+  const refreshDocumentSilently = useCallback(
+    async (version?: number) => {
+      if (!id) return false;
+
+      try {
+        const doc = await getDocumentById(Number(id), version);
+        setDocument(doc);
+        setTracking(doc.tracking);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [id],
+  );
+
+  const handleFileUrlExpired = useCallback(() => {
+    if (fileRetrySpentRef.current) {
+      setIsPreviewUnavailable(true);
+      return;
+    }
+
+    fileRetrySpentRef.current = true;
+    void refreshDocumentSilently(selectedVersion).then((refreshed) => {
+      if (!refreshed) setIsPreviewUnavailable(true);
+    });
+  }, [refreshDocumentSilently, selectedVersion]);
 
   const handleBackClick = () => {
     navigate("/documents", {
@@ -696,9 +734,13 @@ const DocumentDetail: React.FC = () => {
       isEditable && status === "DRAFT"
         ? () =>
             setIsEditMode((prev) => {
-              // An edit-save overwrites the current version in place, so refetch
-              // for updated size/updated_at and a fresh file_url.
-              if (prev) void fetchDocument(selectedVersion);
+              if (prev) {
+                // An edit-save overwrites the current version in place, so
+                // refetch for updated size/updated_at and a fresh file_url.
+                fileRetrySpentRef.current = false;
+                setIsPreviewUnavailable(false);
+                void refreshDocumentSilently(selectedVersion);
+              }
               return !prev;
             })
         : undefined,
@@ -747,7 +789,8 @@ const DocumentDetail: React.FC = () => {
             <DocumentPreview
               fileName={document.version?.file_name || "Unknown Document"}
               fileUrl={document.version?.file_url || ""}
-              onFileUrlExpired={() => void fetchDocument(selectedVersion)}
+              onFileUrlExpired={handleFileUrlExpired}
+              isUnavailable={isPreviewUnavailable}
             />
           )}
         </div>
