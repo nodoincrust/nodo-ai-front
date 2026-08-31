@@ -7,9 +7,10 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 interface PdfViewerProps {
   fileUrl?: string;
+  onLoadError?: () => void;
 }
 
-const PdfViewer = ({ fileUrl }: PdfViewerProps) => {
+const PdfViewer = ({ fileUrl, onLoadError }: PdfViewerProps) => {
   // 🚨 Guard: invalid or empty URL
   if (!fileUrl || typeof fileUrl !== "string") {
     return (
@@ -30,6 +31,14 @@ const PdfViewer = ({ fileUrl }: PdfViewerProps) => {
         <Viewer
           fileUrl={fileUrl}
           plugins={[defaultLayoutPluginInstance]}
+          renderError={() => {
+            onLoadError?.();
+            return (
+              <div className="pdf-error">
+                <p>PDF preview not available</p>
+              </div>
+            );
+          }}
         />
       </Worker>
     </div>

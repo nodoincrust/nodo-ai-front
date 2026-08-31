@@ -7,11 +7,9 @@ import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
 import DocumentPreview from "../../../Documents/DocumentPreview";
 import { getRoleFromToken } from "../../../../utils/jwt";
 import { getDocumentById } from "../../../../services/documents.service";
-import { API_URL } from "../../../../utils/API";
 
 import {
   ApiDocument,
-  ApiDocumentVersion,
   DocumentHeaderAction,
   DocumentHeaderProps,
 } from "../../../../types/common";
@@ -22,7 +20,6 @@ import {
   rejectDocumentByID,
 } from "../../../../services/awaitingApproval.services";
 
-import { config } from "../../../../config";
 import OnlyOfficeEditor from "../../../Documents/Components/OnlyofficeEditor";
 
 const AwaitingApprovalDetails = () => {
@@ -54,18 +51,6 @@ const AwaitingApprovalDetails = () => {
 
       if (!data) throw new Error("Document not found");
 
-      /* ---------- File URL ---------- */
-      let fileUrl = "";
-      if (data.file?.file_url) {
-        fileUrl = data.file.file_url;
-      } else if (data.file?.file_path) {
-        const baseUrl = config.docBaseUrl.replace(/\/$/, "");
-        const path = data.file.file_path.startsWith("/")
-          ? data.file.file_path
-          : `/${data.file.file_path}`;
-        fileUrl = `${baseUrl}${path}`;
-      }
-
       /* ---------- Status Mapping ---------- */
       const mappedStatus: ApiDocument["status"] =
         data.review?.status === "PENDING"
@@ -76,59 +61,21 @@ const AwaitingApprovalDetails = () => {
               ? "REJECTED"
               : "IN_REVIEW";
 
-      const docVersion: ApiDocumentVersion = {
-        version_number: data.file?.version_number || 1,
-        file_name: data.file?.file_name || "",
-        file_url: fileUrl,
-        summary: data.summary?.text || "",
-        tags: data.summary?.tags || [],
-        file_size_bytes: data.file?.file_size_bytes || 0,
-      };
+      // The presigned file URL and editor config only exist on the details
+      // endpoint, so every approver goes through it regardless of privilege.
+      const doc = await getDocumentById(Number(id), version);
 
-      const token = localStorage.getItem("accessToken");
-      let isPrivileged = false;
-      try {
-        const authDataStr = localStorage.getItem("authData");
-        const authData = authDataStr ? JSON.parse(authDataStr) : {};
-        if (authData?.is_department_head) isPrivileged = true;
-        const role = token ? getRoleFromToken(token)?.toUpperCase() : null;
-        if (role === "COMPANY_ADMIN" || role === "COMPANY_HEAD")
-          isPrivileged = true;
-      } catch (err) {
-        console.warn("Could not parse Data from localStorage:", err);
-      }
-
-      if (isPrivileged) {
-        try {
-          const doc = await getDocumentById(Number(id), version);
-          if (
-            (!doc.version.file_url || doc.version.file_url === "") &&
-            doc.editor?.token
-          ) {
-            doc.version.file_url = API_URL.onlyOfficeFileStream(
-              doc.editor.token,
-            );
-          }
-          setSelectedVersion(doc.version.version_number);
-          setDocument(doc);
-          setTracking((doc as any).tracking);
-          return;
-        } catch (err) {
-          console.warn("Failed to fetch privileged docuemnt data:", err);
-        }
-      }
-
-      setSelectedVersion(docVersion.version_number);
+      setSelectedVersion(doc.version.version_number);
 
       setDocument({
-        document_id: data.document.id,
+        ...doc,
+        // Review state belongs to the approval inbox, not the details endpoint.
         status: mappedStatus,
         display_status: data.document.display_status,
         current_version: data.document.current_version,
         is_actionable: data.document.is_actionable,
-        version: docVersion,
       });
-      setTracking(data.tracking);
+      setTracking(doc.tracking ?? data.tracking);
     } catch (error: any) {
       notification.error({
         message:
@@ -295,6 +242,9 @@ const AwaitingApprovalDetails = () => {
               <DocumentPreview
                 fileName={document.version.file_name}
                 fileUrl={document.version.file_url}
+                onFileUrlExpired={() =>
+                  void fetchDocumentDetails(selectedVersion)
+                }
               />
             );
           }

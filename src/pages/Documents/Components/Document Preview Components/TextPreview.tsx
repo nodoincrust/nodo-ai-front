@@ -1,14 +1,26 @@
 import { useEffect, useState } from "react";
 
-const TextPreview = ({ fileUrl }: { fileUrl: string }) => {
+const TextPreview = ({
+  fileUrl,
+  onLoadError,
+}: {
+  fileUrl: string;
+  onLoadError?: () => void;
+}) => {
   const [text, setText] = useState("");
 
   useEffect(() => {
     fetch(fileUrl)
-      .then((r) => r.text())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load file");
+        return r.text();
+      })
       .then(setText)
-      .catch(() => setText("Failed to load file"));
-  }, [fileUrl]);
+      .catch(() => {
+        onLoadError?.();
+        setText("Failed to load file");
+      });
+  }, [fileUrl, onLoadError]);
 
   return (
     <pre

@@ -694,7 +694,13 @@ const DocumentDetail: React.FC = () => {
     // Only show Edit when file type is editable (not PDF) and status is DRAFT
     onEdit:
       isEditable && status === "DRAFT"
-        ? () => setIsEditMode((prev) => !prev)
+        ? () =>
+            setIsEditMode((prev) => {
+              // An edit-save overwrites the current version in place, so refetch
+              // for updated size/updated_at and a fresh file_url.
+              if (prev) void fetchDocument(selectedVersion);
+              return !prev;
+            })
         : undefined,
     editButtonText: isEditMode ? "Close Editor" : "Edit",
   };
@@ -741,6 +747,7 @@ const DocumentDetail: React.FC = () => {
             <DocumentPreview
               fileName={document.version?.file_name || "Unknown Document"}
               fileUrl={document.version?.file_url || ""}
+              onFileUrlExpired={() => void fetchDocument(selectedVersion)}
             />
           )}
         </div>

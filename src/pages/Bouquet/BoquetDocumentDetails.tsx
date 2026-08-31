@@ -653,6 +653,7 @@ const BoquetDocumentsDetails: React.FC = () => {
                     <DocumentPreview
                         fileName={document.version.file_name}
                         fileUrl={document.version.file_url}
+                        onFileUrlExpired={() => void fetchDocument(selectedVersion)}
                     />
                 ) : (
                     <div className="document-placeholder">

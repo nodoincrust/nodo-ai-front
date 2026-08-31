@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 
 interface ExcelViewerProps {
   fileUrl: string;
+  onLoadError?: () => void;
 }
 
-const ExcelViewer = ({ fileUrl }: ExcelViewerProps) => {
+const ExcelViewer = ({ fileUrl, onLoadError }: ExcelViewerProps) => {
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
   const [sheetNames, setSheetNames] = useState<string[]>([]);
   const [activeSheet, setActiveSheet] = useState<string>("");
@@ -24,14 +25,15 @@ const ExcelViewer = ({ fileUrl }: ExcelViewerProps) => {
           return;
         }
 
-        const token = localStorage.getItem("token");
-        const res = await fetch(fileUrl, {
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
+        // Presigned S3 URL: no Authorization header, S3 rejects signed
+        // requests that carry one.
+        const res = await fetch(fileUrl);
 
-        if (!res.ok) throw new Error("Failed to load Excel");
+        if (!res.ok) {
+          // 403 is what an expired presigned URL returns.
+          onLoadError?.();
+          throw new Error("Failed to load Excel");
+        }
 
         const buffer = await res.arrayBuffer();
         const wb = XLSX.read(buffer, { type: "array" });
@@ -55,7 +57,7 @@ const ExcelViewer = ({ fileUrl }: ExcelViewerProps) => {
     };
 
     loadExcel();
-  }, [fileUrl]);
+  }, [fileUrl, onLoadError]);
 
   const loadSheetData = (wb: XLSX.WorkBook, sheetName: string) => {
     const sheet = wb.Sheets[sheetName];

@@ -8,9 +8,10 @@ interface Slide {
 
 interface PptViewerProps {
   fileUrl: string;
+  onLoadError?: () => void;
 }
 
-const PptViewer: React.FC<PptViewerProps> = ({ fileUrl }) => {
+const PptViewer: React.FC<PptViewerProps> = ({ fileUrl, onLoadError }) => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,10 @@ const PptViewer: React.FC<PptViewerProps> = ({ fileUrl }) => {
     try {
       // Fetch the file
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch file');
+      if (!response.ok) {
+        onLoadError?.();
+        throw new Error('Failed to fetch file');
+      }
 
       const blob = await response.blob();
       
