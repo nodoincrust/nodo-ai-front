@@ -6,9 +6,7 @@ import DocumentPreview from "../DocumentPreview";
 import SubmitDocument from "./submitDocument";
 import EditSummary from "./EditSummary";
 import WriteownSummary from "./WriteownSummary";
-import OnlyOfficeEditor, {
-  type OnlyOfficeEditorHandle,
-} from "./OnlyofficeEditor";
+import OnlyOfficeEditor from "./OnlyofficeEditor";
 import { getUserFromToken } from "../../../utils/jwt";
 import {
   getDocumentById,
@@ -72,8 +70,6 @@ const DocumentDetail: React.FC = () => {
   // unmounts whenever the page re-enters its loading branch.
   const fileRetrySpentRef = useRef(false);
   const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
-  const onlyOfficeEditorRef = useRef<OnlyOfficeEditorHandle>(null);
-
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
   const [isWriteOwnSummaryOpen, setIsWriteOwnSummaryOpen] = useState(false);
@@ -220,13 +216,10 @@ const DocumentDetail: React.FC = () => {
 
   const handleToggleEditMode = useCallback(() => {
     if (isEditMode) {
-      onlyOfficeEditorRef.current?.destroy();
-      requestAnimationFrame(() => {
-        setIsEditMode(false);
-        fileRetrySpentRef.current = false;
-        setIsPreviewUnavailable(false);
-        void refreshDocumentSilently(selectedVersion);
-      });
+      setIsEditMode(false);
+      fileRetrySpentRef.current = false;
+      setIsPreviewUnavailable(false);
+      void refreshDocumentSilently(selectedVersion);
       return;
     }
 
@@ -777,7 +770,6 @@ const DocumentDetail: React.FC = () => {
         <div className="document-viewer">
           {isEditMode ? (
             <OnlyOfficeEditor
-              ref={onlyOfficeEditorRef}
               key={`edit-${document.document_id}-${selectedVersion}`}
               editor={(document as any).editor}
               canEdit={true}
