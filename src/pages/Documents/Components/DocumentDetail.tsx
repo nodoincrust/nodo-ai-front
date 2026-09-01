@@ -224,13 +224,18 @@ const DocumentDetail: React.FC = () => {
     });
   }, [refreshDocumentSilently, selectedVersion]);
 
+  const waitForEditorTeardown = useCallback(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      }),
+    [],
+  );
+
   const handleToggleEditMode = useCallback(async () => {
     if (isEditMode) {
       onlyOfficeEditorRef.current?.destroy();
-
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => resolve());
-      });
+      await waitForEditorTeardown();
 
       setIsEditMode(false);
       fileRetrySpentRef.current = false;
@@ -239,13 +244,19 @@ const DocumentDetail: React.FC = () => {
       return;
     }
 
+    // Tear down the current OnlyOffice session before switching config (view→edit
+    // for XLSX/PPT, or hidden host→edit for DOCX/TXT).
+    onlyOfficeEditorRef.current?.destroy();
+    await waitForEditorTeardown();
+
     setEditHostMounted(true);
     setIsEditMode(true);
-  }, [isEditMode, refreshDocumentSilently, selectedVersion]);
+  }, [isEditMode, refreshDocumentSilently, selectedVersion, waitForEditorTeardown]);
 
   const handleBackClick = () => {
+    onlyOfficeEditorRef.current?.destroy();
+
     if (isEditMode) {
-      onlyOfficeEditorRef.current?.destroy();
       setIsEditMode(false);
     }
 
@@ -296,8 +307,9 @@ const DocumentDetail: React.FC = () => {
   // };
 
   const handleVersionChange = (version: number) => {
+    onlyOfficeEditorRef.current?.destroy();
+
     if (isEditMode) {
-      onlyOfficeEditorRef.current?.destroy();
       setIsEditMode(false);
     }
 
@@ -773,6 +785,27 @@ const DocumentDetail: React.FC = () => {
       isEditable && status === "DRAFT" ? handleToggleEditMode : undefined,
     editButtonText: isEditMode ? "Close Editor" : "Edit",
   };
+
+  // One OnlyOffice React host for both preview (XLSX/PPT) and edit. Never swap
+  // between separate components — destroy the DocEditor API session and re-init
+  // in the same host when toggling view/edit.
+  const showOnlyOfficeHost =
+    Boolean(editorConfig) && (PreviewInOnlyOffice || editHostMounted);
+  const onlyOfficeHostVisible = PreviewInOnlyOffice || isEditMode;
+  const onlyOfficeIsActive = PreviewInOnlyOffice || isEditMode;
+
+  const onlyOfficeEditorPayload = editorConfig
+    ? isEditMode
+      ? editorConfig
+      : {
+          ...editorConfig,
+          editorConfig: {
+            ...editorConfig.editorConfig,
+            mode: "view",
+          },
+        }
+    : null;
+
   return (
     <>
       <DocumentLayout
@@ -796,32 +829,20 @@ const DocumentDetail: React.FC = () => {
         isUserWrittenSummary={isUserWrittenSummary}
       >
         <div className="document-viewer">
-          {PreviewInOnlyOffice && !isEditMode && (
-            <OnlyOfficeEditor
-              editor={{
-                ...(document as any).editor,
-                editorConfig: {
-                  ...(document as any).editor.editorConfig,
-                  mode: "view",
-                },
-              }}
-              canEdit={false}
-            />
-          )}
-          {editHostMounted && editorConfig && (
+          {showOnlyOfficeHost && onlyOfficeEditorPayload && (
             <div
               style={{
-                display: isEditMode ? "block" : "none",
+                display: onlyOfficeHostVisible ? "block" : "none",
                 width: "100%",
                 height: "100%",
               }}
             >
               <OnlyOfficeEditor
                 ref={onlyOfficeEditorRef}
-                key={`edit-${document.document_id}-${selectedVersion}`}
-                editor={(document as any).editor}
-                canEdit={true}
-                isActive={isEditMode}
+                key={`onlyoffice-${document.document_id}-${selectedVersion}`}
+                editor={onlyOfficeEditorPayload}
+                canEdit={isEditMode}
+                isActive={onlyOfficeIsActive}
               />
             </div>
           )}
