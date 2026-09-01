@@ -1,4 +1,10 @@
-import { useEffect, useId, useRef } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { notification } from "antd";
 import { config } from "../../../config";
 
@@ -6,6 +12,10 @@ declare global {
   interface Window {
     DocsAPI: any;
   }
+}
+
+export interface OnlyOfficeEditorHandle {
+  destroy: () => void;
 }
 
 interface OnlyOfficeEditorProps {
@@ -16,52 +26,92 @@ interface OnlyOfficeEditorProps {
     token: string;
   };
   canEdit: boolean;
+  /** When false, skips DocEditor init so the host can stay mounted but hidden. */
+  isActive?: boolean;
 }
 
-const OnlyOfficeEditor: React.FC<OnlyOfficeEditorProps> = ({ editor }) => {
-  const containerId = `onlyoffice-editor-${useId().replace(/:/g, "")}`;
-  const editorRef = useRef<HTMLDivElement | null>(null);
-  const instanceRef = useRef<any>(null);
-  const unmountedRef = useRef(false);
-  const cleanupStartedRef = useRef(false);
+const DOCS_API_POLL_MS = 100;
+const DOCS_API_MAX_ATTEMPTS = 50;
 
-  const destroyEditorInstance = () => {
-    if (cleanupStartedRef.current) return;
-    cleanupStartedRef.current = true;
+const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProps>(
+  ({ editor, isActive = true }, ref) => {
+    const containerId = `onlyoffice-editor-${useId().replace(/:/g, "")}`;
+    const editorRef = useRef<HTMLDivElement | null>(null);
+    const instanceRef = useRef<any>(null);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const unmountedRef = useRef(false);
+    const destroyedRef = useRef(false);
+    const cleanupStartedRef = useRef(false);
 
-    try {
-      if (instanceRef.current) {
-        instanceRef.current.destroyEditor();
-        instanceRef.current = null;
+    const clearEditorInterval = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
-    } catch (err) {
-      console.warn("[OnlyOffice] destroyEditor failed:", err);
-    }
-  };
+    };
 
-  useEffect(() => {
-    unmountedRef.current = false;
-    cleanupStartedRef.current = false;
+    const destroyEditorInstance = () => {
+      if (cleanupStartedRef.current) return;
+      cleanupStartedRef.current = true;
 
-    const container = editorRef.current;
-    if (!container) return;
+      try {
+        if (instanceRef.current) {
+          instanceRef.current.destroyEditor();
+          instanceRef.current = null;
+        }
+      } catch (err) {
+        console.warn("[OnlyOffice] destroyEditor failed:", err);
+      }
+    };
 
-    const candidates = [config.docScriptUrl].filter(Boolean) as string[];
+    const waitForDocsApi = () =>
+      new Promise<boolean>((resolve) => {
+        if (window.DocsAPI?.DocEditor) {
+          resolve(true);
+          return;
+        }
+
+        let attempts = 0;
+        const poll = setInterval(() => {
+          if (unmountedRef.current || destroyedRef.current) {
+            clearInterval(poll);
+            resolve(false);
+            return;
+          }
+
+          if (window.DocsAPI?.DocEditor) {
+            clearInterval(poll);
+            resolve(true);
+            return;
+          }
+
+          attempts += 1;
+          if (attempts >= DOCS_API_MAX_ATTEMPTS) {
+            clearInterval(poll);
+            resolve(false);
+          }
+        }, DOCS_API_POLL_MS);
+      });
 
     const loadScriptFrom = (base: string, retries = 2) =>
       new Promise<boolean>((resolve) => {
         const baseUrl = base.replace(/\/$/, "");
         const scriptUrl = `${baseUrl}/web-apps/apps/api/documents/api.js`;
 
+        const waitAndResolve = async () => {
+          const ready = await waitForDocsApi();
+          resolve(ready);
+        };
+
         if (document.querySelector(`script[src="${scriptUrl}"]`)) {
-          resolve(true);
+          void waitAndResolve();
           return;
         }
 
         let attempt = 0;
 
         const tryAttach = () => {
-          if (unmountedRef.current) {
+          if (unmountedRef.current || destroyedRef.current) {
             resolve(false);
             return;
           }
@@ -70,7 +120,9 @@ const OnlyOfficeEditor: React.FC<OnlyOfficeEditorProps> = ({ editor }) => {
           script.src = scriptUrl;
           script.async = true;
 
-          script.onload = () => resolve(true);
+          script.onload = () => {
+            void waitAndResolve();
+          };
 
           script.onerror = () => {
             attempt += 1;
@@ -91,34 +143,70 @@ const OnlyOfficeEditor: React.FC<OnlyOfficeEditorProps> = ({ editor }) => {
         tryAttach();
       });
 
-    const ensureScript = async () => {
-      for (const base of candidates) {
-        const ok = await loadScriptFrom(base, 2);
-        if (ok) return true;
-      }
-      return false;
-    };
+    useImperativeHandle(ref, () => ({
+      destroy: () => {
+        if (destroyedRef.current) return;
+        destroyedRef.current = true;
+        clearEditorInterval();
+        destroyEditorInstance();
+      },
+    }));
 
-    void ensureScript().then((ok) => {
-      if (!ok && !unmountedRef.current) {
-        notification.error({
-          message: "OnlyOffice script failed to load",
-          description:
-            "Could not load the editor client script from configured Document Server hosts.",
-        });
-      }
-    });
+    useEffect(() => {
+      return () => {
+        unmountedRef.current = true;
+      };
+    }, []);
 
-    const interval = setInterval(() => {
-      if (unmountedRef.current) {
-        clearInterval(interval);
+    useEffect(() => {
+      if (!isActive) {
         return;
       }
 
-      if (window.DocsAPI?.DocEditor) {
-        clearInterval(interval);
+      unmountedRef.current = false;
+      destroyedRef.current = false;
+      cleanupStartedRef.current = false;
 
-        if (unmountedRef.current || cleanupStartedRef.current) return;
+      const container = editorRef.current;
+      if (!container) return;
+
+      const candidates = [config.docScriptUrl].filter(Boolean) as string[];
+
+      const ensureScript = async () => {
+        for (const base of candidates) {
+          const ok = await loadScriptFrom(base, 2);
+          if (ok) return true;
+        }
+        return false;
+      };
+
+      void ensureScript().then((ok) => {
+        if (!ok && !unmountedRef.current && !destroyedRef.current) {
+          notification.error({
+            message: "OnlyOffice script failed to load",
+            description:
+              "Could not load the editor client script from configured Document Server hosts.",
+          });
+        }
+      });
+
+      intervalRef.current = setInterval(() => {
+        if (unmountedRef.current || destroyedRef.current) {
+          clearEditorInterval();
+          return;
+        }
+
+        if (!window.DocsAPI?.DocEditor) return;
+
+        clearEditorInterval();
+
+        if (
+          unmountedRef.current ||
+          destroyedRef.current ||
+          cleanupStartedRef.current
+        ) {
+          return;
+        }
 
         instanceRef.current = new window.DocsAPI.DocEditor(container.id, {
           type: "desktop",
@@ -128,27 +216,28 @@ const OnlyOfficeEditor: React.FC<OnlyOfficeEditorProps> = ({ editor }) => {
           editorConfig: editor.editorConfig,
           token: editor.token,
         });
-      }
-    }, 100);
+      }, DOCS_API_POLL_MS);
 
-    return () => {
-      unmountedRef.current = true;
-      clearInterval(interval);
-      destroyEditorInstance();
-    };
-  }, [editor]);
+      return () => {
+        clearEditorInterval();
+        destroyEditorInstance();
+      };
+    }, [editor, isActive]);
 
-  return (
-    <div
-      id={containerId}
-      ref={editorRef}
-      style={{
-        width: "100%",
-        height: "100vh",
-        background: "#f5f5f5",
-      }}
-    />
-  );
-};
+    return (
+      <div
+        id={containerId}
+        ref={editorRef}
+        style={{
+          width: "100%",
+          height: "100vh",
+          background: "#f5f5f5",
+        }}
+      />
+    );
+  },
+);
+
+OnlyOfficeEditor.displayName = "OnlyOfficeEditor";
 
 export default OnlyOfficeEditor;

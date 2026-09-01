@@ -6,7 +6,9 @@ import DocumentPreview from "../DocumentPreview";
 import SubmitDocument from "./submitDocument";
 import EditSummary from "./EditSummary";
 import WriteownSummary from "./WriteownSummary";
-import OnlyOfficeEditor from "./OnlyofficeEditor";
+import OnlyOfficeEditor, {
+  type OnlyOfficeEditorHandle,
+} from "./OnlyofficeEditor";
 import { getUserFromToken } from "../../../utils/jwt";
 import {
   getDocumentById,
@@ -62,6 +64,7 @@ const DocumentDetail: React.FC = () => {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   //edit document propose
   const [isEditMode, setIsEditMode] = useState(false);
+  const [editHostMounted, setEditHostMounted] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [isTextLoading, setIsTextLoading] = useState(false);
 
@@ -70,6 +73,8 @@ const DocumentDetail: React.FC = () => {
   // unmounts whenever the page re-enters its loading branch.
   const fileRetrySpentRef = useRef(false);
   const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
+  const onlyOfficeEditorRef = useRef<OnlyOfficeEditorHandle | null>(null);
+
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
   const [isWriteOwnSummaryOpen, setIsWriteOwnSummaryOpen] = useState(false);
@@ -105,6 +110,11 @@ const DocumentDetail: React.FC = () => {
     if (id) {
       fetchDocument();
     }
+  }, [id]);
+
+  useEffect(() => {
+    setEditHostMounted(false);
+    setIsEditMode(false);
   }, [id]);
 
   useEffect(() => {
@@ -214,8 +224,14 @@ const DocumentDetail: React.FC = () => {
     });
   }, [refreshDocumentSilently, selectedVersion]);
 
-  const handleToggleEditMode = useCallback(() => {
+  const handleToggleEditMode = useCallback(async () => {
     if (isEditMode) {
+      onlyOfficeEditorRef.current?.destroy();
+
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+
       setIsEditMode(false);
       fileRetrySpentRef.current = false;
       setIsPreviewUnavailable(false);
@@ -223,10 +239,16 @@ const DocumentDetail: React.FC = () => {
       return;
     }
 
+    setEditHostMounted(true);
     setIsEditMode(true);
   }, [isEditMode, refreshDocumentSilently, selectedVersion]);
 
   const handleBackClick = () => {
+    if (isEditMode) {
+      onlyOfficeEditorRef.current?.destroy();
+      setIsEditMode(false);
+    }
+
     navigate("/documents", {
       state: location.state ?? undefined,
     });
@@ -274,6 +296,12 @@ const DocumentDetail: React.FC = () => {
   // };
 
   const handleVersionChange = (version: number) => {
+    if (isEditMode) {
+      onlyOfficeEditorRef.current?.destroy();
+      setIsEditMode(false);
+    }
+
+    setEditHostMounted(false);
     setSelectedVersion(version);
     fetchDocument(version);
   };
@@ -768,13 +796,7 @@ const DocumentDetail: React.FC = () => {
         isUserWrittenSummary={isUserWrittenSummary}
       >
         <div className="document-viewer">
-          {isEditMode ? (
-            <OnlyOfficeEditor
-              key={`edit-${document.document_id}-${selectedVersion}`}
-              editor={(document as any).editor}
-              canEdit={true}
-            />
-          ) : PreviewInOnlyOffice ? (
+          {PreviewInOnlyOffice && !isEditMode && (
             <OnlyOfficeEditor
               editor={{
                 ...(document as any).editor,
@@ -785,7 +807,25 @@ const DocumentDetail: React.FC = () => {
               }}
               canEdit={false}
             />
-          ) : (
+          )}
+          {editHostMounted && editorConfig && (
+            <div
+              style={{
+                display: isEditMode ? "block" : "none",
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              <OnlyOfficeEditor
+                ref={onlyOfficeEditorRef}
+                key={`edit-${document.document_id}-${selectedVersion}`}
+                editor={(document as any).editor}
+                canEdit={true}
+                isActive={isEditMode}
+              />
+            </div>
+          )}
+          {!isEditMode && !PreviewInOnlyOffice && (
             <DocumentPreview
               fileName={document.version?.file_name || "Unknown Document"}
               fileUrl={document.version?.file_url || ""}
