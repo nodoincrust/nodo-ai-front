@@ -6,7 +6,9 @@ import DocumentPreview from "../DocumentPreview";
 import SubmitDocument from "./submitDocument";
 import EditSummary from "./EditSummary";
 import WriteownSummary from "./WriteownSummary";
-import OnlyOfficeEditor from "./OnlyofficeEditor";
+import OnlyOfficeEditor, {
+  type OnlyOfficeEditorHandle,
+} from "./OnlyofficeEditor";
 import { getUserFromToken } from "../../../utils/jwt";
 import {
   getDocumentById,
@@ -70,6 +72,7 @@ const DocumentDetail: React.FC = () => {
   // unmounts whenever the page re-enters its loading branch.
   const fileRetrySpentRef = useRef(false);
   const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
+  const onlyOfficeEditorRef = useRef<OnlyOfficeEditorHandle>(null);
 
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
@@ -214,6 +217,21 @@ const DocumentDetail: React.FC = () => {
       if (!refreshed) setIsPreviewUnavailable(true);
     });
   }, [refreshDocumentSilently, selectedVersion]);
+
+  const handleToggleEditMode = useCallback(() => {
+    if (isEditMode) {
+      onlyOfficeEditorRef.current?.destroy();
+      requestAnimationFrame(() => {
+        setIsEditMode(false);
+        fileRetrySpentRef.current = false;
+        setIsPreviewUnavailable(false);
+        void refreshDocumentSilently(selectedVersion);
+      });
+      return;
+    }
+
+    setIsEditMode(true);
+  }, [isEditMode, refreshDocumentSilently, selectedVersion]);
 
   const handleBackClick = () => {
     navigate("/documents", {
@@ -731,19 +749,7 @@ const DocumentDetail: React.FC = () => {
     tracking,
     // Only show Edit when file type is editable (not PDF) and status is DRAFT
     onEdit:
-      isEditable && status === "DRAFT"
-        ? () =>
-            setIsEditMode((prev) => {
-              if (prev) {
-                // An edit-save overwrites the current version in place, so
-                // refetch for updated size/updated_at and a fresh file_url.
-                fileRetrySpentRef.current = false;
-                setIsPreviewUnavailable(false);
-                void refreshDocumentSilently(selectedVersion);
-              }
-              return !prev;
-            })
-        : undefined,
+      isEditable && status === "DRAFT" ? handleToggleEditMode : undefined,
     editButtonText: isEditMode ? "Close Editor" : "Edit",
   };
   return (
@@ -771,6 +777,8 @@ const DocumentDetail: React.FC = () => {
         <div className="document-viewer">
           {isEditMode ? (
             <OnlyOfficeEditor
+              ref={onlyOfficeEditorRef}
+              key={`edit-${document.document_id}-${selectedVersion}`}
               editor={(document as any).editor}
               canEdit={true}
             />
