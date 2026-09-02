@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation, data } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "./DocumentLayout";
@@ -6,7 +6,9 @@ import DocumentPreview from "../DocumentPreview";
 import SubmitDocument from "./submitDocument";
 import EditSummary from "./EditSummary";
 import WriteownSummary from "./WriteownSummary";
-import OnlyOfficeEditor from "./OnlyofficeEditor";
+import OnlyOfficeEditor, {
+  type OnlyOfficeEditorHandle,
+} from "./OnlyofficeEditor";
 import { getUserFromToken } from "../../../utils/jwt";
 import {
   getDocumentById,
@@ -62,8 +64,16 @@ const DocumentDetail: React.FC = () => {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   //edit document propose
   const [isEditMode, setIsEditMode] = useState(false);
+  const [editHostMounted, setEditHostMounted] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [isTextLoading, setIsTextLoading] = useState(false);
+
+  // Presigned URLs expire, so a failed preview gets one silent refetch. The
+  // budget lives here rather than in DocumentPreview because the preview
+  // unmounts whenever the page re-enters its loading branch.
+  const fileRetrySpentRef = useRef(false);
+  const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
+  const onlyOfficeEditorRef = useRef<OnlyOfficeEditorHandle | null>(null);
 
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
@@ -100,6 +110,11 @@ const DocumentDetail: React.FC = () => {
     if (id) {
       fetchDocument();
     }
+  }, [id]);
+
+  useEffect(() => {
+    setEditHostMounted(false);
+    setIsEditMode(false);
   }, [id]);
 
   useEffect(() => {
@@ -148,6 +163,8 @@ const DocumentDetail: React.FC = () => {
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+    fileRetrySpentRef.current = false;
+    setIsPreviewUnavailable(false);
 
     try {
       const doc = await getDocumentById(Number(id), version);
@@ -177,7 +194,72 @@ const DocumentDetail: React.FC = () => {
     }
   };
 
+  // Refreshes the document without entering the loading branch, so the preview
+  // stays mounted and can retry in place.
+  const refreshDocumentSilently = useCallback(
+    async (version?: number) => {
+      if (!id) return false;
+
+      try {
+        const doc = await getDocumentById(Number(id), version);
+        setDocument(doc);
+        setTracking(doc.tracking);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [id],
+  );
+
+  const handleFileUrlExpired = useCallback(() => {
+    if (fileRetrySpentRef.current) {
+      setIsPreviewUnavailable(true);
+      return;
+    }
+
+    fileRetrySpentRef.current = true;
+    void refreshDocumentSilently(selectedVersion).then((refreshed) => {
+      if (!refreshed) setIsPreviewUnavailable(true);
+    });
+  }, [refreshDocumentSilently, selectedVersion]);
+
+  const waitForEditorTeardown = useCallback(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      }),
+    [],
+  );
+
+  const handleToggleEditMode = useCallback(async () => {
+    if (isEditMode) {
+      onlyOfficeEditorRef.current?.destroy();
+      await waitForEditorTeardown();
+
+      setIsEditMode(false);
+      fileRetrySpentRef.current = false;
+      setIsPreviewUnavailable(false);
+      void refreshDocumentSilently(selectedVersion);
+      return;
+    }
+
+    // Tear down the current OnlyOffice session before switching config (view→edit
+    // for XLSX/PPT, or hidden host→edit for DOCX/TXT).
+    onlyOfficeEditorRef.current?.destroy();
+    await waitForEditorTeardown();
+
+    setEditHostMounted(true);
+    setIsEditMode(true);
+  }, [isEditMode, refreshDocumentSilently, selectedVersion, waitForEditorTeardown]);
+
   const handleBackClick = () => {
+    onlyOfficeEditorRef.current?.destroy();
+
+    if (isEditMode) {
+      setIsEditMode(false);
+    }
+
     navigate("/documents", {
       state: location.state ?? undefined,
     });
@@ -225,6 +307,13 @@ const DocumentDetail: React.FC = () => {
   // };
 
   const handleVersionChange = (version: number) => {
+    onlyOfficeEditorRef.current?.destroy();
+
+    if (isEditMode) {
+      setIsEditMode(false);
+    }
+
+    setEditHostMounted(false);
     setSelectedVersion(version);
     fetchDocument(version);
   };
@@ -693,11 +782,30 @@ const DocumentDetail: React.FC = () => {
     tracking,
     // Only show Edit when file type is editable (not PDF) and status is DRAFT
     onEdit:
-      isEditable && status === "DRAFT"
-        ? () => setIsEditMode((prev) => !prev)
-        : undefined,
+      isEditable && status === "DRAFT" ? handleToggleEditMode : undefined,
     editButtonText: isEditMode ? "Close Editor" : "Edit",
   };
+
+  // One OnlyOffice React host for both preview (XLSX/PPT) and edit. Never swap
+  // between separate components — destroy the DocEditor API session and re-init
+  // in the same host when toggling view/edit.
+  const showOnlyOfficeHost =
+    Boolean(editorConfig) && (PreviewInOnlyOffice || editHostMounted);
+  const onlyOfficeHostVisible = PreviewInOnlyOffice || isEditMode;
+  const onlyOfficeIsActive = PreviewInOnlyOffice || isEditMode;
+
+  const onlyOfficeEditorPayload = editorConfig
+    ? isEditMode
+      ? editorConfig
+      : {
+          ...editorConfig,
+          editorConfig: {
+            ...editorConfig.editorConfig,
+            mode: "view",
+          },
+        }
+    : null;
+
   return (
     <>
       <DocumentLayout
@@ -721,26 +829,29 @@ const DocumentDetail: React.FC = () => {
         isUserWrittenSummary={isUserWrittenSummary}
       >
         <div className="document-viewer">
-          {isEditMode ? (
-            <OnlyOfficeEditor
-              editor={(document as any).editor}
-              canEdit={true}
-            />
-          ) : PreviewInOnlyOffice ? (
-            <OnlyOfficeEditor
-              editor={{
-                ...(document as any).editor,
-                editorConfig: {
-                  ...(document as any).editor.editorConfig,
-                  mode: "view",
-                },
+          {showOnlyOfficeHost && onlyOfficeEditorPayload && (
+            <div
+              style={{
+                display: onlyOfficeHostVisible ? "block" : "none",
+                width: "100%",
+                height: "100%",
               }}
-              canEdit={false}
-            />
-          ) : (
+            >
+              <OnlyOfficeEditor
+                ref={onlyOfficeEditorRef}
+                key={`onlyoffice-${document.document_id}-${selectedVersion}`}
+                editor={onlyOfficeEditorPayload}
+                canEdit={isEditMode}
+                isActive={onlyOfficeIsActive}
+              />
+            </div>
+          )}
+          {!isEditMode && !PreviewInOnlyOffice && (
             <DocumentPreview
               fileName={document.version?.file_name || "Unknown Document"}
               fileUrl={document.version?.file_url || ""}
+              onFileUrlExpired={handleFileUrlExpired}
+              isUnavailable={isPreviewUnavailable}
             />
           )}
         </div>

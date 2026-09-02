@@ -12,7 +12,6 @@ import type {
 
 } from "../types/common";
 import { API_URL } from "../utils/API";
-import { config } from "../config";
 
 // Fetch all documents with filters
 export const getDocumentsList = async (params: GetDocumentsParams = {}) => {
@@ -78,17 +77,8 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
     );
   }
 
-  // Construct file URL
-  let fileUrl = "";
-  if (apiData.file.file_url) {
-    fileUrl = apiData.file.file_url;
-  } else if (apiData.file.file_path) {
-    const baseUrl = config.docBaseUrl.replace(/\/$/, "");
-    const path = apiData.file.file_path.startsWith("/")
-      ? apiData.file.file_path
-      : `/${apiData.file.file_path}`;
-    fileUrl = `${baseUrl}${encodeURI(path)}`;
-  }
+  // Presigned S3 URL from the backend. Never derived from file_path (an S3 key).
+  const fileUrl = apiData.file.file_url || "";
 
   return {
     document_id: apiData.document.id,
@@ -109,21 +99,14 @@ export const getDocumentById = async (id: number, version?: number): Promise<Api
       file_name: apiData.file.file_name,
       file_size_bytes: apiData.file.file_size_bytes,
       file_url: fileUrl,
+      created_at: apiData.file.created_at,
+      updated_at: apiData.file.updated_at,
       tags: apiData.summary?.tags || [],  // ✅ required by ApiDocumentVersion
       summary: apiData.summary?.text || "",  // ✅ Map summary text to version.summary
     },
     tracking: (apiData as any).tracking,
 
-    editor: apiData.editor
-      ? {
-          ...apiData.editor,
-          documentServerUrl: apiData.editor.documentServerUrl,
-          document: {
-            ...apiData.editor.document,
-            url: API_URL.onlyOfficeFileStream(apiData.editor.token),
-          },
-        }
-      : null,
+    editor: apiData.editor ?? null,
  
   };
 };

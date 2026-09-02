@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { notification } from "antd";
-import "./Styles/VerifyOtp.scss";
+import "./Styles/VerifyOTP.scss";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { authService } from "../../../services/auth.service";
 import { setToken } from "../../../utils/storage";

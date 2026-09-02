@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 
@@ -7,11 +7,9 @@ import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
 import DocumentPreview from "../../../Documents/DocumentPreview";
 import { getRoleFromToken } from "../../../../utils/jwt";
 import { getDocumentById } from "../../../../services/documents.service";
-import { API_URL } from "../../../../utils/API";
 
 import {
   ApiDocument,
-  ApiDocumentVersion,
   DocumentHeaderAction,
   DocumentHeaderProps,
 } from "../../../../types/common";
@@ -22,7 +20,6 @@ import {
   rejectDocumentByID,
 } from "../../../../services/awaitingApproval.services";
 
-import { config } from "../../../../config";
 import OnlyOfficeEditor from "../../../Documents/Components/OnlyofficeEditor";
 
 const AwaitingApprovalDetails = () => {
@@ -37,6 +34,12 @@ const AwaitingApprovalDetails = () => {
   const [selectedVersion, setSelectedVersion] = useState<number>();
   const [tracking, setTracking] = useState<any>(null);
   const ONLYOFFICE_PREVIEW_TYPES = ["xlsx", "xls", "ppt", "pptx"];
+
+  // Presigned URLs expire, so a failed preview gets one silent refetch. The
+  // budget lives here rather than in DocumentPreview because the preview
+  // unmounts whenever the page re-enters its loading branch.
+  const fileRetrySpentRef = useRef(false);
+  const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
   /* ------------------------------ Fetch Document ------------------------------ */
   useEffect(() => {
     if (id) fetchDocumentDetails(selectedVersion);
@@ -47,24 +50,14 @@ const AwaitingApprovalDetails = () => {
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+    fileRetrySpentRef.current = false;
+    setIsPreviewUnavailable(false);
 
     try {
       const res = await getAwaitingApprovalDetails(id, version);
       const data = res.data?.data;
 
       if (!data) throw new Error("Document not found");
-
-      /* ---------- File URL ---------- */
-      let fileUrl = "";
-      if (data.file?.file_url) {
-        fileUrl = data.file.file_url;
-      } else if (data.file?.file_path) {
-        const baseUrl = config.docBaseUrl.replace(/\/$/, "");
-        const path = data.file.file_path.startsWith("/")
-          ? data.file.file_path
-          : `/${data.file.file_path}`;
-        fileUrl = `${baseUrl}${path}`;
-      }
 
       /* ---------- Status Mapping ---------- */
       const mappedStatus: ApiDocument["status"] =
@@ -76,59 +69,21 @@ const AwaitingApprovalDetails = () => {
               ? "REJECTED"
               : "IN_REVIEW";
 
-      const docVersion: ApiDocumentVersion = {
-        version_number: data.file?.version_number || 1,
-        file_name: data.file?.file_name || "",
-        file_url: fileUrl,
-        summary: data.summary?.text || "",
-        tags: data.summary?.tags || [],
-        file_size_bytes: data.file?.file_size_bytes || 0,
-      };
+      // The presigned file URL and editor config only exist on the details
+      // endpoint, so every approver goes through it regardless of privilege.
+      const doc = await getDocumentById(Number(id), version);
 
-      const token = localStorage.getItem("accessToken");
-      let isPrivileged = false;
-      try {
-        const authDataStr = localStorage.getItem("authData");
-        const authData = authDataStr ? JSON.parse(authDataStr) : {};
-        if (authData?.is_department_head) isPrivileged = true;
-        const role = token ? getRoleFromToken(token)?.toUpperCase() : null;
-        if (role === "COMPANY_ADMIN" || role === "COMPANY_HEAD")
-          isPrivileged = true;
-      } catch (err) {
-        console.warn("Could not parse Data from localStorage:", err);
-      }
-
-      if (isPrivileged) {
-        try {
-          const doc = await getDocumentById(Number(id), version);
-          if (
-            (!doc.version.file_url || doc.version.file_url === "") &&
-            doc.editor?.token
-          ) {
-            doc.version.file_url = API_URL.onlyOfficeFileStream(
-              doc.editor.token,
-            );
-          }
-          setSelectedVersion(doc.version.version_number);
-          setDocument(doc);
-          setTracking((doc as any).tracking);
-          return;
-        } catch (err) {
-          console.warn("Failed to fetch privileged docuemnt data:", err);
-        }
-      }
-
-      setSelectedVersion(docVersion.version_number);
+      setSelectedVersion(doc.version.version_number);
 
       setDocument({
-        document_id: data.document.id,
+        ...doc,
+        // Review state belongs to the approval inbox, not the details endpoint.
         status: mappedStatus,
         display_status: data.document.display_status,
         current_version: data.document.current_version,
         is_actionable: data.document.is_actionable,
-        version: docVersion,
       });
-      setTracking(data.tracking);
+      setTracking(doc.tracking ?? data.tracking);
     } catch (error: any) {
       notification.error({
         message:
@@ -140,6 +95,45 @@ const AwaitingApprovalDetails = () => {
       getLoaderControl()?.hideLoader();
     }
   };
+
+  // Refreshes only the file side of the document, keeping the review state that
+  // came from the approval inbox. Deliberately avoids setSelectedVersion, which
+  // would retrigger the loading fetch and unmount the preview.
+  const refreshDocumentSilently = useCallback(
+    async (version?: number) => {
+      if (!id) return false;
+
+      try {
+        const doc = await getDocumentById(Number(id), version);
+        setDocument((prev) =>
+          prev
+            ? {
+                ...prev,
+                version: doc.version,
+                editor: doc.editor,
+                summary: doc.summary,
+              }
+            : doc,
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [id],
+  );
+
+  const handleFileUrlExpired = useCallback(() => {
+    if (fileRetrySpentRef.current) {
+      setIsPreviewUnavailable(true);
+      return;
+    }
+
+    fileRetrySpentRef.current = true;
+    void refreshDocumentSilently(selectedVersion).then((refreshed) => {
+      if (!refreshed) setIsPreviewUnavailable(true);
+    });
+  }, [refreshDocumentSilently, selectedVersion]);
 
   /* ------------------------------ Handlers ------------------------------ */
   const handleBackClick = () => {
@@ -295,6 +289,8 @@ const AwaitingApprovalDetails = () => {
               <DocumentPreview
                 fileName={document.version.file_name}
                 fileUrl={document.version.file_url}
+                onFileUrlExpired={handleFileUrlExpired}
+                isUnavailable={isPreviewUnavailable}
               />
             );
           }

@@ -8,9 +8,10 @@ interface Slide {
 
 interface PptViewerProps {
   fileUrl: string;
+  onLoadError?: () => void;
 }
 
-const PptViewer: React.FC<PptViewerProps> = ({ fileUrl }) => {
+const PptViewer: React.FC<PptViewerProps> = ({ fileUrl, onLoadError }) => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -130,6 +131,7 @@ const PptViewer: React.FC<PptViewerProps> = ({ fileUrl }) => {
     } catch (err: any) {
       console.error('Error loading presentation:', err);
       setError(`Error: ${err.message || 'Failed to load presentation'}`);
+      onLoadError?.();
     } finally {
       setLoading(false);
     }

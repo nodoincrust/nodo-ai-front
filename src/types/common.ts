@@ -285,7 +285,10 @@ export interface ApiDocumentVersion {
   file_size_bytes: number;
   tags?: string[];
   summary?: string;
-  file_url?: string;
+  file_url?: string | null;
+  created_at?: string | null;
+  // null until the file has been edited and saved
+  updated_at?: string | null;
 }
 
 // Actual API response structure
@@ -306,10 +309,14 @@ export interface ApiDocumentDetailResponse {
     };
     file: {
       file_name: string;
-      file_url?: string;
+      // Presigned S3 URL; null when generation fails
+      file_url?: string | null;
+      // S3 object key, opaque identifier — never usable as a URL
       file_path?: string;
       file_size_bytes: number;
       version_number: number;
+      created_at?: string | null;
+      updated_at?: string | null;
     };
     ai: {
       ai_document_id: number;

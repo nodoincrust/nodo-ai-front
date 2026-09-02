@@ -505,9 +505,9 @@ const SubmitTemplateForm: React.FC<Props> = ({ viewOnly = false }) => {
                                                             if (isReadOnly) {
                                                                 if (fieldData?.value) {
                                                                     const fileName = fieldData.value.split("/").pop() || fieldData.value;
-                                                                    const fileUrl = fieldData.fileUrl
-                                                                        ? `${import.meta.env.VITE_Document_Viewer_url}${fieldData.fileUrl}`
-                                                                        : fieldData.value;
+                                                                    // Presigned S3 URL, already absolute. fieldData.value is an
+                                                                    // S3 key and must never be used as a link.
+                                                                    const fileUrl: string | null = fieldData.fileUrl || null;
 
                                                                     return (
                                                                         <div className="file-preview-wrapper">
@@ -517,17 +517,21 @@ const SubmitTemplateForm: React.FC<Props> = ({ viewOnly = false }) => {
                                                                                         <span className="file-name">{fileName}</span>
                                                                                     </div>
 
-                                                                                    <a
-                                                                                        href={fileUrl}
-                                                                                        target="_blank"
-                                                                                        rel="noopener noreferrer"
-                                                                                        className="file-preview-link"
-                                                                                        title={fileName}
-                                                                                    >
-                                                                                        <div className="eye-icon-container">
-                                                                                            <img src="/assets/Eye.svg" alt="View" />
-                                                                                        </div>
-                                                                                    </a>
+                                                                                    {fileUrl ? (
+                                                                                        <a
+                                                                                            href={fileUrl}
+                                                                                            target="_blank"
+                                                                                            rel="noopener noreferrer"
+                                                                                            className="file-preview-link"
+                                                                                            title={fileName}
+                                                                                        >
+                                                                                            <div className="eye-icon-container">
+                                                                                                <img src="/assets/Eye.svg" alt="View" />
+                                                                                            </div>
+                                                                                        </a>
+                                                                                    ) : (
+                                                                                        <span className="no-file-text">File unavailable</span>
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>

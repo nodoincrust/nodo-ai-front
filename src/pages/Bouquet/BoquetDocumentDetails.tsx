@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 import DocumentLayout from "../../pages/Documents/Components/DocumentLayout";
@@ -48,6 +48,13 @@ const BoquetDocumentsDetails: React.FC = () => {
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
   const [isWriteOwnSummaryOpen, setIsWriteOwnSummaryOpen] = useState(false);
   const [isUserWrittenSummary, setIsUserWrittenSummary] = useState(false);
+
+  // Presigned URLs expire, so a failed preview gets one silent refetch. The
+  // budget lives here rather than in DocumentPreview because the preview
+  // unmounts whenever the page re-enters its loading branch.
+  const fileRetrySpentRef = useRef(false);
+  const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
+
   useEffect(() => {
     if (id) {
       fetchDocument();
@@ -59,6 +66,8 @@ const BoquetDocumentsDetails: React.FC = () => {
 
     setIsLoading(true);
     getLoaderControl()?.showLoader();
+    fileRetrySpentRef.current = false;
+    setIsPreviewUnavailable(false);
 
     try {
       const doc = await getDocumentById(Number(id), version);
@@ -84,6 +93,35 @@ const BoquetDocumentsDetails: React.FC = () => {
       getLoaderControl()?.hideLoader();
     }
   };
+
+  // Refreshes the document without entering the loading branch, so the preview
+  // stays mounted and can retry in place.
+  const refreshDocumentSilently = useCallback(
+    async (version?: number) => {
+      if (!id) return false;
+
+      try {
+        const doc = await getDocumentById(Number(id), version);
+        setDocument(doc);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [id],
+  );
+
+  const handleFileUrlExpired = useCallback(() => {
+    if (fileRetrySpentRef.current) {
+      setIsPreviewUnavailable(true);
+      return;
+    }
+
+    fileRetrySpentRef.current = true;
+    void refreshDocumentSilently(selectedVersion).then((refreshed) => {
+      if (!refreshed) setIsPreviewUnavailable(true);
+    });
+  }, [refreshDocumentSilently, selectedVersion]);
 
   const handleBackClick = () => {
     const navState = location.state as any;
@@ -653,6 +691,8 @@ const BoquetDocumentsDetails: React.FC = () => {
                     <DocumentPreview
                         fileName={document.version.file_name}
                         fileUrl={document.version.file_url}
+                        onFileUrlExpired={handleFileUrlExpired}
+                        isUnavailable={isPreviewUnavailable}
                     />
                 ) : (
                     <div className="document-placeholder">
