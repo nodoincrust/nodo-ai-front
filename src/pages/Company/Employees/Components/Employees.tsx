@@ -196,7 +196,7 @@ export default function Employees() {
                     },
                     {
                         title: "Role",
-                        render: (row) => <span>{row.role || "—"}</span>,
+                        render: (row) => <span>{row.role?.name || "—"}</span>,
                     },
                     {
                         title: "Status",

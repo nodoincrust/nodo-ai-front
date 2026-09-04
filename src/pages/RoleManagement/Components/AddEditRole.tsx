@@ -13,6 +13,7 @@ import {
   type RolePermissionPayload,
   type RoleReportingOption,
 } from "../../../services/roleManagement.services";
+import "../../Company/Employees/Components/Styles/AddEditEmployee.scss";
 import "./Styles/AddEditRole.scss";
 
 type PermissionState = {
@@ -60,6 +61,7 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
     [],
   );
   const [permissionError, setPermissionError] = useState("");
+  const [reportingOpen, setReportingOpen] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -321,27 +323,34 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
       footer={null}
       closable={false}
       centered
-      width={560}
-      destroyOnClose
-      className={`add-edit-role-modal ${animateClose ? "modal-exit" : "modal-enter"}`}
+      width={412}
+      className={`add-edit-employee-modal ${animateClose ? "modal-exit" : "modal-enter"}`}
       getContainer={false}
+      transitionName=""
+      zIndex={2000}
       maskClosable={false}
     >
-      <div className="role-wrapper" ref={modalRef}>
-        <div className="role-header">
-          <div className="left">
-            <h2>{isEdit ? "Update Role" : "Add Role"}</h2>
-          </div>
+      <div className="employee-wrapper" ref={modalRef}>
+        <div className="employee-header">
+          <h2>{isEdit ? "Edit Role" : "Add Role"}</h2>
           <div className="close-icon" onClick={handleClose}>
-            <img src="/assets/x-02.svg" alt="Close" />
+            <img src="/assets/x-02.svg" alt="close" />
           </div>
         </div>
 
-        <Form form={form} layout="vertical" className="role-form">
+        <Form
+          form={form}
+          layout="vertical"
+          className="employee-form"
+          autoComplete="off"
+        >
           <Form.Item
-            label="Role Name"
+            label={
+              <span>
+                Role Name <span className="star">*</span>
+              </span>
+            }
             name="role_name"
-            required
             rules={[{ validator: validateRoleName }]}
           >
             <Input placeholder="Enter Role name" maxLength={50} />
@@ -349,7 +358,7 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
 
           <div className="permission-field">
             <label className="permission-label">
-              Menu Permission <span className="required">*</span>
+              Menu Permission <span className="star">*</span>
             </label>
 
             <div className="permission-box">
@@ -423,7 +432,21 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
           <Form.Item label="Reporting Role" name="reporting_role_id">
             <Select
               allowClear
-              placeholder="-select reporting role-"
+              placeholder="- Select Reporting Role -"
+              onOpenChange={setReportingOpen}
+              suffixIcon={
+                <img
+                  src="/assets/chevron-down.svg"
+                  alt="arrow"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    transition: "transform 0.2s ease",
+                    transform: reportingOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                />
+              }
+              getPopupContainer={() => document.body}
               options={reportingOptions.map((option) => ({
                 value: option.id,
                 label: option.name,
@@ -432,11 +455,11 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
           </Form.Item>
         </Form>
 
-        <div className="role-footer">
+        <div className="employee-footer">
           <Button className="cancel-btn" onClick={handleClose}>
             Cancel
           </Button>
-          <Button type="primary" className="save-btn" onClick={handleSubmit}>
+          <Button className="save-btn" onClick={handleSubmit}>
             {isEdit ? "Update Role" : "Add Role"}
           </Button>
         </div>

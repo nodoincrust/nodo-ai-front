@@ -6,9 +6,9 @@ import { MESSAGES } from "../../../../utils/Messages";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
 import {
     addEmployee,
-    getCompanyDesignations,
     updateEmployee,
 } from "../../../../services/employees.services";
+import { getRoleReportingOptions } from "../../../../services/roleManagement.services";
 import { getDepartmentsListWithoutPagination } from "../../../../services/departments.services";
 import { useDebounce } from "../../../../hooks/useDebounce";
 import { AddEditEmployeeProps } from "../../../../types/common";
@@ -28,7 +28,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
     const [animateClose, setAnimateClose] = useState(false);
     const [status, setStatus] = useState<boolean>(initialData?.is_active ?? true);
     const [departments, setDepartments] = useState<any[]>([]);
-    const [roles, setRoles] = useState<string[]>([]);
+    const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
     const [deptOpen, setDeptOpen] = useState(false);
     const [roleOpen, setRoleOpen] = useState(false);
     const initialRef = useRef<any>(null);
@@ -52,9 +52,13 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
             ? { value: initialData.department_id, label: initialData.department_name }
             : undefined;
 
-        const roleValue = initialData?.role
-            ? { value: initialData.role, label: initialData.role }
-            : undefined;
+        const roleValue =
+            initialData?.role?.id != null
+                ? {
+                      value: initialData.role.id,
+                      label: initialData.role.name,
+                  }
+                : undefined;
 
         const initialValues = {
             employee_name: initialData?.name || "",
@@ -149,17 +153,13 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
     const fetchRoles = async () => {
         getLoaderControl()?.showLoader();
         try {
-            const res = await getCompanyDesignations();
+            const res = await getRoleReportingOptions();
             if (res.statusCode === 200) {
-                setRoles(
-                    (res.data?.roles || []).slice().sort((a: string, b: string) =>
-                        a.localeCompare(b)
-                    )
-                );
+                setRoles(res.data || []);
             } else {
                 setRoles([]);
                 notification.error({
-                    message: res.message || "Failed to fetch roles",
+                    message: res.message || MESSAGES.ERRORS.FAILED_TO_FETCH_REPORTING_ROLES,
                 });
             }
         } catch (error: any) {
@@ -189,7 +189,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
             name: values.employee_name.trim(),
             email: values.employee_email.trim(),
             department_id: values.department?.value,
-            designation: values.role?.value,
+            role_id: values.role?.value,
             is_active: status,
         };
 
@@ -386,8 +386,8 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                             getPopupContainer={() => document.body}
                         >
                             {roles.map((role) => (
-                                <Option key={role} value={role}>
-                                    {role}
+                                <Option key={role.id} value={role.id}>
+                                    {role.name}
                                 </Option>
                             ))}
                         </Select>
