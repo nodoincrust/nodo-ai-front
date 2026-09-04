@@ -1,0 +1,62 @@
+@use '../../../../variables.scss' as *;
+
+.role-management-container {
+  .role-name {
+    font-weight: 500;
+    color: $label-color;
+  }
+
+  .permission-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 420px;
+    align-items: center;
+
+    .permission-chip {
+      margin: 0;
+      border: none;
+      border-radius: 16px;
+      background: #f2f4f7;
+      color: #414651;
+      font-size: 12px;
+      line-height: 18px;
+      padding: 2px 10px;
+    }
+  }
+
+  .role-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    img {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+  }
+
+  .role-actions-empty {
+    color: #98a2b3;
+  }
+
+  .language-table {
+    table {
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 220px;
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 420px;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 220px;
+      }
+    }
+  }
+}

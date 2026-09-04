@@ -10,6 +10,7 @@ import { awaitingApprovalRoutes } from "../pages/Company/Awaiting_Approval/await
 import { bouquetsRoutes } from "../pages/Bouquet/bouquet.routes";
 import { sharedWorkspaceRoutes } from "../pages/shared-workspace/sharedWorkspace.routes";
 import { templatesRoutes } from "../pages/Dynamic_Templates/templates.routes";
+import { roleManagementRoutes } from "../pages/RoleManagement/roleManagement.routes";
 const router = createBrowserRouter([
   ...authRoutes,
   {
@@ -27,7 +28,8 @@ const router = createBrowserRouter([
       ...awaitingApprovalRoutes,
       ...bouquetsRoutes,
       ...sharedWorkspaceRoutes,
-      ...templatesRoutes
+      ...templatesRoutes,
+      ...roleManagementRoutes,
     ],
   },
 ]);

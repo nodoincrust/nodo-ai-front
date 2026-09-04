@@ -36,6 +36,11 @@ export const MESSAGES = {
         TEMPLATE_DELETED_SUCCESSFULLY: "Template deleted successfully.",
         TEMPLATE_SAVED_SUCCESSFULLY: "Template saved successfully.",
         FORM_SUBMITTED_SUCCESSFULLY: "Form submitted successfully.",
+
+        // Roles
+        ROLE_CREATED_SUCCESSFULLY: "Role created successfully.",
+        ROLE_UPDATED_SUCCESSFULLY: "Role updated successfully.",
+        ROLE_DELETED_SUCCESSFULLY: "Role deleted successfully.",
     },
 
     ERRORS: {
@@ -117,6 +122,20 @@ export const MESSAGES = {
         AT_LEAST_ONE_OPTION_REQUIRED: "At least one option is required",
         PLEASE_ENTER_ERROR_MESSAGE: "Please enter the error message",
         FILL_ALL_REQUIRED_FIELDS: "Please fill all the required fields",
+
+        // Roles
+        FAILED_TO_FETCH_ROLES: "Failed to fetch roles.",
+        FAILED_TO_FETCH_ROLE: "Failed to fetch role details.",
+        FAILED_TO_FETCH_ROLE_MODULES: "Failed to fetch role modules.",
+        FAILED_TO_FETCH_REPORTING_ROLES: "Failed to fetch reporting roles.",
+        ROLE_CREATE_FAILED: "Failed to create role.",
+        ROLE_UPDATE_FAILED: "Failed to update role.",
+        ROLE_DELETE_FAILED: "Failed to delete role.",
+        ROLE_NAME_REQUIRED: "Role name is required.",
+        ROLE_NAME_MIN_LENGTH: "Role name must be at least 4 characters.",
+        ROLE_NAME_MAX_LENGTH: "Role name cannot exceed 50 characters.",
+        ROLE_NAME_EXISTS: "A role with this name already exists.",
+        ROLE_PERMISSION_REQUIRED: "At least one menu permission is required.",
         INVALID_FILE_TYPE_FORMAT: "Invalid file type format. Example: .jpg, .png",
         FAILED_TO_SAVE_TEMPLATE: "Failed to save template",
         FAILED_TO_UPDATE_TEMPLATE: "Failed to update template",

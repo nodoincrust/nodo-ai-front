@@ -82,4 +82,13 @@ export const API_URL = {
     `/newdocuments/removeDocuments/${boqId}`,
 
   onlyOfficeFileStream: (token: string) => `/newdocuments/internal/onlyoffice/file/${token}`,
+
+  // Roles
+  getRolesList: "/roles/list",
+  getRoleModules: "/roles/modules",
+  getRoleReportingOptions: "/roles/reporting-options",
+  getRoleById: (roleId: number | string) => `/roles/${roleId}`,
+  addRole: "/roles",
+  updateRole: (roleId: number | string) => `/roles/${roleId}`,
+  deleteRole: (roleId: number | string) => `/roles/${roleId}`,
 };
