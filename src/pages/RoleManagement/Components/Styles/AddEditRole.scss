@@ -5,6 +5,7 @@
   .ant-modal-body {
     max-height: calc(100vh - 40px);
   }
+
   .permission-field {
     margin-bottom: 24px;
 
@@ -30,6 +31,23 @@
       max-height: 220px;
       overflow-y: auto;
       background: $color-white;
+
+      /* Restore Ant tick only here (Employee SCSS clears ::after globally) */
+      .ant-checkbox-checked .ant-checkbox-inner::after {
+        display: block !important;
+        content: "" !important;
+        position: absolute !important;
+        top: 45% !important;
+        left: 22% !important;
+        width: 5.5px !important;
+        height: 9.5px !important;
+        border: solid #fff !important;
+        border-width: 0 2px 2px 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+        transform: rotate(45deg) scale(1) translate(-50%, -50%) !important;
+        opacity: 1 !important;
+      }
     }
 
     .permission-row {

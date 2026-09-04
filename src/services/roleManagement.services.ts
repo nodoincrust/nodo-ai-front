@@ -8,7 +8,7 @@ export interface RoleListPayload {
 }
 
 export interface RolePermissionChip {
-  module_key: string;
+  sidebar_menu_id?: number;
   label: string;
 }
 
@@ -21,7 +21,7 @@ export interface RoleListItem {
 }
 
 export interface RoleModuleOption {
-  module_key: string;
+  sidebar_menu_id: number;
   label: string;
   actions: Array<"add" | "edit" | "delete" | string>;
 }
@@ -32,7 +32,7 @@ export interface RoleReportingOption {
 }
 
 export interface RolePermissionPayload {
-  module_key: string;
+  sidebar_menu_id: number;
   selected: boolean;
   add: boolean;
   edit: boolean;

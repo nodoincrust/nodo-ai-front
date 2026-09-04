@@ -145,8 +145,11 @@ export default function RoleManagement() {
                 {(row.permissions || []).length === 0 ? (
                   <span>—</span>
                 ) : (
-                  (row.permissions || []).map((permission) => (
-                    <Tag key={permission.module_key} className="permission-chip">
+                  (row.permissions || []).map((permission, index) => (
+                    <Tag
+                      key={permission.sidebar_menu_id ?? `${permission.label}-${index}`}
+                      className="permission-chip"
+                    >
                       {permission.label}
                     </Tag>
                   ))

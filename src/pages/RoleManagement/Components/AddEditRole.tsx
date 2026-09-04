@@ -17,7 +17,7 @@ import "../../Company/Employees/Components/Styles/AddEditEmployee.scss";
 import "./Styles/AddEditRole.scss";
 
 type PermissionState = {
-  module_key: string;
+  sidebar_menu_id: number;
   label: string;
   selected: boolean;
   add: boolean;
@@ -35,7 +35,7 @@ interface AddEditRoleProps {
 }
 
 const emptyPermission = (module: RoleModuleOption): PermissionState => ({
-  module_key: module.module_key,
+  sidebar_menu_id: module.sidebar_menu_id,
   label: module.label,
   selected: false,
   add: false,
@@ -154,13 +154,13 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
 
       const nextPermissions = modules.map((module) => {
         const fromDetail = detail?.permissions?.find(
-          (item: any) => item.module_key === module.module_key,
+          (item: any) => item.sidebar_menu_id === module.sidebar_menu_id,
         );
 
         if (!fromDetail) return emptyPermission(module);
 
         return {
-          module_key: module.module_key,
+          sidebar_menu_id: module.sidebar_menu_id,
           label: fromDetail.label || module.label,
           selected: Boolean(fromDetail.selected ?? fromDetail.view),
           add: Boolean(fromDetail.add),
@@ -191,11 +191,11 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
     setTimeout(() => onClose(), 300);
   };
 
-  const handleParentChange = (moduleKey: string, checked: boolean) => {
+  const handleParentChange = (menuId: number, checked: boolean) => {
     setPermissionError("");
     setPermissions((prev) =>
       prev.map((item) =>
-        item.module_key === moduleKey
+        item.sidebar_menu_id === menuId
           ? {
               ...item,
               selected: checked,
@@ -209,13 +209,13 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
   };
 
   const handleActionChange = (
-    moduleKey: string,
+    menuId: number,
     action: "add" | "edit" | "delete",
     checked: boolean,
   ) => {
     setPermissions((prev) =>
       prev.map((item) =>
-        item.module_key === moduleKey && item.selected
+        item.sidebar_menu_id === menuId && item.selected
           ? { ...item, [action]: checked }
           : item,
       ),
@@ -262,7 +262,7 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
 
     const payloadPermissions: RolePermissionPayload[] = selectedPermissions.map(
       (item) => ({
-        module_key: item.module_key,
+        sidebar_menu_id: item.sidebar_menu_id,
         selected: true,
         add: item.add,
         edit: item.edit,
@@ -363,11 +363,11 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
 
             <div className="permission-box">
               {permissions.map((item) => (
-                <div key={item.module_key} className="permission-row">
+                <div key={item.sidebar_menu_id} className="permission-row">
                   <Checkbox
                     checked={item.selected}
                     onChange={(e) =>
-                      handleParentChange(item.module_key, e.target.checked)
+                      handleParentChange(item.sidebar_menu_id, e.target.checked)
                     }
                   >
                     {item.label}
@@ -380,7 +380,7 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
                         disabled={!item.selected}
                         onChange={(e) =>
                           handleActionChange(
-                            item.module_key,
+                            item.sidebar_menu_id,
                             "add",
                             e.target.checked,
                           )
@@ -395,7 +395,7 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
                         disabled={!item.selected}
                         onChange={(e) =>
                           handleActionChange(
-                            item.module_key,
+                            item.sidebar_menu_id,
                             "edit",
                             e.target.checked,
                           )
@@ -410,7 +410,7 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
                         disabled={!item.selected}
                         onChange={(e) =>
                           handleActionChange(
-                            item.module_key,
+                            item.sidebar_menu_id,
                             "delete",
                             e.target.checked,
                           )
