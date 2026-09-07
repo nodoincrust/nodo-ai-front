@@ -121,13 +121,13 @@ type HeaderCommonProps = {
 };
 export type HeaderProps =
   | (HeaderCommonProps & {
-    title: string;
-    breadcrumb?: never;
-  })
+      title: string;
+      breadcrumb?: never;
+    })
   | (HeaderCommonProps & {
-    breadcrumb: Breadcrumb;
-    title?: never;
-  });
+      breadcrumb: Breadcrumb;
+      title?: never;
+    });
 export type StatusType = "all" | "active" | "inactive";
 
 // Sidebar.tsx
@@ -233,13 +233,18 @@ export interface StorageInfo {
 }
 
 //Employees
+export type Role = {
+  id: number;
+  name: string;
+  is_editable: boolean;
+};
 export type Employee = {
   id: number;
   name: string;
   email: string;
   is_active: boolean;
   department_id: number;
-  role: string | null;
+  role: Role | null;
   profile_image?: string;
 };
 
