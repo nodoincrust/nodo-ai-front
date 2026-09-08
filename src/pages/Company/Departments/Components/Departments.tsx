@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import Table from "../../../../CommonComponents/Table/Components/Table";
 import { MESSAGES } from "../../../../utils/Messages";
 import "./Styles/Departments.scss";
@@ -190,19 +190,23 @@ export default function Departments() {
                 ]}
                 actions={(row) => (
                     <div className="departments-actions">
-                        <img
-                            src="/assets/edit.svg"
-                            alt="Edit"
-                            onClick={() => openEditDepartment(row)}
-                        />
-                        <img
-                            src="/assets/trash.svg"
-                            alt="Delete"
-                            onClick={() => {
-                                setDepartmentToDelete(row.id);
-                                setShowDeleteModal(true);
-                            }}
-                        />
+                        <Tooltip title="Edit Department" placement="top">
+                            <img
+                                src="/assets/edit.svg"
+                                alt="Edit"
+                                onClick={() => openEditDepartment(row)}
+                            />
+                        </Tooltip>
+                        <Tooltip title="Delete Department" placement="top">
+                            <img
+                                src="/assets/trash.svg"
+                                alt="Delete"
+                                onClick={() => {
+                                    setDepartmentToDelete(row.id);
+                                    setShowDeleteModal(true);
+                                }}
+                            />
+                        </Tooltip>
                     </div>
                 )}
                 currentPage={currentPage}

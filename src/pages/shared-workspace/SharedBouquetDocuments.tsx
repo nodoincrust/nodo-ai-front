@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import Header from "../../CommonComponents/Header/Header";
 import Table from "../../CommonComponents/Table/Components/Table";
 import { MESSAGES } from "../../utils/Messages";
@@ -297,11 +297,13 @@ export default function SharedBouquetDocuments() {
           columns={columns}
           actions={(row) => (
             <div className="Boquet-documents-actions">
-              <img
-                src="/assets/Eye.svg"
-                alt="View"
-                onClick={() => handleViewDocument(row)}
-              />
+              <Tooltip title="View Document" placement="top">
+                <img
+                  src="/assets/Eye.svg"
+                  alt="View"
+                  onClick={() => handleViewDocument(row)}
+                />
+              </Tooltip>
               {/* <img
                 src="/assets/trash.svg"
                 alt="Delete"

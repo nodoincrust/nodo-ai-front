@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { notification, Tag } from "antd";
+import { notification, Tag, Tooltip } from "antd";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
@@ -167,19 +167,23 @@ export default function RoleManagement() {
         actions={(row) =>
           row.is_editable ? (
             <div className="role-actions">
-              <img
-                src="/assets/edit.svg"
-                alt="Edit"
-                onClick={() => openEditRole(row)}
-              />
-              <img
-                src="/assets/trash.svg"
-                alt="Delete"
-                onClick={() => {
-                  setRoleToDelete(row.id);
-                  setShowDeleteModal(true);
-                }}
-              />
+              <Tooltip title="Edit Role" placement="top">
+                <img
+                  src="/assets/edit.svg"
+                  alt="Edit"
+                  onClick={() => openEditRole(row)}
+                />
+              </Tooltip>
+              <Tooltip title="Delete Role" placement="top">
+                <img
+                  src="/assets/trash.svg"
+                  alt="Delete"
+                  onClick={() => {
+                    setRoleToDelete(row.id);
+                    setShowDeleteModal(true);
+                  }}
+                />
+              </Tooltip>
             </div>
           ) : (
             <span className="role-actions-empty">—</span>

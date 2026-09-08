@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import { MESSAGES } from "../../../utils/Messages";
@@ -212,19 +212,23 @@ export default function Companies() {
         ]}
         actions={(row) => (
           <div className="companies-actions">
-            <img
-              src="/assets/edit.svg"
-              alt="Edit"
-              onClick={() => openEditCompany(row)}
-            />
-            <img
-              src="/assets/trash.svg"
-              alt="Delete"
-              onClick={() => {
-                setCompanyToDelete(row.id);
-                setShowDeleteModal(true);
-              }}
-            />
+            <Tooltip title="Edit Company" placement="top">
+              <img
+                src="/assets/edit.svg"
+                alt="Edit"
+                onClick={() => openEditCompany(row)}
+              />
+            </Tooltip>
+            <Tooltip title="Delete Company" placement="top">
+              <img
+                src="/assets/trash.svg"
+                alt="Delete"
+                onClick={() => {
+                  setCompanyToDelete(row.id);
+                  setShowDeleteModal(true);
+                }}
+              />
+            </Tooltip>
           </div>
         )}
         currentPage={currentPage}

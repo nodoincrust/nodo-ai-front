@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import Header from "../../../../CommonComponents/Header/Header";
 import Table from "../../../../CommonComponents/Table/Components/Table";
 import { MESSAGES } from "../../../../utils/Messages";
@@ -211,10 +211,12 @@ export default function AwaitingApproval() {
                     }
                 ]}
                 actions={(row) => (
-                    <div className="documents-actions" onClick={() => handleViewDocument(row)}>
-                        <img src="/assets/Eye.svg" alt="View" />
-                        <span className="spantext">View</span>
-                    </div>
+                    <Tooltip title="View Document" placement="top">
+                        <div className="documents-actions" onClick={() => handleViewDocument(row)}>
+                            <img src="/assets/Eye.svg" alt="View" />
+                            <span className="spantext">View</span>
+                        </div>
+                    </Tooltip>
                 )}
                 actionsTitle="ACTION"
                 currentPage={currentPage}

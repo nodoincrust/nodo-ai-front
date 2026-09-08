@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import Header from "../../CommonComponents/Header/Header";
 import Table from "../../CommonComponents/Table/Components/Table";
 import { MESSAGES } from "../../utils/Messages";
@@ -427,19 +427,23 @@ const handleDeleteDocument = async () => {
           }
           actions={(row) => (
             <div className="Boquet-documents-actions">
-              <img
-                src="/assets/Eye.svg"
-                alt="View"
-                onClick={() => handleViewDocument(row)}
-              />
-              <img
-                src="/assets/trash.svg"
-                alt="Delete"
-                onClick={() => {
+              <Tooltip title="View Document" placement="top">
+                <img
+                  src="/assets/Eye.svg"
+                  alt="View"
+                  onClick={() => handleViewDocument(row)}
+                />
+              </Tooltip>
+              <Tooltip title="Delete Document" placement="top">
+                <img
+                  src="/assets/trash.svg"
+                  alt="Delete"
+                  onClick={() => {
                    setDocumentToDelete(row);
                     setShowDeleteModal(true);
-                }}
-              />
+                  }}
+                />
+              </Tooltip>
             </div>
           )}
           actionsTitle="ACTION"

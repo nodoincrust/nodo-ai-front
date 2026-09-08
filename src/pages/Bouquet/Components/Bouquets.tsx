@@ -179,7 +179,7 @@ export default function Bouquets() {
         ]}
         actions={(row) => (
           <div className="bouquets-actions">
-            <Tooltip title="View documents">
+            <Tooltip title="View Documents">
               <img
                 src="/assets/Eye.svg"
                 alt="View"
@@ -192,7 +192,7 @@ export default function Bouquets() {
               />
             </Tooltip>
 
-            <Tooltip title="Edit bouquet">
+            <Tooltip title="Edit Bouquet">
               <img
                 src="/assets/edit.svg"
                 alt="Edit"
@@ -201,7 +201,7 @@ export default function Bouquets() {
               />
             </Tooltip>
 
-            <Tooltip title="Share bouquet">
+            <Tooltip title="Share Bouquet">
               <img
                 src="/assets/share.svg"
                 alt="Share"
@@ -210,7 +210,7 @@ export default function Bouquets() {
               />
             </Tooltip>
 
-            <Tooltip title="Delete bouquet">
+            <Tooltip title="Delete Bouquet">
               <img
                 src="/assets/trash.svg"
                 alt="Delete"

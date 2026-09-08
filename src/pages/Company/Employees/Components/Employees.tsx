@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
 import Table from "../../../../CommonComponents/Table/Components/Table";
 import { MESSAGES } from "../../../../utils/Messages";
 import "./Styles/Employees.scss";
@@ -213,19 +213,23 @@ export default function Employees() {
                 ]}
                 actions={(row) => (
                     <div className="employees-actions">
-                        <img
-                            src="/assets/edit.svg"
-                            alt="Edit"
-                            onClick={() => openEditEmployee(row)}
-                        />
-                        <img
-                            src="/assets/trash.svg"
-                            alt="Delete"
-                            onClick={() => {
-                                setEmployeeToDelete(row.id);
-                                setShowDeleteModal(true);
-                            }}
-                        />
+                        <Tooltip title="Edit Employee" placement="top">
+                            <img
+                                src="/assets/edit.svg"
+                                alt="Edit"
+                                onClick={() => openEditEmployee(row)}
+                            />
+                        </Tooltip>
+                        <Tooltip title="Delete Employee" placement="top">
+                            <img
+                                src="/assets/trash.svg"
+                                alt="Delete"
+                                onClick={() => {
+                                    setEmployeeToDelete(row.id);
+                                    setShowDeleteModal(true);
+                                }}
+                            />
+                        </Tooltip>
                     </div>
                 )}
                 currentPage={currentPage}
