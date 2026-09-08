@@ -75,15 +75,21 @@ const ShareDocuments: React.FC<ShareDocumentsProp> = ({
       ? "Share Bouquet"
       : "Share Document";
 
-  // Reset state when modal closes
+  // Reset all state when modal closes (Cancel, X, success)
   useEffect(() => {
     if (!open) {
+      setActiveTab("User");
       setSelectedEmployeeIds([]);
+      setSelectedEmployeesList([]);
       setSelectedDepartmentIds([]);
+      setSelectedDepartmentsList([]);
       setIsCompanySelected(false);
       setSearch("");
       setInputFocused(false);
-      setSelectedEmployeesList([]);
+      setEmployees([]);
+      setDepartments([]);
+      setLoadingEmployees(false);
+      setLoadingDepartments(false);
     }
   }, [open]);
 
