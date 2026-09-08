@@ -131,7 +131,7 @@ export default function Departments() {
                 }}
                 onAddClick={openAddDepartment}
                 addButtonText="Add Department"
-                searchPlaceholder="Search departments by name"
+                searchPlaceholder="Search by department name or head's email"
                 // categoryButtonText={`Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}
                 // categoryButtonClassName="status-dropdown"
                 // categoryButtonTextClassName="status-dropdown-text"
