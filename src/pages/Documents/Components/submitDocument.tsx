@@ -32,26 +32,36 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
   const [selectedReviewers, setSelectedReviewers] = useState<number[]>([]);
 
   useEffect(() => {
-    if (open) {
-      const selfReviewer = reviewers.find((r) => r.self);
-      if (selfReviewer) {
-        setSelectedReviewers([selfReviewer.id]);
-      }
-    } else {
+    if (!open) {
       setSelectedReviewers([]);
+      return;
     }
-  }, [open, reviewers]);
 
-  const handleToggleReviewer = (clickedIndex: number) => {
-    const idsUpToIndex = reviewers.slice(0, clickedIndex + 1).map((r) => r.id);
+    const selfReviewer = reviewers.find((r) => r.self);
+    setSelectedReviewers(selfReviewer ? [selfReviewer.id] : []);
+  }, [open]);
+
+  // Keep self selected if reviewers load after the modal opens
+  useEffect(() => {
+    if (!open) return;
 
     const selfId = reviewers.find((r) => r.self)?.id;
+    if (selfId == null) return;
 
-    const finalSelection = selfId
-      ? Array.from(new Set([selfId, ...idsUpToIndex]))
-      : idsUpToIndex;
+    setSelectedReviewers((prev) =>
+      prev.includes(selfId) ? prev : [selfId, ...prev],
+    );
+  }, [open, reviewers]);
 
-    setSelectedReviewers(finalSelection);
+  const handleToggleReviewer = (reviewerId: number, isSelf?: boolean) => {
+    if (isSelf) return;
+
+    setSelectedReviewers((prev) => {
+      if (prev.includes(reviewerId)) {
+        return prev.filter((id) => id !== reviewerId);
+      }
+      return [...prev, reviewerId];
+    });
   };
 
   const handleSubmit = () => {
@@ -127,7 +137,7 @@ const SubmitDocument: React.FC<SubmitDocumentProps> = ({
                     className={`reviewer-card ${isSelected ? "selected" : ""}`}
                     onClick={() => {
                       if (!reviewer.self) {
-                        handleToggleReviewer(index);
+                        handleToggleReviewer(reviewer.id, reviewer.self);
                       }
                     }}
                   >
