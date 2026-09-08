@@ -34,6 +34,9 @@ const EditSummary: React.FC<EditSummaryProps> = ({
     }
   }, [open, initialSummary]);
 
+  const isSummaryChanged =
+    summary.trim() !== (initialSummary || "").trim();
+
   const handleUpdate = async () => {
     if (!documentId) {
       notification.error({
@@ -104,7 +107,7 @@ const EditSummary: React.FC<EditSummaryProps> = ({
             type="button"
             className="edit-summary-btn update-btn"
             onClick={handleUpdate}
-            disabled={isSaving}
+            disabled={isSaving || !isSummaryChanged}
           >
             {isSaving ? "Updating..." : "Update Summary"}
           </button>

@@ -44,6 +44,17 @@ const emptyPermission = (module: RoleModuleOption): PermissionState => ({
   actions: module.actions || ["add", "edit", "delete"],
 });
 
+const serializePermissions = (items: PermissionState[]) =>
+  JSON.stringify(
+    items.map((item) => ({
+      sidebar_menu_id: item.sidebar_menu_id,
+      selected: item.selected,
+      add: item.add,
+      edit: item.edit,
+      delete: item.delete,
+    })),
+  );
+
 const AddEditRole: React.FC<AddEditRoleProps> = ({
   open,
   roleId,
@@ -62,6 +73,31 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
   );
   const [permissionError, setPermissionError] = useState("");
   const [reportingOpen, setReportingOpen] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
+  const initialRef = useRef<{
+    role_name: string;
+    reporting_role_id: number | null | undefined;
+    permissions: string;
+  } | null>(null);
+
+  const syncChanged = (
+    nextPermissions: PermissionState[],
+    values?: { role_name?: string; reporting_role_id?: number },
+  ) => {
+    if (!isEdit || !initialRef.current) {
+      setIsChanged(true);
+      return;
+    }
+
+    const formValues = values || form.getFieldsValue(true);
+    const changed =
+      (formValues.role_name || "").trim() !== initialRef.current.role_name ||
+      (formValues.reporting_role_id ?? null) !==
+        (initialRef.current.reporting_role_id ?? null) ||
+      serializePermissions(nextPermissions) !== initialRef.current.permissions;
+
+    setIsChanged(changed);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -73,6 +109,8 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
     setShowModal(true);
     setAnimateClose(false);
     setPermissionError("");
+    setIsChanged(false);
+    initialRef.current = null;
     form.resetFields();
     void loadFormData();
   }, [open, roleId]);
@@ -171,10 +209,19 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
       });
 
       setPermissions(nextPermissions);
+      const roleName = detail?.name || "";
+      const reportingRoleId = detail?.reporting_role_id ?? undefined;
       form.setFieldsValue({
-        role_name: detail?.name || "",
-        reporting_role_id: detail?.reporting_role_id ?? undefined,
+        role_name: roleName,
+        reporting_role_id: reportingRoleId,
       });
+
+      initialRef.current = {
+        role_name: roleName.trim(),
+        reporting_role_id: reportingRoleId ?? null,
+        permissions: serializePermissions(nextPermissions),
+      };
+      setIsChanged(!roleId);
     } catch (error: any) {
       notification.error({
         message:
@@ -193,8 +240,8 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
 
   const handleParentChange = (menuId: number, checked: boolean) => {
     setPermissionError("");
-    setPermissions((prev) =>
-      prev.map((item) =>
+    setPermissions((prev) => {
+      const next = prev.map((item) =>
         item.sidebar_menu_id === menuId
           ? {
               ...item,
@@ -204,8 +251,10 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
               delete: checked ? item.delete : false,
             }
           : item,
-      ),
-    );
+      );
+      syncChanged(next);
+      return next;
+    });
   };
 
   const handleActionChange = (
@@ -213,13 +262,15 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
     action: "add" | "edit" | "delete",
     checked: boolean,
   ) => {
-    setPermissions((prev) =>
-      prev.map((item) =>
+    setPermissions((prev) => {
+      const next = prev.map((item) =>
         item.sidebar_menu_id === menuId && item.selected
           ? { ...item, [action]: checked }
           : item,
-      ),
-    );
+      );
+      syncChanged(next);
+      return next;
+    });
   };
 
   const validateRoleName = (_: any, value: string) => {
@@ -343,6 +394,7 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
           layout="vertical"
           className="employee-form"
           autoComplete="off"
+          onValuesChange={(_, allValues) => syncChanged(permissions, allValues)}
         >
           <Form.Item
             label={
@@ -459,7 +511,11 @@ const AddEditRole: React.FC<AddEditRoleProps> = ({
           <Button className="cancel-btn" onClick={handleClose}>
             Cancel
           </Button>
-          <Button className="save-btn" onClick={handleSubmit}>
+          <Button
+            className="save-btn"
+            onClick={handleSubmit}
+            disabled={isEdit && !isChanged}
+          >
             {isEdit ? "Update Role" : "Add Role"}
           </Button>
         </div>

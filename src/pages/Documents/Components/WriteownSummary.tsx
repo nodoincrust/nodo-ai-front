@@ -24,13 +24,19 @@ const WriteownSummary: React.FC<WriteownSummaryProps> = ({
 }) => {
   const [summary, setSummary] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [initialValue, setInitialValue] = useState("");
 
   // Reset to empty when modal opens (for writing own summary)
   useEffect(() => {
     if (open) {
       setSummary("");
+      setInitialValue("");
     }
   }, [open]);
+
+  const canSave =
+    summary.trim().length > 0 &&
+    summary.trim() !== initialValue.trim();
 
   const handleSave = async () => {
     if (!documentId) {
@@ -109,7 +115,7 @@ const WriteownSummary: React.FC<WriteownSummaryProps> = ({
             type="button"
             className="edit-summary-btn update-btn"
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || !canSave}
           >
             {isSaving ? "Saving..." : "Save"}
           </button>
