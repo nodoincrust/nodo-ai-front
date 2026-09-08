@@ -133,10 +133,10 @@ const DocumentDetail: React.FC = () => {
           const createdAt = m?.created_at ? new Date(m.created_at) : null;
           const time = createdAt
             ? createdAt.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-            })
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })
             : undefined;
 
           return {
@@ -251,7 +251,12 @@ const DocumentDetail: React.FC = () => {
 
     setEditHostMounted(true);
     setIsEditMode(true);
-  }, [isEditMode, refreshDocumentSilently, selectedVersion, waitForEditorTeardown]);
+  }, [
+    isEditMode,
+    refreshDocumentSilently,
+    selectedVersion,
+    waitForEditorTeardown,
+  ]);
 
   const handleBackClick = () => {
     onlyOfficeEditorRef.current?.destroy();
@@ -463,6 +468,14 @@ const DocumentDetail: React.FC = () => {
   const handleCreateTag = (tag: string) => {
     const value = tag.trim();
     if (!value) return;
+
+    const existsInActive = activeTags.some(
+      (t: any) => t.trim().toLowerCase() === value?.trim()?.toLowerCase(),
+    );
+    if (existsInActive) {
+      notification.error({ message: "Tag already exists" });
+      return;
+    }
     setIsMetadataSaved(false);
     // Add newly created tag to active tags
     setActiveTags((prev) => {
@@ -565,8 +578,8 @@ const DocumentDetail: React.FC = () => {
           if (result.tags) {
             const nextSuggested = Array.isArray(result.tags)
               ? result.tags.filter(
-                (t: any) => typeof t === "string" && t.trim(),
-              )
+                  (t: any) => typeof t === "string" && t.trim(),
+                )
               : [];
             setSuggestedTags(nextSuggested);
           }
@@ -781,8 +794,7 @@ const DocumentDetail: React.FC = () => {
     extraActions: extraActions.length > 0 ? extraActions : undefined,
     tracking,
     // Only show Edit when file type is editable (not PDF) and status is DRAFT
-    onEdit:
-      isEditable && status === "DRAFT" ? handleToggleEditMode : undefined,
+    onEdit: isEditable && status === "DRAFT" ? handleToggleEditMode : undefined,
     editButtonText: isEditMode ? "Close Editor" : "Edit",
   };
 
