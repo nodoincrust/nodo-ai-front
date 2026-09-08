@@ -48,6 +48,15 @@ export const validateOnlyChars = (value: string) => {
   return regex.test(value);
 };
 
+/** Shared person-name rule: letters, spaces, hyphen, straight/curly apostrophe. */
+export const PERSON_NAME_REGEX = /^[A-Za-z\s'\u2019-]+$/;
+
+export const isValidPersonName = (value: string) => {
+  const trimmed = value?.trim() || "";
+  if (!trimmed) return false;
+  return PERSON_NAME_REGEX.test(trimmed);
+};
+
 // Allow only 0-9 digits
 export const validateOnlyNumbers = (value: string) => {
   if (!value) return true;

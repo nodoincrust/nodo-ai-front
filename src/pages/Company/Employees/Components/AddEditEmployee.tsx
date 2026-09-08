@@ -11,6 +11,7 @@ import {
 import { getRoleReportingOptions } from "../../../../services/roleManagement.services";
 import { getDepartmentsListWithoutPagination } from "../../../../services/departments.services";
 import { useDebounce } from "../../../../hooks/useDebounce";
+import { isValidPersonName } from "../../../../utils/utilFunctions";
 import { AddEditEmployeeProps } from "../../../../types/common";
 
 const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
@@ -262,8 +263,7 @@ const AddEditEmployee: React.FC<AddEditEmployeeProps> = ({
                                     if (!value || !value.trim()) {
                                         return Promise.reject(MESSAGES.ERRORS.EMPLOYEE_NAME_REQUIRED);
                                     }
-                                    const nameRegex = /^[A-Za-z\s]+$/;
-                                    if (!nameRegex.test(value.trim())) {
+                                    if (!isValidPersonName(value)) {
                                         return Promise.reject(MESSAGES.ERRORS.ONLY_CHARS_ALLOWED);
                                     }
                                     return Promise.resolve();

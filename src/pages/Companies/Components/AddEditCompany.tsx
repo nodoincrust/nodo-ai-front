@@ -4,7 +4,7 @@ import "./Styles/AddEditCompany.scss";
 import { MESSAGES } from "../../../utils/Messages";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { addCompany, updateCompany } from "../../../services/companies.services";
-import { allowOnlyNumbersInput } from "../../../utils/utilFunctions";
+import { allowOnlyNumbersInput, isValidPersonName } from "../../../utils/utilFunctions";
 import { AddEditCompanyProps } from "../../../types/common";
 const AddEditCompany: React.FC<AddEditCompanyProps> = ({
     open,
@@ -190,6 +190,9 @@ const AddEditCompany: React.FC<AddEditCompanyProps> = ({
                         rules={[{
                             validator: (_: any, value: any) => {
                                 if (!value || !value.trim()) return Promise.reject(MESSAGES.ERRORS.CONTACT_NAME_REQUIRED);
+                                if (!isValidPersonName(value)) {
+                                    return Promise.reject(MESSAGES.ERRORS.ONLY_CHARS_ALLOWED);
+                                }
                                 return Promise.resolve();
                             },
                         }]}
