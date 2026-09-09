@@ -31,6 +31,10 @@ import type {
 import "./Styles/DocumentLayout.scss";
 import AddDocument from "./AddDocument";
 import { config } from "../../../config";
+import {
+  isRequestAborted,
+  isUserAuthenticated,
+} from "../../../utils/sessionTeardown";
 
 interface ChatMessage {
   id: number;
@@ -74,6 +78,7 @@ const DocumentDetail: React.FC = () => {
   const fileRetrySpentRef = useRef(false);
   const [isPreviewUnavailable, setIsPreviewUnavailable] = useState(false);
   const onlyOfficeEditorRef = useRef<OnlyOfficeEditorHandle | null>(null);
+  const cancelSummaryPollRef = useRef<(() => void) | null>(null);
 
   const [isReuploadOpen, setIsReuploadOpen] = useState(false);
   const [isEditSummaryOpen, setIsEditSummaryOpen] = useState(false);
@@ -111,6 +116,13 @@ const DocumentDetail: React.FC = () => {
       fetchDocument();
     }
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      cancelSummaryPollRef.current?.();
+      cancelSummaryPollRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     setEditHostMounted(false);
@@ -531,12 +543,17 @@ const DocumentDetail: React.FC = () => {
 
     try {
       const jobId = await startSummary(docId, version);
+      if (!isUserAuthenticated()) return;
 
       setIsSummaryGenerating(true);
 
-      pollSummaryStatus(
+      cancelSummaryPollRef.current?.();
+      cancelSummaryPollRef.current = pollSummaryStatus(
         jobId,
         (result) => {
+          cancelSummaryPollRef.current = null;
+          if (!isUserAuthenticated()) return;
+
           if (
             result?.status === "processing" ||
             result?.message?.includes("Chunks not ready")
@@ -594,6 +611,8 @@ const DocumentDetail: React.FC = () => {
           });
         },
         (err) => {
+          cancelSummaryPollRef.current = null;
+          if (!isUserAuthenticated() || isRequestAborted(err)) return;
           setIsSummaryGenerating(false);
           notification.error({
             message: "Summary failed",
@@ -603,6 +622,7 @@ const DocumentDetail: React.FC = () => {
         },
       );
     } catch (err) {
+      if (!isUserAuthenticated() || isRequestAborted(err)) return;
       setIsSummaryGenerating(false);
       notification.error({
         message: "Failed to start summary",
@@ -621,6 +641,9 @@ const DocumentDetail: React.FC = () => {
         citations: response.citations,
       };
     } catch (error: any) {
+      if (isRequestAborted(error) || !isUserAuthenticated()) {
+        throw error;
+      }
       notification.error({
         message:
           error?.response?.data?.message || "Unable to get response from AI",

@@ -7,6 +7,11 @@ import {
 } from "react";
 import { notification } from "antd";
 import { config } from "../../../config";
+import {
+  areSessionNotificationsMuted,
+  isUserAuthenticated,
+  registerSessionCleanup,
+} from "../../../utils/sessionTeardown";
 
 declare global {
   interface Window {
@@ -39,6 +44,7 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
     const editorRef = useRef<HTMLDivElement | null>(null);
     const instanceRef = useRef<any>(null);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const unmountedRef = useRef(false);
     const destroyedRef = useRef(false);
     const cleanupStartedRef = useRef(false);
@@ -47,6 +53,13 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
+      }
+    };
+
+    const clearRetryTimeout = () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
       }
     };
 
@@ -62,6 +75,14 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
       } catch (err) {
         console.warn("[OnlyOffice] destroyEditor failed:", err);
       }
+    };
+
+    const stopBackgroundWork = () => {
+      destroyedRef.current = true;
+      unmountedRef.current = true;
+      clearEditorInterval();
+      clearRetryTimeout();
+      destroyEditorInstance();
     };
 
     const waitForDocsApi = () =>
@@ -131,7 +152,8 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
             }
             if (attempt <= retries) {
               const backoff = attempt === 1 ? 500 : 1500;
-              setTimeout(tryAttach, backoff);
+              clearRetryTimeout();
+              retryTimeoutRef.current = setTimeout(tryAttach, backoff);
             } else {
               resolve(false);
             }
@@ -146,9 +168,7 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
     useImperativeHandle(ref, () => ({
       destroy: () => {
         if (destroyedRef.current) return;
-        destroyedRef.current = true;
-        clearEditorInterval();
-        destroyEditorInstance();
+        stopBackgroundWork();
       },
     }));
 
@@ -156,6 +176,11 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
       return () => {
         unmountedRef.current = true;
       };
+    }, []);
+
+    useEffect(() => {
+      return registerSessionCleanup(stopBackgroundWork);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- register once per mount
     }, []);
 
     useEffect(() => {
@@ -181,7 +206,13 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
       };
 
       void ensureScript().then((ok) => {
-        if (!ok && !unmountedRef.current && !destroyedRef.current) {
+        if (
+          !ok &&
+          !unmountedRef.current &&
+          !destroyedRef.current &&
+          isUserAuthenticated() &&
+          !areSessionNotificationsMuted()
+        ) {
           notification.error({
             message: "OnlyOffice script failed to load",
             description:
@@ -220,6 +251,7 @@ const OnlyOfficeEditor = forwardRef<OnlyOfficeEditorHandle, OnlyOfficeEditorProp
 
       return () => {
         clearEditorInterval();
+        clearRetryTimeout();
         destroyEditorInstance();
       };
     }, [editor, isActive]);

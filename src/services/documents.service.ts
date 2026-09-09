@@ -12,6 +12,11 @@ import type {
 
 } from "../types/common";
 import { API_URL } from "../utils/API";
+import {
+  isRequestAborted,
+  isUserAuthenticated,
+  registerSessionCleanup,
+} from "../utils/sessionTeardown";
 
 // Fetch all documents with filters
 export const getDocumentsList = async (params: GetDocumentsParams = {}) => {
@@ -203,27 +208,47 @@ export function pollSummaryStatus(
   onSuccess: (result: any) => void,
   onError: (err: any) => void
 ) {
+  let cancelled = false;
+  let unregisterCleanup: () => void = () => {};
+
   const interval = setInterval(async () => {
+    if (cancelled) return;
+
     try {
       const res = await axios.get(API_URL.sumarryStatus(jobId));
+      if (cancelled) return;
+
       const data = res.data;
 
       if (data.status === "done") {
-        clearInterval(interval);
+        finish();
+        if (!isUserAuthenticated()) return;
         onSuccess(data.result);
       }
 
       if (data.status === "error") {
-        clearInterval(interval);
+        finish();
+        if (!isUserAuthenticated()) return;
         onError(data.error);
       }
     } catch (err) {
-      clearInterval(interval);
+      const wasCancelled = cancelled;
+      finish();
+      if (wasCancelled || isRequestAborted(err) || !isUserAuthenticated()) return;
       onError(err);
     }
   }, 20000);
 
-  return () => clearInterval(interval); // optional cancel
+  const finish = () => {
+    if (cancelled) return;
+    cancelled = true;
+    clearInterval(interval);
+    unregisterCleanup();
+  };
+
+  unregisterCleanup = registerSessionCleanup(finish);
+
+  return finish;
 }
 
 export const shareDocument = async (payload: {

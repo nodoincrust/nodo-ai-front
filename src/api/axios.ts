@@ -1,6 +1,10 @@
 import axios from "axios";
 import { config } from "../config";
-import { notification } from "antd";
+import {
+  getSessionAbortSignal,
+  isRequestAborted,
+  teardownSession,
+} from "../utils/sessionTeardown";
 import { getLoaderControl } from "../CommonComponents/Loader/loader";
 
 // Create axios instance
@@ -19,11 +23,17 @@ axiosInstance.interceptors.request.use(
     const token = localAuthData ? JSON.parse(localAuthData)?.token : null;
 
     // Skip attaching token for login & OTP APIs
-    const skipAuth = reqConfig.url?.includes("admin-login") ||
+    const skipAuth =
+      reqConfig.url?.includes("admin-login") ||
       reqConfig.url?.includes("otpverify");
 
     if (token && !skipAuth) {
       reqConfig.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Tie request to session AbortController (logout / 401 aborts in-flight calls)
+    if (!reqConfig.signal) {
+      reqConfig.signal = getSessionAbortSignal();
     }
 
     return reqConfig;
@@ -35,21 +45,19 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if (isRequestAborted(error)) {
+      return Promise.reject(error);
+    }
 
     // Optional: redirect to login if 401
     if (error.response?.status === 401) {
       getLoaderControl()?.hideLoader();
-      localStorage.clear();
+      teardownSession({ showSessionExpiredToast: true });
       await new Promise((res) => setTimeout(res, 300));
-      // Show notification
-      notification.error({
-        message: "Your session has expired. Please login again.",
-        duration: 2,
-      });
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
-      return new Promise(() => { });
+      return new Promise(() => {});
     }
 
     return Promise.reject(error);

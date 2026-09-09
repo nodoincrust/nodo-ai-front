@@ -9,6 +9,7 @@ import { getRoleFromToken } from "../../utils/jwt";
 import { getLoaderControl } from "../Loader/loader";
 import { notification } from "antd";
 import { MESSAGES } from "../../utils/Messages";
+import { teardownSession } from "../../utils/sessionTeardown";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -279,8 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         open={showLogoutModal}
         onCancel={() => setShowLogoutModal(false)}
         onConfirm={() => {
-          localStorage.clear();
-          sessionStorage.clear();
+          teardownSession();
           navigate("/");
         }}
         title="Log out of NODO AI?"

@@ -1,6 +1,7 @@
 import { notification } from "antd";
 import './css/notificationWrapper.scss'
 import type { ArgsProps } from "antd/es/notification";
+import { areSessionNotificationsMuted } from "../sessionTeardown";
 
 // Default config
 notification.config({
@@ -35,18 +36,22 @@ const originalInfo = notification.info;
 const originalWarning = notification.warning;
 
 notification.success = (config) => {
+    if (areSessionNotificationsMuted()) return;
     notification.destroy();
     return originalSuccess(withProgressDuration({ ...config, className: "success" }));
 };
 notification.error = (config) => {
+    if (areSessionNotificationsMuted()) return;
     notification.destroy();
     return originalError(withProgressDuration({ ...config, className: "error" }));
 };
 notification.info = (config) => {
+    if (areSessionNotificationsMuted()) return;
     notification.destroy();
     return originalInfo(withProgressDuration({ ...config, className: "info" }));
 };
 notification.warning = (config) => {
+    if (areSessionNotificationsMuted()) return;
     notification.destroy();
     return originalWarning(withProgressDuration({ ...config, className: "warning" }));
 };

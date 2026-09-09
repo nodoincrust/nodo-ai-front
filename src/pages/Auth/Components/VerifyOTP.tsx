@@ -9,6 +9,7 @@ import { getRoleFromToken } from "../../../utils/jwt";
 import AppButton from "../../../components/common/AppButton";
 import { VerifyOtpResponse } from "../../../types/common";
 import { MESSAGES } from "../../../utils/Messages";
+import { unmuteSessionNotifications } from "../../../utils/sessionTeardown";
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const VerifyOtp = () => {
   // create a ref for the first OTP input
   const firstOtpRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
+    unmuteSessionNotifications();
     if (!email) navigate("/", { replace: true });
     // Focus the first input after the component renders
     const timer = setTimeout(() => {

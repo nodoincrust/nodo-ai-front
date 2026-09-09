@@ -7,11 +7,17 @@ import { authService } from "../../../services/auth.service";
 import AppButton from "../../../components/common/AppButton";
 import { MESSAGES } from "../../../utils/Messages";
 import { getRoleFromToken } from "../../../utils/jwt";
+import { unmuteSessionNotifications } from "../../../utils/sessionTeardown";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
+
+  // Allow toasts again after logout / session teardown
+  useEffect(() => {
+    unmuteSessionNotifications();
+  }, []);
 
   //Redirect if token exists in localStorage
   useEffect(() => {
