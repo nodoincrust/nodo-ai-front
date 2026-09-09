@@ -6,7 +6,7 @@ import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { MESSAGES } from "../../../utils/Messages";
-import { scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { scrollLayoutToTop, getTableSerialNo } from "../../../utils/utilFunctions";
 import {
   deleteRole,
   getRolesList,
@@ -134,6 +134,12 @@ export default function RoleManagement() {
       <Table
         data={roleList}
         columns={[
+          {
+            title: "Sr. No",
+            render: (_row, index) => (
+              <span>{getTableSerialNo(currentPage, pageSize, index ?? 0)}</span>
+            ),
+          },
           {
             title: "Role Name",
             render: (row) => <span className="role-name">{row.name}</span>,

@@ -6,7 +6,7 @@ import { MESSAGES } from "../../utils/Messages";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop } from "../../utils/utilFunctions";
+import { getTableSerialNo, scrollLayoutToTop } from "../../utils/utilFunctions";
 import { getSharedData } from "../../services/sharedWorkspace.services";
 import SharedTemplates, { type SharedTemplate } from "./SharedTemplates";
 import "./Styles/SharedWorkspace.scss";
@@ -275,9 +275,9 @@ export default function SharedWorkspace() {
   // Document columns
   const documentColumns = [
     {
-      title: "SR.NO",
+      title: "Sr. No",
       render: (_row: any, index = 0) =>
-        String((currentPageState - 1) * pageSize + index + 1).padStart(2, "0"),
+        getTableSerialNo(currentPageState, pageSize, index),
     },
     {
       title: "DOCUMENT NAME",
@@ -335,9 +335,9 @@ export default function SharedWorkspace() {
   // Bouquet columns
   const bouquetColumns = [
     {
-      title: "SR.NO",
+      title: "Sr. No",
       render: (_row: any, index = 0) =>
-        String((currentPageState - 1) * pageSize + index + 1).padStart(2, "0"),
+        getTableSerialNo(currentPageState, pageSize, index),
     },
     {
       title: "BOUQUET NAME",

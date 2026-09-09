@@ -6,7 +6,7 @@ import "./Styles/Employees.scss";
 import { useDebounce } from "../../../../hooks/useDebounce";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
-import { getAvatarColorIndex, getInitials, scrollLayoutToTop } from "../../../../utils/utilFunctions";
+import { getAvatarColorIndex, getInitials, getTableSerialNo, scrollLayoutToTop } from "../../../../utils/utilFunctions";
 import Header from "../../../../CommonComponents/Header/Header";
 import AddEditEmployee from "./AddEditEmployee";
 import ConfirmModal from "../../../../CommonComponents/Confirm Modal/ConfirmModal";
@@ -164,6 +164,12 @@ export default function Employees() {
             <Table
                 data={employeeList}
                 columns={[
+                    {
+                        title: "Sr. No",
+                        render: (_row: Employee, index?: number) => (
+                            <span>{getTableSerialNo(currentPage, pageSize, index ?? 0)}</span>
+                        ),
+                    },
                     {
                         title: "Employee Name",
                         render: (row: Employee, index?: number) => (

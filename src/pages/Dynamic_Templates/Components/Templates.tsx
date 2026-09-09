@@ -8,6 +8,7 @@ import { MESSAGES } from "../../../utils/Messages";
 import {
   getAvatarColorIndex,
   getInitials,
+  getTableSerialNo,
   scrollLayoutToTop,
 } from "../../../utils/utilFunctions";
 import Header from "../../../CommonComponents/Header/Header";
@@ -217,6 +218,12 @@ export default function Templates() {
       <Table
         data={templateList}
         columns={[
+          {
+            title: "Sr. No",
+            render: (_row: any, index?: number) => (
+              <span>{getTableSerialNo(currentPage, pageSize, index ?? 0)}</span>
+            ),
+          },
           {
             title: "Template Name",
             render: (row: any) => (

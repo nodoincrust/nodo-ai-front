@@ -7,7 +7,7 @@ import "./Styles/Companies.scss";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
-import { getAvatarColorIndex, getInitials, scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { getAvatarColorIndex, getInitials, getTableSerialNo, scrollLayoutToTop } from "../../../utils/utilFunctions";
 import { deleteCompany, getCompaniesList } from "../../../services/companies.services";
 import AddEditCompany from "./AddEditCompany";
 import ConfirmModal from "../../../CommonComponents/Confirm Modal/ConfirmModal";
@@ -159,6 +159,12 @@ export default function Companies() {
       <Table
         data={companyList}
         columns={[
+          {
+            title: "Sr. No",
+            render: (_row, index) => (
+              <span>{getTableSerialNo(currentPage, pageSize, index ?? 0)}</span>
+            ),
+          },
           {
             title: "Company Name",
             render: (row, index) => (

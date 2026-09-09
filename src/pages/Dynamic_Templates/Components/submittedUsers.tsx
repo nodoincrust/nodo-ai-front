@@ -7,6 +7,7 @@ import Table from "../../../CommonComponents/Table/Components/Table";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { getTemplateSubmissions } from "../../../services/templates.services";
 import { MESSAGES } from "../../../utils/Messages";
+import { getTableSerialNo } from "../../../utils/utilFunctions";
 import "./Styles/SubmittedUsers.scss";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -117,10 +118,10 @@ const formatDate = (dateStr?: string) => {
         data={paginatedData}
         columns={[
           {
-            title: "Sr.No",
+            title: "Sr. No",
             render: (_row: SubmissionItem, idx?: number) => (
               <span className="submitted-users-srno">
-                {startIndex + (idx ?? 0) + 1}
+                {getTableSerialNo(currentPage, pageSize, idx ?? 0)}
               </span>
             ),
           },

@@ -57,6 +57,13 @@ export const isValidPersonName = (value: string) => {
   return PERSON_NAME_REGEX.test(trimmed);
 };
 
+/** Page-aware table serial: 01, 02, … 11 on page 2 with pageSize 10. */
+export const getTableSerialNo = (
+  currentPage: number,
+  pageSize: number,
+  index = 0,
+) => String((currentPage - 1) * pageSize + index + 1).padStart(2, "0");
+
 // Allow only 0-9 digits
 export const validateOnlyNumbers = (value: string) => {
   if (!value) return true;

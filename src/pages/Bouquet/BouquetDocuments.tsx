@@ -10,6 +10,7 @@ import ConfirmModal from "../../CommonComponents/Confirm Modal/ConfirmModal";
 import {
   getDisplayStatus,
   getStatusClass,
+  getTableSerialNo,
   scrollLayoutToTop,
   toCamelCase,
 } from "../../utils/utilFunctions";
@@ -187,9 +188,9 @@ const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
   // --- Columns ---
   const commonColumns = [
     {
-      title: "SR.NO",
+      title: "Sr. No",
       render: (_row: any, index = 0) =>
-        String((currentPage - 1) * pageSize + index + 1).padStart(2, "0"),
+        getTableSerialNo(currentPage, pageSize, index),
     },
     {
       title: "DOCUMENT NAME",

@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { getLoaderControl } from "../../../CommonComponents/Loader/loader";
 import { MESSAGES } from "../../../utils/Messages";
-import { scrollLayoutToTop } from "../../../utils/utilFunctions";
+import { getTableSerialNo, scrollLayoutToTop } from "../../../utils/utilFunctions";
 import Header from "../../../CommonComponents/Header/Header";
 import Table from "../../../CommonComponents/Table/Components/Table";
 import AddEditBouquet from "./AddEditBouquet";
@@ -157,9 +157,9 @@ export default function Bouquets() {
         data={bouquetList}
         columns={[
           {
-            title: "SR.NO",
+            title: "Sr. No",
             render: (_row: any, index?: number) => (
-              <span>{String((index || 0) + 1).padStart(2, "0")}</span>
+              <span>{getTableSerialNo(currentPage, pageSize, index ?? 0)}</span>
             ),
           },
           {

@@ -6,7 +6,7 @@ import { MESSAGES } from "../../../../utils/Messages";
 import { useDebounce } from "../../../../hooks/useDebounce";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop } from "../../../../utils/utilFunctions";
+import { getTableSerialNo, scrollLayoutToTop } from "../../../../utils/utilFunctions";
 import { Document } from "../../../../types/common";
 import "./Styles/AwaitingApprovalDetails.scss";
 import { getApprovalList } from "../../../../services/awaitingApproval.services";
@@ -168,9 +168,9 @@ export default function AwaitingApproval() {
                 data={documentList}
                 columns={[
                     {
-                        title: "SR.NO",
+                        title: "Sr. No",
                         render: (_row, index = 0) =>
-                            String((currentPage - 1) * pageSize + index + 1).padStart(2, "0"),
+                            getTableSerialNo(currentPage, pageSize, index),
                     },
                     {
                         title: "DOCUMENT NAME",

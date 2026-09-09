@@ -1,5 +1,6 @@
 import { Tooltip } from "antd";
 import Table from "../../CommonComponents/Table/Components/Table";
+import { getTableSerialNo } from "../../utils/utilFunctions";
 import "./Styles/SharedTemplates.scss";
 
 export interface SharedTemplate {
@@ -30,9 +31,9 @@ export default function SharedTemplates({
 }: SharedTemplatesProps) {
   const columns = [
     {
-      title: "SR.NO",
+      title: "Sr. No",
       render: (_row: SharedTemplate, index = 0) =>
-        String((currentPage - 1) * pageSize + index + 1).padStart(2, "0"),
+        getTableSerialNo(currentPage, pageSize, index),
     },
     {
       title: "TEMPLATE NAME",

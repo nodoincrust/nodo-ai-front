@@ -6,7 +6,7 @@ import "./Styles/Departments.scss";
 import { useDebounce } from "../../../../hooks/useDebounce";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getLoaderControl } from "../../../../CommonComponents/Loader/loader";
-import { scrollLayoutToTop } from "../../../../utils/utilFunctions";
+import { getTableSerialNo, scrollLayoutToTop } from "../../../../utils/utilFunctions";
 import { getDepartmentsList, deleteDepartment } from "../../../../services/departments.services";
 import Header from "../../../../CommonComponents/Header/Header";
 import AddEditDepartment from "./AddEditDepartment"; // make a modal component like AddEditCompany
@@ -159,11 +159,9 @@ export default function Departments() {
                 columns={[
                     {
                         title: "Sr. No",
-                        render: (_row, index) => {
-                            const idx = index ?? 0;
-                            const serial = (currentPage - 1) * pageSize + idx + 1;
-                            return <span>{serial < 10 ? `0${serial}` : serial}</span>;
-                        },
+                        render: (_row, index) => (
+                            <span>{getTableSerialNo(currentPage, pageSize, index ?? 0)}</span>
+                        ),
                     },
                     {
                         title: "Department Name",
