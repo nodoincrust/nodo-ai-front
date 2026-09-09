@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Input, Dropdown, type MenuProps } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-import PrimaryButton from "../Buttons/PrimaryButton";
+import { Input, Dropdown, type MenuProps, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import "./Styles/Header.scss";
 import { statusItems, StatusType, type HeaderProps } from "../../types/common";
@@ -10,7 +8,7 @@ import { getIsDepartmentHeadFromToken } from "../../utils/utilFunctions";
 
 const Header: React.FC<HeaderProps> = ({
   title,
-breadcrumb,
+  breadcrumb,
   count,
   searchValue,
   onSearchChange,
@@ -70,7 +68,8 @@ breadcrumb,
                     breadcrumb.parentPath ? "clickable" : ""
                   }`}
                   onClick={() =>
-                    breadcrumb.parentPath && navigate(breadcrumb.parentPath, {
+                    breadcrumb.parentPath &&
+                    navigate(breadcrumb.parentPath, {
                       state: breadcrumb.parentState,
                     })
                   }
@@ -97,13 +96,19 @@ breadcrumb,
           )}
         </div>
 
-        {onAddClick && addButtonText &&  documentFilterValue !== "AWAITING"  && (
-          <PrimaryButton
-            text={addButtonText}
-            imgSrc="/assets/plus-02.svg"
-            onClick={onAddClick}
-            className="primary-btn"
-          />
+        {onAddClick && addButtonText && documentFilterValue !== "AWAITING" && (
+          // <PrimaryButton
+          //   text={addButtonText}
+          //   imgSrc="/assets/plus-02.svg"
+          //   onClick={onAddClick}
+          //   // className="primary-btn"
+          //   className="submit-btn"
+          // />
+
+          <Button type="primary" className="save-btn" onClick={onAddClick}>
+            <img src="/assets/plus-02.svg" alt="" className="button-icon" />
+            {addButtonText}
+          </Button>
         )}
       </div>
 
